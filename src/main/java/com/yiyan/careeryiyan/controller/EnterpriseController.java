@@ -1,5 +1,6 @@
 package com.yiyan.careeryiyan.controller;
 
+import com.yiyan.careeryiyan.exception.BaseException;
 import com.yiyan.careeryiyan.model.domain.Enterprise;
 import com.yiyan.careeryiyan.model.domain.EnterpriseUser;
 import com.yiyan.careeryiyan.model.domain.User;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 
@@ -27,7 +29,7 @@ public class EnterpriseController {
         User user = (User) request.getAttribute("user");
         EnterpriseUser enterpriseUser = enterpriseService.getEnterpriseUserById(user.getId());
         if (enterpriseUser != null) {
-            return new ResponseEntity<>(ResponseEntity.status(HttpStatus.CONFLICT).build(), HttpStatus.CONFLICT);
+           throw new BaseException("用户已创建过企业或已加入企业！");
         }
         Enterprise enterprise = new Enterprise();
         enterprise.setEnterpriseAddress(addEnterpriseRequest.getEnterpriseAddress());
@@ -46,10 +48,10 @@ public class EnterpriseController {
             enterpriseUser.setRole(0);
             enterpriseUser.setCreateTime(LocalDateTime.now());
             if (enterpriseService.addEnterpriseUser(enterpriseUser)<=0){
-                return new ResponseEntity<>(ResponseEntity.status(HttpStatus.CONFLICT).build(), HttpStatus.CONFLICT);
+               throw new BaseException("创建企业失败！");
             }
             return ResponseEntity.ok("add enterprise success");
         }
-        return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
+        throw new BaseException("创建企业失败！");
     }
 }
