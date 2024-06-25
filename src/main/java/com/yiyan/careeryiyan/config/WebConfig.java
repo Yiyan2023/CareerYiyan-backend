@@ -25,14 +25,15 @@ public class WebConfig implements WebMvcConfigurer {
                         "/project/**",
                         "/template/**",
                         "/folder/**",
-                        "/api/enterprise/**"
+                        "/enterprise/**",
+                        "/file/**"
                         )
                 .excludePathPatterns(
                         "/user/register",
                         "/user/login",
                         "/notifications/publish",
-                        "/api/enterprise/getInfo," ,
-                        "/api/enterprise/getRecruitmentList");
+                        "/enterprise/getInfo," ,
+                        "/enterprise/getRecruitmentList");
     }
 
 //    @Override

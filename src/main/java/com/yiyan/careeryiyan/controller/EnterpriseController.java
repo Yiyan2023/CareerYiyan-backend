@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Objects;
 
 @RestController
-@RequestMapping("/api/enterprise")
+@RequestMapping("/enterprise")
 public class EnterpriseController {
     @Resource
     private EnterpriseService enterpriseService;
