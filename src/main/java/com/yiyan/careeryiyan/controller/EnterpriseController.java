@@ -5,23 +5,25 @@ import com.yiyan.careeryiyan.model.domain.Enterprise;
 import com.yiyan.careeryiyan.model.domain.EnterpriseUser;
 import com.yiyan.careeryiyan.model.domain.User;
 import com.yiyan.careeryiyan.model.request.AddEnterpriseRequest;
+import com.yiyan.careeryiyan.model.request.AddRecruitmentRequest;
 import com.yiyan.careeryiyan.model.request.GetEnterpriseInfoRequest;
 import com.yiyan.careeryiyan.service.EnterpriseService;
+import com.yiyan.careeryiyan.service.RecruitmentService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
-import org.apache.ibatis.annotations.Param;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/enterprise")
 public class EnterpriseController {
     @Resource
     private EnterpriseService enterpriseService;
+    @Resource
+    private RecruitmentService recruitmentService;
 
     @PostMapping("/addEnterprise")
     public ResponseEntity addEnterprise(@RequestBody AddEnterpriseRequest addEnterpriseRequest, HttpServletRequest request) {
@@ -63,5 +65,21 @@ public class EnterpriseController {
             throw new BaseException("企业不存在");
         }
         return ResponseEntity.ok(enterprise);
+    }
+
+    @PostMapping("/addRecruitment")
+    public ResponseEntity addJob(@RequestBody AddRecruitmentRequest addRecruitmentRequest, HttpServletRequest request){
+        User user = (User) request.getAttribute("user");
+        EnterpriseUser enterpriseUser = enterpriseService.getEnterpriseUserById(user.getId());
+        if (enterpriseUser == null || enterpriseUser.getRole()!=0 || !Objects.equals(enterpriseUser.getEnterpriseId(), addRecruitmentRequest.getEnterpriseId())){
+            throw new BaseException("用户不是企业管理员");
+        }
+        addRecruitmentRequest.setCreateTime(LocalDateTime.now());
+        if (recruitmentService.addRecruitment(addRecruitmentRequest)>0){
+            return ResponseEntity.ok("发布成功");
+        }
+
+        throw new BaseException("发布失败");
+
     }
 }
