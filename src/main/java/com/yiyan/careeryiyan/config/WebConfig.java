@@ -31,7 +31,8 @@ public class WebConfig implements WebMvcConfigurer {
                         "/user/register",
                         "/user/login",
                         "/notifications/publish",
-                        "/api/enterprise/getInfo");
+                        "/api/enterprise/getInfo," ,
+                        "/api/enterprise/getRecruitmentList");
     }
 
 //    @Override

@@ -3,10 +3,12 @@ package com.yiyan.careeryiyan.controller;
 import com.yiyan.careeryiyan.exception.BaseException;
 import com.yiyan.careeryiyan.model.domain.Enterprise;
 import com.yiyan.careeryiyan.model.domain.EnterpriseUser;
+import com.yiyan.careeryiyan.model.domain.Recruitment;
 import com.yiyan.careeryiyan.model.domain.User;
 import com.yiyan.careeryiyan.model.request.AddEnterpriseRequest;
 import com.yiyan.careeryiyan.model.request.AddRecruitmentRequest;
 import com.yiyan.careeryiyan.model.request.GetEnterpriseInfoRequest;
+import com.yiyan.careeryiyan.model.request.GetRecruitmentListRequest;
 import com.yiyan.careeryiyan.service.EnterpriseService;
 import com.yiyan.careeryiyan.service.RecruitmentService;
 import jakarta.annotation.Resource;
@@ -15,6 +17,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @RestController
@@ -81,5 +85,15 @@ public class EnterpriseController {
 
         throw new BaseException("发布失败");
 
+    }
+
+    @PostMapping("/getRecruitmentList")
+    public ResponseEntity getRecruitmentList(@RequestBody GetRecruitmentListRequest getRecruitmentListRequest){
+        List<Recruitment> recruitmentList = recruitmentService.getRecruitmentList(getRecruitmentListRequest.getEnterpriseId());
+        if (recruitmentList==null){
+            return ResponseEntity.ok(new ArrayList<>());
+        }
+
+        return ResponseEntity.ok(recruitmentList);
     }
 }
