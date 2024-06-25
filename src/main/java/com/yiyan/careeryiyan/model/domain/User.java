@@ -19,6 +19,15 @@ public class User {
     private Date registerTime;
     private String avatarUrl;
 
+    private String blog;
+    private String cv;
+    private String education;
+    private String enterpriseId;
+    private String enterpriseName;
+    private String github;
+    private String interests;
+    private String position;
+
 
 
     public Map<String,Object> toDict(){
