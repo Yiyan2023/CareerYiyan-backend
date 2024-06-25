@@ -72,16 +72,16 @@ public class UserController {
         String name = user.getNickname() + "_CV.pdf";
 
         if(ObjectUtils.isEmpty(file) || file.getSize() <= 0){
-            return ResponseEntity.badRequest().body(new StringResponse("File is empty"));
+            throw new BaseException("File is empty");
         }
         if (!file.getContentType().equals("application/pdf")) {
-            return ResponseEntity.badRequest().body(new StringResponse("File must be a PDF"));
+            throw new BaseException("File must be a PDF");
         }
         String res = ossConfig.upload(file, "CV", name);
         if (res != null){
             return ResponseEntity.ok(new StringResponse(res));
         } else {
-            return ResponseEntity.badRequest().body(new StringResponse("简历上传失败"));
+            throw new BaseException("简历上传失败");
         }
 
     }
