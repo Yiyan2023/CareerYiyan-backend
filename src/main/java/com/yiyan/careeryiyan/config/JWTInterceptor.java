@@ -33,6 +33,10 @@ public class JWTInterceptor implements HandlerInterceptor {
         } else if (token.equals("111")) {
             String id = "1";
             User user = userMapper.getUserById(id);
+            if(user == null) {
+                System.out.println("1");
+
+            }
             request.setAttribute("user", user);
             return true;
         } else {
