@@ -5,10 +5,8 @@ import com.yiyan.careeryiyan.model.domain.Enterprise;
 import com.yiyan.careeryiyan.model.domain.EnterpriseUser;
 import com.yiyan.careeryiyan.model.domain.Recruitment;
 import com.yiyan.careeryiyan.model.domain.User;
-import com.yiyan.careeryiyan.model.request.AddEnterpriseRequest;
-import com.yiyan.careeryiyan.model.request.AddRecruitmentRequest;
-import com.yiyan.careeryiyan.model.request.GetEnterpriseInfoRequest;
-import com.yiyan.careeryiyan.model.request.GetRecruitmentListRequest;
+import com.yiyan.careeryiyan.model.request.*;
+import com.yiyan.careeryiyan.model.response.StringResponse;
 import com.yiyan.careeryiyan.service.EnterpriseService;
 import com.yiyan.careeryiyan.service.RecruitmentService;
 import jakarta.annotation.Resource;
@@ -34,7 +32,7 @@ public class EnterpriseController {
         User user = (User) request.getAttribute("user");
         EnterpriseUser enterpriseUser = enterpriseService.getEnterpriseUserById(user.getId());
         if (enterpriseUser != null) {
-           throw new BaseException("用户已创建过企业或已加入企业！");
+            throw new BaseException("用户已创建过企业或已加入企业！");
         }
         Enterprise enterprise = new Enterprise();
         enterprise.setEnterpriseAddress(addEnterpriseRequest.getEnterpriseAddress());
@@ -52,8 +50,8 @@ public class EnterpriseController {
             enterpriseUser.setEnterpriseId(enterprise.getId());
             enterpriseUser.setRole(0);
             enterpriseUser.setCreateTime(LocalDateTime.now());
-            if (enterpriseService.addEnterpriseUser(enterpriseUser)<=0){
-               throw new BaseException("创建企业失败！");
+            if (enterpriseService.addEnterpriseUser(enterpriseUser) <= 0) {
+                throw new BaseException("创建企业失败！");
             }
             return ResponseEntity.ok("add enterprise success");
         }
@@ -61,25 +59,25 @@ public class EnterpriseController {
     }
 
     @PostMapping("/getInfo")
-    public ResponseEntity getInfo(@RequestBody GetEnterpriseInfoRequest rq){
+    public ResponseEntity getInfo(@RequestBody GetEnterpriseInfoRequest rq) {
 
         Enterprise enterprise = enterpriseService.getEnterpriseById(rq.getEnterpriseId());
         //System.out.println(enterpriseId);
-        if (enterprise == null){
+        if (enterprise == null) {
             throw new BaseException("企业不存在");
         }
         return ResponseEntity.ok(enterprise);
     }
 
     @PostMapping("/addRecruitment")
-    public ResponseEntity addJob(@RequestBody AddRecruitmentRequest addRecruitmentRequest, HttpServletRequest request){
+    public ResponseEntity addJob(@RequestBody AddRecruitmentRequest addRecruitmentRequest, HttpServletRequest request) {
         User user = (User) request.getAttribute("user");
         EnterpriseUser enterpriseUser = enterpriseService.getEnterpriseUserById(user.getId());
-        if (enterpriseUser == null || enterpriseUser.getRole()!=0 || !Objects.equals(enterpriseUser.getEnterpriseId(), addRecruitmentRequest.getEnterpriseId())){
+        if (enterpriseUser == null || enterpriseUser.getRole() != 0 || !Objects.equals(enterpriseUser.getEnterpriseId(), addRecruitmentRequest.getEnterpriseId())) {
             throw new BaseException("用户不是企业管理员");
         }
         addRecruitmentRequest.setCreateTime(LocalDateTime.now());
-        if (recruitmentService.addRecruitment(addRecruitmentRequest)>0){
+        if (recruitmentService.addRecruitment(addRecruitmentRequest) > 0) {
             return ResponseEntity.ok("发布成功");
         }
 
@@ -88,12 +86,29 @@ public class EnterpriseController {
     }
 
     @PostMapping("/getRecruitmentList")
-    public ResponseEntity getRecruitmentList(@RequestBody GetRecruitmentListRequest getRecruitmentListRequest){
+    public ResponseEntity getRecruitmentList(@RequestBody GetRecruitmentListRequest getRecruitmentListRequest) {
         List<Recruitment> recruitmentList = recruitmentService.getRecruitmentList(getRecruitmentListRequest.getEnterpriseId());
-        if (recruitmentList==null){
+        if (recruitmentList == null) {
             return ResponseEntity.ok(new ArrayList<>());
         }
 
         return ResponseEntity.ok(recruitmentList);
     }
+
+    @PostMapping("/editRecruitment")
+    public ResponseEntity editRecruitment(@RequestBody EditRecruitmentRequest editRecruitmentRequest, HttpServletRequest request) {
+        User user = (User) request.getAttribute("user");
+        EnterpriseUser enterpriseUser = enterpriseService.getEnterpriseUserById(user.getId());
+        if (enterpriseUser == null || enterpriseUser.getRole() != 0 ||
+                !Objects.equals(enterpriseUser.getEnterpriseId(), editRecruitmentRequest.getEnterpriseId())) {
+            throw new BaseException("用户不是企业管理员");
+        }
+        if(recruitmentService.updateRecruitment(editRecruitmentRequest) >0){
+            return ResponseEntity.ok(new StringResponse("修改成功"));
+        }
+
+        throw new BaseException("修改失败");
+    }
 }
+
+
