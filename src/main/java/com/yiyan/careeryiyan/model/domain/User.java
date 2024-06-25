@@ -11,6 +11,7 @@ import java.util.Map;
 public class User {
     private String id;
     private String username;
+    private String nickname;
     private String password;
     private String email;
     private String gender;
@@ -24,6 +25,7 @@ public class User {
         Map<String, Object> map = new HashMap<>();
         map.put("id", id);
         map.put("username", username);
+        map.put("nickname", nickname);
         map.put("email", email);
         map.put("gender", gender);
         map.put("registerTime", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(registerTime));
