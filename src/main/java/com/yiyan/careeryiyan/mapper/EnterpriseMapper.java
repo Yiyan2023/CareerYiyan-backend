@@ -8,7 +8,7 @@ import org.apache.ibatis.annotations.Select;
 
 @Mapper
 public interface EnterpriseMapper {
-    @Select(" SELECT * from enterprise where enterprise.id = #{id}")
+    @Select(" SELECT * from Enterprise where Enterprise.id = #{id}")
     Enterprise getEnterpriseById(String id);
 
     @Insert("INSERT into Enterprise(enterpriseName, enterpriseAddress, enterpriseDescription, enterpriseType, enterpriseLicense,createTime,avatarUrl) " +
