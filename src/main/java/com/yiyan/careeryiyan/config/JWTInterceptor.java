@@ -25,7 +25,7 @@ public class JWTInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         System.out.println("拦截器开始工作：");
-        String token = request.getHeader("Token");
+        String token = request.getHeader("token");
         response.setContentType("application/json;charset=utf-8");
         if (token == null) {
             response.getWriter().write(new ObjectMapper().writeValueAsString(ResponseEntity.status(401)));
