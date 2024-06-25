@@ -31,6 +31,7 @@ public class JWTInterceptor implements HandlerInterceptor {
             response.getWriter().write(new ObjectMapper().writeValueAsString(ResponseEntity.status(401)));
             return false;
         } else if (token.equals("111")) {
+            System.out.println("万能token");
             String id = "1";
             User user = userMapper.getUserById(id);
             if(user == null) {
