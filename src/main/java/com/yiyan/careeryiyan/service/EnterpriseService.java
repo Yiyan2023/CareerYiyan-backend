@@ -15,6 +15,7 @@ public class EnterpriseService {
     private EnterpriseUserMapper enterpriseUserMapper;
     @Resource
     private EnterpriseMapper enterpriseMapper;
+
     public EnterpriseUser getEnterpriseUserById(String userId) {
         return enterpriseUserMapper.getEnterpriseUserByUserId(userId);
     }
@@ -28,7 +29,7 @@ public class EnterpriseService {
     }
 
 
-    public Enterprise getEnterpriseById(String id){
+    public Enterprise getEnterpriseById(String id) {
         return enterpriseMapper.getEnterpriseById(id);
     }
 }

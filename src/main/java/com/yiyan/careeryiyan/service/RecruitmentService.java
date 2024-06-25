@@ -25,4 +25,12 @@ public class RecruitmentService {
     public int updateRecruitment(EditRecruitmentRequest editRecruitmentRequest) {
         return recruitmentMapper.updateRecruitment(editRecruitmentRequest);
     }
+
+    public Recruitment getRecruitmentById(String id) {
+        return recruitmentMapper.getRecruitmentById(id);
+    }
+
+    public int deleteRecruitment(String id) {
+        return recruitmentMapper.deleteRecruitment(id);
+    }
 }

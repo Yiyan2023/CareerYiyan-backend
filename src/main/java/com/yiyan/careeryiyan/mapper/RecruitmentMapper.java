@@ -3,10 +3,7 @@ package com.yiyan.careeryiyan.mapper;
 import com.yiyan.careeryiyan.model.domain.Recruitment;
 import com.yiyan.careeryiyan.model.request.AddRecruitmentRequest;
 import com.yiyan.careeryiyan.model.request.EditRecruitmentRequest;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.Update;
+import org.apache.ibatis.annotations.*;
 
 import java.util.List;
 
@@ -33,4 +30,10 @@ public interface RecruitmentMapper {
             "offerCount = #{offerCount} " +
             "where id = #{id} and enterpriseId = #{enterpriseId}")
     int updateRecruitment(EditRecruitmentRequest editRecruitmentRequest);
+
+    @Select("select * from Recruitment where id = #{id}")
+    Recruitment getRecruitmentById(String id);
+
+    @Delete("delete from Recruitment where id = #{id}")
+    int deleteRecruitment(String id);
 }

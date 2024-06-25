@@ -109,6 +109,23 @@ public class EnterpriseController {
 
         throw new BaseException("修改失败");
     }
+
+    @PostMapping("/deleteRecruitment")
+    public ResponseEntity deleteRecruitment(@RequestBody DeleteRecruitmentRequest deleteRecruitmentRequest, HttpServletRequest request) {
+        User user = (User) request.getAttribute("user");
+        String id = deleteRecruitmentRequest.getId();
+        EnterpriseUser enterpriseUser = enterpriseService.getEnterpriseUserById(user.getId());
+        Recruitment recruitment = recruitmentService.getRecruitmentById(id);
+        if (enterpriseUser == null || enterpriseUser.getRole() != 0 ||
+                !Objects.equals(enterpriseUser.getEnterpriseId(), recruitment.getEnterpriseId())) {
+            throw new BaseException("用户不是企业管理员");
+        }
+        if(recruitmentService.deleteRecruitment(id) >0){
+            return ResponseEntity.ok(new StringResponse("修改成功"));
+        }
+
+        throw new BaseException("修改失败");
+    }
 }
 
 
