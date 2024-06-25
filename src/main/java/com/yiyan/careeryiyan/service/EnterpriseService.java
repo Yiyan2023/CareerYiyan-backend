@@ -25,4 +25,9 @@ public class EnterpriseService {
     public int addEnterpriseUser(EnterpriseUser enterpriseUser) {
         return enterpriseUserMapper.addEnterpriseUser(enterpriseUser);
     }
+
+
+    public Enterprise getEnterpriseById(String id){
+        return enterpriseMapper.getEnterpriseById(id);
+    }
 }

@@ -30,7 +30,8 @@ public class WebConfig implements WebMvcConfigurer {
                 .excludePathPatterns(
                         "/user/register",
                         "/user/login",
-                        "/notifications/publish");
+                        "/notifications/publish",
+                        "/api/enterprise/getInfo");
     }
 
 //    @Override

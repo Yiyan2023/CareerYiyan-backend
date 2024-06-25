@@ -5,15 +5,14 @@ import com.yiyan.careeryiyan.model.domain.Enterprise;
 import com.yiyan.careeryiyan.model.domain.EnterpriseUser;
 import com.yiyan.careeryiyan.model.domain.User;
 import com.yiyan.careeryiyan.model.request.AddEnterpriseRequest;
+import com.yiyan.careeryiyan.model.request.GetEnterpriseInfoRequest;
 import com.yiyan.careeryiyan.service.EnterpriseService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
@@ -53,5 +52,16 @@ public class EnterpriseController {
             return ResponseEntity.ok("add enterprise success");
         }
         throw new BaseException("创建企业失败！");
+    }
+
+    @PostMapping("/getInfo")
+    public ResponseEntity getInfo(@RequestBody GetEnterpriseInfoRequest rq){
+
+        Enterprise enterprise = enterpriseService.getEnterpriseById(rq.getEnterpriseId());
+        //System.out.println(enterpriseId);
+        if (enterprise == null){
+            throw new BaseException("企业不存在");
+        }
+        return ResponseEntity.ok(enterprise);
     }
 }
