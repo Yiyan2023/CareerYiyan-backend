@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDateTime;
+
 @RestController
 @RequestMapping("/api/enterprise")
 public class EnterpriseController {
@@ -34,9 +36,18 @@ public class EnterpriseController {
         enterprise.setEnterpriseLicense(addEnterpriseRequest.getEnterpriseLicense());
         enterprise.setEnterpriseType(addEnterpriseRequest.getEnterpriseType());
         enterprise.setAvatarUrl(addEnterpriseRequest.getAvatarUrl());
+        enterprise.setCreateTime(LocalDateTime.now());
         int id = enterpriseService.addEnterprise(enterprise);
         if (id > 0) {
             enterprise.setId(String.valueOf(id));
+            enterpriseUser = new EnterpriseUser();
+            enterpriseUser.setUserId(user.getId());
+            enterpriseUser.setEnterpriseId(enterprise.getId());
+            enterpriseUser.setRole(0);
+            enterpriseUser.setCreateTime(LocalDateTime.now());
+            if (enterpriseService.addEnterpriseUser(enterpriseUser)<=0){
+                return new ResponseEntity<>(ResponseEntity.status(HttpStatus.CONFLICT).build(), HttpStatus.CONFLICT);
+            }
             return ResponseEntity.ok("add enterprise success");
         }
         return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
