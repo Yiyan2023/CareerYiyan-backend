@@ -6,6 +6,7 @@ import com.yiyan.careeryiyan.model.request.*;
 import com.yiyan.careeryiyan.model.response.StringResponse;
 import com.yiyan.careeryiyan.service.EnterpriseService;
 import com.yiyan.careeryiyan.service.RecruitmentService;
+import com.yiyan.careeryiyan.service.UserService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
@@ -23,11 +24,13 @@ public class EnterpriseController {
     private EnterpriseService enterpriseService;
     @Resource
     private RecruitmentService recruitmentService;
+    @Resource
+    private UserService userService;
 
     @PostMapping("/addEnterprise")
     public ResponseEntity addEnterprise(@RequestBody AddEnterpriseRequest addEnterpriseRequest, HttpServletRequest request) {
         User user = (User) request.getAttribute("user");
-        EnterpriseUser enterpriseUser = enterpriseService.getEnterpriseUserById(user.getId());
+        EnterpriseUser enterpriseUser = enterpriseService.getEnterpriseUserByUserId(user.getId());
         if (enterpriseUser != null) {
             throw new BaseException("用户已创建过企业或已加入企业！");
         }
@@ -67,9 +70,9 @@ public class EnterpriseController {
     }
 
     @PostMapping("/addRecruitment")
-    public ResponseEntity addJob(@RequestBody AddRecruitmentRequest addRecruitmentRequest, HttpServletRequest request) {
+    public ResponseEntity addRecruitment(@RequestBody AddRecruitmentRequest addRecruitmentRequest, HttpServletRequest request) {
         User user = (User) request.getAttribute("user");
-        EnterpriseUser enterpriseUser = enterpriseService.getEnterpriseUserById(user.getId());
+        EnterpriseUser enterpriseUser = enterpriseService.getEnterpriseUserByUserId(user.getId());
         if (enterpriseUser == null || enterpriseUser.getRole() != 0 || !Objects.equals(enterpriseUser.getEnterpriseId(), addRecruitmentRequest.getEnterpriseId())) {
             throw new BaseException("用户不是企业管理员");
         }
@@ -95,7 +98,7 @@ public class EnterpriseController {
     @PostMapping("/editRecruitment")
     public ResponseEntity editRecruitment(@RequestBody EditRecruitmentRequest editRecruitmentRequest, HttpServletRequest request) {
         User user = (User) request.getAttribute("user");
-        EnterpriseUser enterpriseUser = enterpriseService.getEnterpriseUserById(user.getId());
+        EnterpriseUser enterpriseUser = enterpriseService.getEnterpriseUserByUserId(user.getId());
         if (enterpriseUser == null || enterpriseUser.getRole() != 0 ||
                 !Objects.equals(enterpriseUser.getEnterpriseId(), editRecruitmentRequest.getEnterpriseId())) {
             throw new BaseException("用户不是企业管理员");
@@ -111,7 +114,7 @@ public class EnterpriseController {
     public ResponseEntity deleteRecruitment(@RequestBody DeleteRecruitmentRequest deleteRecruitmentRequest, HttpServletRequest request) {
         User user = (User) request.getAttribute("user");
         String id = deleteRecruitmentRequest.getId();
-        EnterpriseUser enterpriseUser = enterpriseService.getEnterpriseUserById(user.getId());
+        EnterpriseUser enterpriseUser = enterpriseService.getEnterpriseUserByUserId(user.getId());
         Recruitment recruitment = recruitmentService.getRecruitmentById(id);
         if (enterpriseUser == null || enterpriseUser.getRole() != 0 ||
                 !Objects.equals(enterpriseUser.getEnterpriseId(), recruitment.getEnterpriseId())) {
@@ -141,6 +144,37 @@ public class EnterpriseController {
             return ResponseEntity.ok(new StringResponse("申请成功"));
         }
         throw new BaseException("申请失败");
+    }
+
+    @PostMapping("/addEmployee")
+    public ResponseEntity addEmployee(@RequestBody AddEmployeeRequest addEmployeeRequest, HttpServletRequest request){
+        User user = (User)request.getAttribute("user");
+        EnterpriseUser adminUser = enterpriseService.getEnterpriseUserByUserId(user.getId());
+        if(adminUser == null||adminUser.getRole() != 0|| !Objects.equals(adminUser.getEnterpriseId(), addEmployeeRequest.getEnterpriseId())){
+            System.out.println(addEmployeeRequest.getEnterpriseId());
+            System.out.println(adminUser.getEnterpriseId());
+            throw new BaseException("你不是此企业的管理员");
+        }
+        EnterpriseUser enterpriseUser = enterpriseService.getEnterpriseUserByUserId(addEmployeeRequest.getUserId());
+        if(enterpriseUser!=null){
+            throw new BaseException("此用户已有所属企业");
+        }
+        Enterprise enterprise = enterpriseService.getEnterpriseById(addEmployeeRequest.getEnterpriseId());
+        if (enterprise == null){
+            throw new BaseException("企业不存在");
+        }
+        User employee = userService.getUserInfo(addEmployeeRequest.getUserId());
+        if(employee==null){
+            throw new BaseException("用户不存在");
+        }
+        enterpriseUser = new EnterpriseUser();
+        enterpriseUser.setUserId(addEmployeeRequest.getUserId());
+        enterpriseUser.setRole(1);
+        enterpriseUser.setEnterpriseId(addEmployeeRequest.getEnterpriseId());
+        enterpriseUser.setCreateTime(LocalDateTime.now());
+        enterpriseService.addEnterpriseUser(enterpriseUser);
+
+        return ResponseEntity.ok("添加员工成功");
     }
 }
 
