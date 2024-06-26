@@ -35,7 +35,8 @@ public class WebConfig implements WebMvcConfigurer {
                         "/notifications/publish",
                         "/enterprise/getInfo" ,
                         "/enterprise/getRecruitmentList",
-                        "/enterprise/getRecruitmentInfo"
+                        "/enterprise/getRecruitmentInfo",
+                        "/enterprise/getAdmin"
                         );
     }
 
