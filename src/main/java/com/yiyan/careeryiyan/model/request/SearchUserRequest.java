@@ -8,6 +8,6 @@ public class SearchUserRequest {
     private int pageSize;
     private int pageNum;
     public int getOffset() {
-        return pageNum * pageSize;
+        return (pageNum-1) * pageSize;
     }
 }
