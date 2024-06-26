@@ -11,7 +11,7 @@ import java.util.List;
 public interface PostMapper {
 
     @Insert("INSERT INTO post( content, created_at, user_id, photos)" +
-            "VALUES ( #{content}, #{createdAt}, #{userId}, #{photosJson})")
+            "VALUES ( #{content}, #{createdAt}, #{userId}, #{photos})")
     @Options(useGeneratedKeys = true, keyProperty = "id", keyColumn = "id")
     int insertPost(Post post);
 
@@ -20,17 +20,17 @@ public interface PostMapper {
     void deletePost(String  id);
 
     @Select("SELECT * FROM post WHERE id=#{id}")
-    @Results(id = "postResultMap", value = {
-            @Result(property = "id", column = "id"),
-            @Result(property = "content", column = "content"),
-            @Result(property = "createdAt", column = "created_at"),
-            @Result(property = "userId", column = "user_id"),
-            @Result(property = "photosJson", column = "photos")
-    })
+//    @Results(id = "postResultMap", value = {
+//            @Result(property = "id", column = "id"),
+//            @Result(property = "content", column = "content"),
+//            @Result(property = "createdAt", column = "created_at"),
+//            @Result(property = "userId", column = "user_id"),
+//            @Result(property = "photosJson", column = "photos")
+//    })
     Post getPostById(String id);
 
     @Select("SELECT * FROM post WHERE user_id=#{userId}")
-    @ResultMap("postResultMap")
+//    @ResultMap("postResultMap")
     List<Post> getPostByUser(String userId);
 
 //    @Select("SELECT * FROM like WHERE user_id=#{userId} and foreign_id=#{foreignId} and type=#{type} ORDER BY id DESC LIMIT 1")
