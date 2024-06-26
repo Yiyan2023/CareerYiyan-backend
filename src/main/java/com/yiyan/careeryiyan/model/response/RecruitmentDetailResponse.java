@@ -32,6 +32,6 @@ public class RecruitmentDetailResponse {
     private String enterpriseAddress;
     private String enterpriseDescription;
     private String enterpriseType;
-    private String enterpriseLicense;;
+    private String enterpriseLicense;
     private String avatarUrl;
 }
