@@ -1,10 +1,7 @@
 package com.yiyan.careeryiyan.controller;
 
 import com.yiyan.careeryiyan.exception.BaseException;
-import com.yiyan.careeryiyan.model.domain.Enterprise;
-import com.yiyan.careeryiyan.model.domain.EnterpriseUser;
-import com.yiyan.careeryiyan.model.domain.Recruitment;
-import com.yiyan.careeryiyan.model.domain.User;
+import com.yiyan.careeryiyan.model.domain.*;
 import com.yiyan.careeryiyan.model.request.*;
 import com.yiyan.careeryiyan.model.response.StringResponse;
 import com.yiyan.careeryiyan.service.EnterpriseService;
@@ -103,7 +100,7 @@ public class EnterpriseController {
                 !Objects.equals(enterpriseUser.getEnterpriseId(), editRecruitmentRequest.getEnterpriseId())) {
             throw new BaseException("用户不是企业管理员");
         }
-        if(recruitmentService.updateRecruitment(editRecruitmentRequest) >0){
+        if (recruitmentService.updateRecruitment(editRecruitmentRequest) > 0) {
             return ResponseEntity.ok(new StringResponse("修改成功"));
         }
 
@@ -120,11 +117,30 @@ public class EnterpriseController {
                 !Objects.equals(enterpriseUser.getEnterpriseId(), recruitment.getEnterpriseId())) {
             throw new BaseException("用户不是企业管理员");
         }
-        if(recruitmentService.deleteRecruitment(id) >0){
+        if (recruitmentService.deleteRecruitment(id) > 0) {
             return ResponseEntity.ok(new StringResponse("修改成功"));
         }
 
         throw new BaseException("修改失败");
+    }
+
+    @PostMapping("/apply")
+    public ResponseEntity addApply(@RequestBody AddApplyRequest addApplyRequest, HttpServletRequest request) {
+        User user = (User) request.getAttribute("user");
+        Apply apply = new Apply(user.getId(), addApplyRequest.getRecruitmentId(), "applied", user.getCv());
+
+        Recruitment recruitment = recruitmentService.getRecruitmentById(addApplyRequest.getRecruitmentId());
+        if (recruitment == null) {
+            throw new BaseException("职位不存在");
+        } else if (recruitmentService.getApplyByUserIdAndRecruitmentId(user.getId(), addApplyRequest.getRecruitmentId()) != null) {
+            throw new BaseException("已经申请过该职位");
+        } else if (recruitment.getOfferCount() >= recruitment.getHeadCount()) {
+            throw new BaseException("该职位已经招满");
+        }
+        if (recruitmentService.addApply(apply) > 0) {
+            return ResponseEntity.ok(new StringResponse("申请成功"));
+        }
+        throw new BaseException("申请失败");
     }
 }
 

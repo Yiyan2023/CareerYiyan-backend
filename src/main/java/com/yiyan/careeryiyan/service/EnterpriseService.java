@@ -1,9 +1,11 @@
 package com.yiyan.careeryiyan.service;
 
+import com.yiyan.careeryiyan.mapper.ApplyMapper;
 import com.yiyan.careeryiyan.mapper.EnterpriseMapper;
 import com.yiyan.careeryiyan.mapper.EnterpriseUserMapper;
 import com.yiyan.careeryiyan.model.domain.Enterprise;
 import com.yiyan.careeryiyan.model.domain.EnterpriseUser;
+import com.yiyan.careeryiyan.model.request.AddApplyRequest;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +17,7 @@ public class EnterpriseService {
     private EnterpriseUserMapper enterpriseUserMapper;
     @Resource
     private EnterpriseMapper enterpriseMapper;
+
 
     public EnterpriseUser getEnterpriseUserById(String userId) {
         return enterpriseUserMapper.getEnterpriseUserByUserId(userId);
@@ -32,4 +35,6 @@ public class EnterpriseService {
     public Enterprise getEnterpriseById(String id) {
         return enterpriseMapper.getEnterpriseById(id);
     }
+
+
 }
