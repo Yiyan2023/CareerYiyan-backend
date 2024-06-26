@@ -7,6 +7,7 @@ import com.yiyan.careeryiyan.model.domain.Recruitment;
 import com.yiyan.careeryiyan.model.request.AddApplyRequest;
 import com.yiyan.careeryiyan.model.request.AddRecruitmentRequest;
 import com.yiyan.careeryiyan.model.request.EditRecruitmentRequest;
+import com.yiyan.careeryiyan.model.response.UserApplyDetailResponse;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
@@ -45,5 +46,9 @@ public class RecruitmentService {
 
     public Apply getApplyByUserIdAndRecruitmentId(String userId, String recruitmentId) {
         return applyMapper.getApplyByUserIdAndRecruitmentId(userId, recruitmentId);
+    }
+
+    public List<UserApplyDetailResponse> getUserApplyList(String id) {
+        return recruitmentMapper.getUserApplyList(id);
     }
 }
