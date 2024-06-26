@@ -3,6 +3,7 @@ package com.yiyan.careeryiyan.service;
 import com.yiyan.careeryiyan.exception.BaseException;
 import com.yiyan.careeryiyan.mapper.UserMapper;
 import com.yiyan.careeryiyan.model.domain.User;
+import com.yiyan.careeryiyan.model.request.ModifyInfoRequest;
 import jakarta.annotation.Resource;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.stereotype.Service;
@@ -68,4 +69,21 @@ public class UserService {
         return user.getSalt();
     }
 
+    public int updateUserInfo(ModifyInfoRequest request){
+        int res = userMapper.modifyUser(request);
+        if(res == 0){
+            throw new BaseException("修改失败");
+        }
+        return res;
+    }
+
+    public int updateAvatar(String avatarUrl,String id){
+        int res = userMapper.updateAvatarUrl(avatarUrl, id);
+        return res;
+    }
+
+    public int updateCV(String CV,String id){
+        int res = userMapper.updateCV(CV, id);
+        return res;
+    }
 }
