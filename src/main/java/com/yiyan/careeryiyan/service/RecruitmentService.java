@@ -64,4 +64,5 @@ public class RecruitmentService {
         return recruitmentMapper.getApplyById(applyId);
     }
 
+
 }

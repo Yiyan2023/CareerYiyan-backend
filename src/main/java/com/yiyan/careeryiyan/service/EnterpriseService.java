@@ -42,4 +42,7 @@ public class EnterpriseService {
     }
 
 
+    public EnterpriseUser getEnterpriseAdminByEnterpriseId(String enterpriseId) {
+        return enterpriseUserMapper.getEnterpriseAdminByEnterpriseId(enterpriseId);
+    }
 }
