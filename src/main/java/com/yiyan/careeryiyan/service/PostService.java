@@ -33,8 +33,8 @@ public class  PostService {
     @Resource
     OSSConfig ossConfig;
     
-    public Post addPost(String title,String content,List<MultipartFile> photos, User user) throws IOException {
-        Post post=new Post(title,content, user.getId());
+    public Post addPost(String content,List<MultipartFile> photos, User user) throws IOException {
+        Post post=new Post(content, user.getId());
         for(MultipartFile file:photos){
             if (ObjectUtils.isEmpty(file) || file.getSize() <= 0||file.getSize()>=4L * 1024 * 1024) {
                 throw new BaseException("File is empty");
@@ -45,7 +45,6 @@ public class  PostService {
                 throw new BaseException("File must be an image");
             }
             String url=ossConfig.upload(file,"posts",file.getName()+".png");
-            System.out.println(url);
             post.addPhoto(url);
         }
         int res=postMapper.insertPost(post);

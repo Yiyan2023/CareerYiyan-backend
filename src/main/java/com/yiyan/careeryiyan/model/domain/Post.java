@@ -12,7 +12,6 @@ import java.util.*;
 @Data
 public class Post {
     private String id;
-    private String title;
     private String content;
     private Date createdAt;
     private String userId;
@@ -23,8 +22,7 @@ public class Post {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    public Post(String title, String content, String userId) {
-        this.title = title;
+    public Post( String content, String userId) {
         this.content = content;
         this.createdAt = new Date();
         this.userId = userId;
@@ -89,7 +87,6 @@ public class Post {
     public Map<String, Object> toDict() {
         Map<String, Object> map = new HashMap<>();
         map.put("id", id);
-        map.put("title", title);
         map.put("content", content);
         map.put("createdAt", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(createdAt));
         map.put("photos", getPhotos());  // 使用 getter 确保 photos 是最新的
