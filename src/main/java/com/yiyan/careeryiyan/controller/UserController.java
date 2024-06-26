@@ -225,8 +225,7 @@ public class UserController {
     }
 
     @PostMapping("/getInfo")
-    public ResponseEntity<UserInfoResponse> showInfo(@RequestBody StringRequest stringRequest, HttpServletRequest httpServletRequest){
-        User user = (User) httpServletRequest.getAttribute("user");
+    public ResponseEntity<UserInfoResponse> showInfo(@RequestBody StringRequest stringRequest){
         String id = stringRequest.getValue();
 
 //        System.out.println(id);
