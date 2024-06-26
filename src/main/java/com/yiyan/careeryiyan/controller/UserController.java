@@ -148,7 +148,9 @@ public class UserController {
         if (user == null) {
             throw new BaseException("用户不存在");
         }
-        return ResponseEntity.ok(postService.getPost(String.valueOf(id),user));
+        Map<String,Object> res=postService.getPost(String.valueOf(id),user);
+        res.put("comments",postService.getAllComments(String.valueOf(id)));
+        return ResponseEntity.ok(res);
     }
 
     /*
