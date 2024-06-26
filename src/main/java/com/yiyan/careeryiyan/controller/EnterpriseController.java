@@ -319,6 +319,17 @@ public class EnterpriseController {
         List<EmployeeListResponse> employeeList = enterpriseService.getEmployeeListByEnterpriseId(enterpriseId);
         return ResponseEntity.ok(employeeList);
     }
+
+    @PostMapping("/getAdmin")
+    public ResponseEntity getAdmin(@RequestBody Map<String,String> requestBody){
+        String enterpriseId = requestBody.get("enterpriseId");
+        EnterpriseUser enterpriseUser = enterpriseService.getEnterpriseAdminByEnterpriseId(enterpriseId);
+        if(enterpriseUser == null){
+            throw new BaseException("企业不存在");
+        }
+        User admin = userService.getUserInfo(enterpriseUser.getUserId());
+        return ResponseEntity.ok(admin);
+    }
 }
 
 
