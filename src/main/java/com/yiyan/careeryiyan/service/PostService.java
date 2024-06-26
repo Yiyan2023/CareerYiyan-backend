@@ -110,7 +110,8 @@ public class  PostService {
     public Comment addComment(AddCommentRequest req, User user) {
         System.out.println("nihao:"+req.getParentId());
         Comment parent=postMapper.getCommentById(req.getParentId());
-        if(parent==null||req.getContent()==null||req.getContent().equals("")||req.getParentId()==null){
+        String parentId=req.getParentId();
+        if(req.getContent()==null||req.getContent().equals("")||parentId==null||(!parentId.equals("0")&&parent==null)){
             return null;
         }
 
