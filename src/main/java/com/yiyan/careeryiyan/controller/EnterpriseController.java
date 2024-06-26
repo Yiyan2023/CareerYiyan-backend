@@ -3,10 +3,7 @@ package com.yiyan.careeryiyan.controller;
 import com.yiyan.careeryiyan.exception.BaseException;
 import com.yiyan.careeryiyan.model.domain.*;
 import com.yiyan.careeryiyan.model.request.*;
-import com.yiyan.careeryiyan.model.response.EmployeeListResponse;
-import com.yiyan.careeryiyan.model.response.EnterpriseInfoResponse;
-import com.yiyan.careeryiyan.model.response.StringResponse;
-import com.yiyan.careeryiyan.model.response.UserApplyDetailResponse;
+import com.yiyan.careeryiyan.model.response.*;
 import com.yiyan.careeryiyan.service.EnterpriseService;
 import com.yiyan.careeryiyan.service.RecruitmentService;
 import com.yiyan.careeryiyan.service.UserService;
@@ -104,12 +101,43 @@ public class EnterpriseController {
 
     @PostMapping("/getRecruitmentList")
     public ResponseEntity getRecruitmentList(@RequestBody GetRecruitmentListRequest getRecruitmentListRequest) {
-        List<Recruitment> recruitmentList = recruitmentService.getRecruitmentList(getRecruitmentListRequest.getEnterpriseId());
+        String enterpriseId = getRecruitmentListRequest.getEnterpriseId();
+        List<Recruitment> recruitmentList = recruitmentService.getRecruitmentList(enterpriseId);
         if (recruitmentList == null) {
             return ResponseEntity.ok(new ArrayList<>());
         }
+        EnterpriseUser enterpriseAdmin = enterpriseService.getEnterpriseAdminByEnterpriseId(enterpriseId);
+        if(enterpriseAdmin == null){
+            return ResponseEntity.ok(new ArrayList<>());
+        }
+        User admin = userService.getUserInfo(enterpriseAdmin.getUserId());
+        List<GetRecruitmentListResponse> recruitmentResponseList = new ArrayList<>();
+        for (Recruitment recruitment : recruitmentList) {
+            recruitmentResponseList.add(new GetRecruitmentListResponse(recruitment, admin));
+        }
+        return ResponseEntity.ok(recruitmentResponseList);
+    }
 
-        return ResponseEntity.ok(recruitmentList);
+    @PostMapping("/getRecruitmentInfo")
+    public ResponseEntity getRecruitmentInfo(@RequestBody GetRecruitmentInfoRequest getRecruitmentInfoRequest) {
+        String recruitmentId = getRecruitmentInfoRequest.getRecruitmentId();
+        String userId = getRecruitmentInfoRequest.getUserId();
+        Recruitment recruitment = recruitmentService.getRecruitmentById(recruitmentId);
+        if(recruitment==null){
+            throw new BaseException("岗位不存在");
+        }
+        EnterpriseUser enterpriseAdmin = enterpriseService.getEnterpriseAdminByEnterpriseId(recruitment.getEnterpriseId());
+        User admin = userService.getUserInfo(enterpriseAdmin.getUserId());
+        int auth=0;
+        if(enterpriseAdmin.getRole() == 0 && Objects.equals(userId, enterpriseAdmin.getUserId())){
+            auth = 2;//管理员
+        }else {
+            Apply apply = recruitmentService.getApplyByUserIdAndRecruitmentId(userId, recruitmentId);
+            if (apply != null) {
+                auth = 1;
+            }
+        }
+        return ResponseEntity.ok(new GetRecruitmentInfoResponse(recruitment, admin, auth));
     }
 
     @PostMapping("/editRecruitment")

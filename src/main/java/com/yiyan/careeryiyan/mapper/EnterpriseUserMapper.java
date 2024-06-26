@@ -22,4 +22,7 @@ public interface EnterpriseUserMapper {
             "where u.id = eu.userId and eu.isDeleted = 0 and eu.enterpriseId = #{enterpriseId}")
     List<EmployeeListResponse> getEmployeeListByEnterpriseId(String enterpriseId);
 
+    @Select("SELECT * from EnterpriseUser eu " +
+            "where eu.enterpriseId = #{enterpriseId} and eu.isDeleted = 0 and eu.role = 0")
+    EnterpriseUser getEnterpriseAdminByEnterpriseId(String enterpriseId);
 }
