@@ -13,10 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 @RestController
 @RequestMapping("/enterprise")
@@ -43,9 +40,10 @@ public class EnterpriseController {
         enterprise.setEnterpriseType(addEnterpriseRequest.getEnterpriseType());
         enterprise.setAvatarUrl(addEnterpriseRequest.getAvatarUrl());
         enterprise.setCreateTime(LocalDateTime.now());
-        int id = enterpriseService.addEnterprise(enterprise);
-        if (id > 0) {
-            enterprise.setId(String.valueOf(id));
+
+        if (enterpriseService.addEnterprise(enterprise) > 0) {
+            System.out.println(enterprise.getId());
+            //enterprise.setId(String.valueOf(id));
             enterpriseUser = new EnterpriseUser();
             enterpriseUser.setUserId(user.getId());
             enterpriseUser.setEnterpriseId(enterprise.getId());
@@ -54,7 +52,11 @@ public class EnterpriseController {
             if (enterpriseService.addEnterpriseUser(enterpriseUser) <= 0) {
                 throw new BaseException("创建企业失败！");
             }
-            return ResponseEntity.ok("add enterprise success");
+            //System.out.println(enterprise.getId());
+            Map<String ,String> rsp = new HashMap<>();
+            rsp.put("enterpriseId",enterprise.getId());
+            return ResponseEntity.ok(rsp);
+
         }
         throw new BaseException("创建企业失败！");
     }

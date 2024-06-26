@@ -4,6 +4,7 @@ import com.yiyan.careeryiyan.model.domain.EnterpriseUser;
 import com.yiyan.careeryiyan.model.response.EmployeeListResponse;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
