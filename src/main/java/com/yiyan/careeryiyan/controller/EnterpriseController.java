@@ -227,6 +227,39 @@ public class EnterpriseController {
         }
         throw new BaseException("修改失败");
     }
+
+    @PostMapping("/acceptOffer")
+    public ResponseEntity acceptOffer(@RequestBody Map<String,String> map,HttpServletRequest httpServletRequest){
+        String applyId = map.get("applyId");
+        int isAccept = Integer.parseInt(map.get("isAccept"));
+        User user = (User) httpServletRequest.getAttribute("user");
+        Apply apply = recruitmentService.getApplyById(applyId);
+        if(apply == null){
+            throw new BaseException("申请不存在");
+        }
+
+        //判断是否是申请人
+        if(!Objects.equals(apply.getUserId(),user.getId())){
+            throw new BaseException("你不是申请人");
+        }
+        //判断是否发offer(status为1)
+        if(apply.getStatus()!=1){
+            throw new BaseException("该岗位没有向你发放offer");
+        }
+
+        //判断相应recruitment是否招满
+        Recruitment recruitment = recruitmentService.getRecruitmentById(apply.getRecruitmentId());
+        if(recruitment.getOfferCount()>=recruitment.getHeadCount()){
+            throw new BaseException("该岗位已经招满");
+        }
+        //修改apply(accept:status=3 offer被接收   not accept:status=4 offer被拒绝
+        int status = isAccept==1?3:4;
+        if(recruitmentService.changeState(applyId,status)>0){
+            return ResponseEntity.ok(new StringResponse("修改成功"));
+        }
+
+        throw new BaseException("修改失败");
+    }
 }
 
 
