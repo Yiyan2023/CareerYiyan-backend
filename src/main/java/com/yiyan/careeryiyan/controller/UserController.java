@@ -5,17 +5,28 @@ import com.yiyan.careeryiyan.exception.BaseException;
 import com.yiyan.careeryiyan.mapper.PostMapper;
 import com.yiyan.careeryiyan.model.domain.Enterprise;
 import com.yiyan.careeryiyan.model.domain.Post;
+import com.yiyan.careeryiyan.mapper.PostMapper;
+import com.yiyan.careeryiyan.model.domain.Comment;
+import com.yiyan.careeryiyan.model.domain.Post;
 import com.yiyan.careeryiyan.model.domain.User;
+import com.yiyan.careeryiyan.model.request.*;
+import com.yiyan.careeryiyan.model.request.AddPostRequest;
 import com.yiyan.careeryiyan.model.request.*;
 import com.yiyan.careeryiyan.model.response.StringResponse;
 import com.yiyan.careeryiyan.model.response.UserInfoResponse;
 import com.yiyan.careeryiyan.service.EnterpriseService;
+import com.yiyan.careeryiyan.service.PostService;
+import com.yiyan.careeryiyan.model.request.LoginRequest;
+import com.yiyan.careeryiyan.model.request.RegisterRequest;
+import com.yiyan.careeryiyan.model.request.StringRequest;
+
 import com.yiyan.careeryiyan.service.PostService;
 import com.yiyan.careeryiyan.service.UserService;
 import com.yiyan.careeryiyan.utils.JwtUtil;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.ibatis.annotations.Delete;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
@@ -24,7 +35,10 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.List;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.Collectors;
 import java.util.Objects;
 
@@ -83,19 +97,21 @@ public class UserController {
      * 新建动态、删除动态，获取用户所有动态，点赞动态
      * 创建评论，删除评论，回复评论，
      */
-    @PostMapping("/addPost")
-    public ResponseEntity<Map<String, Object>> addPost(@RequestBody AddPostRequest req,
-            HttpServletRequest httpServletRequest) {
+    @PostMapping("/posts/add")
+    public ResponseEntity<Map<String, Object>> addPost( @RequestParam("content") String content,
+                                                        @RequestParam("title") String title,
+                                                        @RequestParam(value = "photos", required = false) List<MultipartFile> photos,
+                                                        HttpServletRequest httpServletRequest) throws IOException {
         User user = (User) httpServletRequest.getAttribute("user");
         if (user == null)
             throw new BaseException("用户不存在");
-        Post post = postService.addPost(req, user);
+        Post post = postService.addPost(title,content,photos, user);
         Map<String, Object> res = post.toDict();
         res.put("author", user.toDict());
         return ResponseEntity.ok(res);
     }
 
-    @DeleteMapping("/delPost/{id}")
+    @DeleteMapping("/posts/delete/{id}")
     public ResponseEntity<StringResponse> delPost(@PathVariable int id, HttpServletRequest httpServletRequest) {
         User user = (User) httpServletRequest.getAttribute("user");
         if (user == null)
@@ -106,7 +122,18 @@ public class UserController {
         return ResponseEntity.ok(new StringResponse(response));
     }
 
-    @GetMapping("/getUserPost")
+    @PostMapping("/posts/like/{id}")
+    public ResponseEntity<StringResponse> likePost(@PathVariable int id,@RequestParam boolean status, HttpServletRequest httpServletRequest) {
+        User user = (User) httpServletRequest.getAttribute("user");
+        if (user == null)
+            throw new BaseException("用户不存在");
+        boolean res = postService.like(String.valueOf(id),user,status,1);
+        String response = res ? "点赞成功" : "删除失败";
+        return ResponseEntity.ok(new StringResponse(response));
+    }
+
+
+    @GetMapping("/posts/all")
     public ResponseEntity<List<Map<String, Object>>> getUserPost(HttpServletRequest httpServletRequest) {
         User user = (User) httpServletRequest.getAttribute("user");
         List<Post> posts = postService.getPostsByUser(user);
@@ -115,7 +142,48 @@ public class UserController {
                 .collect(Collectors.toList());
         return ResponseEntity.ok(res);
     }
+    @GetMapping("/posts/{id}")
+    public ResponseEntity<Map<String,Object>> getPost(@PathVariable int id,HttpServletRequest httpServletRequest){
+        User user = (User) httpServletRequest.getAttribute("user");
+        if (user == null) {
+            throw new BaseException("用户不存在");
+        }
+        return ResponseEntity.ok(postService.getPost(String.valueOf(id),user));
+    }
 
+    /*
+     * * 创建评论，删除评论，获取所有评论
+     */
+    @PostMapping("/posts/comments/add")
+    public ResponseEntity<Map<String, Object>> addComment(@RequestBody AddCommentRequest req, HttpServletRequest httpServletRequest) {
+        User user = (User) httpServletRequest.getAttribute("user");
+        if (user == null) {
+            throw new BaseException("用户不存在");
+        }
+
+        Comment comment = postService.addComment(req, user);
+        if (comment == null) {
+            throw new BaseException("新建失败");
+        }
+
+        Map<String, Object> responseData = new HashMap<>();
+        responseData.putAll(comment.toDict());
+        responseData.put("author", user.toDict());
+        return ResponseEntity.ok(responseData);
+    }
+    @DeleteMapping("/posts/comments/delete/{id}")
+    public ResponseEntity<StringResponse> delComment(@PathVariable int id, HttpServletRequest httpServletRequest) {
+        User user = (User) httpServletRequest.getAttribute("user");
+        if (user == null)
+            throw new BaseException("用户不存在");
+        boolean res = postService.delComment(String.valueOf(id), user);
+        String response = res ? "删除成功" : "删除失败";
+        return ResponseEntity.ok(new StringResponse(response));
+    }
+    @GetMapping("/posts/{id}/comments")
+    public ResponseEntity<List<Map<String, Object>>> getAllComment(@PathVariable int id,HttpServletRequest httpServletRequest){
+        return ResponseEntity.ok(postService.getAllComments(String.valueOf(id)));
+    }
     @PostMapping("/uploadCV")
     public ResponseEntity<StringResponse> uploadCV(@RequestParam("file") MultipartFile file,
             HttpServletRequest httpServletRequest) throws IOException {
