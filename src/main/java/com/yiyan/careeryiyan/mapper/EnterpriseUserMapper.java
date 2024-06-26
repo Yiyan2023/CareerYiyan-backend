@@ -1,9 +1,12 @@
 package com.yiyan.careeryiyan.mapper;
 
 import com.yiyan.careeryiyan.model.domain.EnterpriseUser;
+import com.yiyan.careeryiyan.model.response.EmployeeListResponse;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
+
+import java.util.List;
 
 @Mapper
 public interface EnterpriseUserMapper {
@@ -13,4 +16,10 @@ public interface EnterpriseUserMapper {
     @Insert("insert into EnterpriseUser (enterpriseId, userId, role,createTime)" +
             "values(#{enterpriseId}, #{userId}, #{role},#{createTime})")
     int addEnterpriseUser(EnterpriseUser enterpriseUser);
+
+    @Select("select * " +
+            "from User u, EnterpriseUser eu " +
+            "where u.id = eu.userId and eu.isDeleted = 0 and eu.enterpriseId = #{enterpriseId}")
+    List<EmployeeListResponse> getEmployeeListByEnterpriseId(String enterpriseId);
+
 }
