@@ -205,6 +205,28 @@ public class EnterpriseController {
         List<UserApplyDetailResponse> applyList = recruitmentService.getUserApplyList(user.getId());
         return ResponseEntity.ok(applyList);
     }
+
+    @PostMapping("changeState")
+    public ResponseEntity changeState(@RequestBody Map<String,String> map,HttpServletRequest httpServletRequest){
+        String applyId = map.get("applyId");
+        String state = map.get("state");
+        User user = (User) httpServletRequest.getAttribute("user");
+        //查询apply
+        Apply apply = recruitmentService.getApplyById(applyId);
+        //通过apply查询recruitment
+        Recruitment recruitment = recruitmentService.getRecruitmentById(apply.getRecruitmentId());
+        //通过userId和recruitment中的enterpriseId查询enterpriseUser
+        EnterpriseUser enterpriseUser = enterpriseService.getEnterpriseUserByUserId(user.getId());
+        //不是管理员，报错
+        if(enterpriseUser == null || enterpriseUser.getRole() != 0 || !Objects.equals(enterpriseUser.getEnterpriseId(),recruitment.getEnterpriseId())){
+            throw new BaseException("你不是此企业的管理员");
+        }
+
+        if(recruitmentService.changeState(applyId,state)>0){
+            return ResponseEntity.ok(new StringResponse("修改成功"));
+        }
+        throw new BaseException("修改失败");
+    }
 }
 
 
