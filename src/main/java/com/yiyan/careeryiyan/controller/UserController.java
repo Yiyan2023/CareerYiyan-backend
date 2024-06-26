@@ -15,6 +15,7 @@ import com.yiyan.careeryiyan.model.request.AddPostRequest;
 import com.yiyan.careeryiyan.model.request.*;
 import com.yiyan.careeryiyan.model.response.StringResponse;
 import com.yiyan.careeryiyan.model.response.UserInfoResponse;
+import com.yiyan.careeryiyan.model.response.UserSaltResponse;
 import com.yiyan.careeryiyan.service.EnterpriseService;
 import com.yiyan.careeryiyan.service.PostService;
 import com.yiyan.careeryiyan.model.request.LoginRequest;
@@ -67,10 +68,10 @@ public class UserController {
         return ResponseEntity.ok(new StringResponse("成功"));
     }
 
-    @GetMapping("/getSalt")
-    public ResponseEntity<StringResponse> getSalt(@RequestBody StringRequest request) {
-        String salt = userService.getSaltByEmail(request.getValue());
-        return ResponseEntity.ok(new StringResponse(salt));
+    @GetMapping("/salt")
+    public ResponseEntity<UserSaltResponse> getSalt(@RequestParam String email) {
+        String salt = userService.getSaltByEmail(email);
+        return ResponseEntity.ok(new UserSaltResponse(salt));
     }
 
     @PostMapping("/login")
