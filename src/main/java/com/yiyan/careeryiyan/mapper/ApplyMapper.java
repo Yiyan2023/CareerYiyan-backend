@@ -16,8 +16,8 @@ public interface ApplyMapper {
     @Select("SELECT * from Apply where userId = #{userId} and recruitmentId = #{recruitmentId}")
     Apply getApplyByUserIdAndRecruitmentId(String userId, String recruitmentId);
 
-    @Update("UPDATE Apply set status = #{state} where id = #{applyId}")
-    int changeState(String applyId, String state);
+    @Update("UPDATE Apply set status = #{status} where id = #{applyId}")
+    int changeState(String applyId, int status);
 
     @Select("SELECT  * from Apply where recruitmentId = #{recruitmentId}")
     List<Apply> getApplyByRecruitmentId(String recruitmentId);

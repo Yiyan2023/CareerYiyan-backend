@@ -17,7 +17,7 @@ public class UserApplyDetailResponse {
     private String id;
     private String userId;
     private String recruitmentId;
-    private String status;
+    private int status;
     private String cvUrl;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @JsonSerialize(using = LocalDateTimeSerializer.class)

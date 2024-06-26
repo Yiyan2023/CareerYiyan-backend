@@ -132,7 +132,7 @@ public class EnterpriseController {
     @PostMapping("/apply")
     public ResponseEntity addApply(@RequestBody AddApplyRequest addApplyRequest, HttpServletRequest request) {
         User user = (User) request.getAttribute("user");
-        Apply apply = new Apply(user.getId(), addApplyRequest.getRecruitmentId(), "applied", user.getCv());
+        Apply apply = new Apply(user.getId(), addApplyRequest.getRecruitmentId(), 0, user.getCv());
 
         Recruitment recruitment = recruitmentService.getRecruitmentById(addApplyRequest.getRecruitmentId());
         if (recruitment == null) {
@@ -209,7 +209,7 @@ public class EnterpriseController {
     @PostMapping("changeState")
     public ResponseEntity changeState(@RequestBody Map<String,String> map,HttpServletRequest httpServletRequest){
         String applyId = map.get("applyId");
-        String state = map.get("state");
+        int status = Integer.parseInt(map.get("status"));
         User user = (User) httpServletRequest.getAttribute("user");
         //查询apply
         Apply apply = recruitmentService.getApplyById(applyId);
@@ -222,7 +222,7 @@ public class EnterpriseController {
             throw new BaseException("你不是此企业的管理员");
         }
 
-        if(recruitmentService.changeState(applyId,state)>0){
+        if(recruitmentService.changeState(applyId,status)>0){
             return ResponseEntity.ok(new StringResponse("修改成功"));
         }
         throw new BaseException("修改失败");
