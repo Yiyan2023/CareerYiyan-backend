@@ -6,11 +6,8 @@ import com.yiyan.careeryiyan.mapper.PostMapper;
 import com.yiyan.careeryiyan.model.domain.Enterprise;
 import com.yiyan.careeryiyan.model.domain.Post;
 import com.yiyan.careeryiyan.model.domain.User;
-import com.yiyan.careeryiyan.model.request.AddPostRequest;
+import com.yiyan.careeryiyan.model.request.*;
 import com.yiyan.careeryiyan.model.response.StringResponse;
-import com.yiyan.careeryiyan.model.request.LoginRequest;
-import com.yiyan.careeryiyan.model.request.RegisterRequest;
-import com.yiyan.careeryiyan.model.request.StringRequest;
 import com.yiyan.careeryiyan.model.response.UserInfoResponse;
 import com.yiyan.careeryiyan.service.EnterpriseService;
 import com.yiyan.careeryiyan.service.PostService;
@@ -123,6 +120,7 @@ public class UserController {
     public ResponseEntity<StringResponse> uploadCV(@RequestParam("file") MultipartFile file,
             HttpServletRequest httpServletRequest) throws IOException {
         User user = (User) httpServletRequest.getAttribute("user");
+        String id = user.getId();
         String name = user.getNickname() + "_CV.pdf";
 
         if (ObjectUtils.isEmpty(file) || file.getSize() <= 0) {
@@ -133,6 +131,9 @@ public class UserController {
         }
         String res = ossConfig.upload(file, "CV", name);
         if (res != null) {
+            int res2 = userService.updateCV(res, id);
+            if (res2 == 0)
+                throw new BaseException("用户头像后台修改失败");
             return ResponseEntity.ok(new StringResponse(res));
         } else {
             throw new BaseException("简历上传失败");
@@ -140,7 +141,7 @@ public class UserController {
 
     }
 
-    @GetMapping("/getInfo")
+    @PostMapping("/getInfo")
     public ResponseEntity<UserInfoResponse> showInfo(@RequestBody StringRequest stringRequest, HttpServletRequest httpServletRequest){
         User user = (User) httpServletRequest.getAttribute("user");
         String id = stringRequest.getValue();
@@ -161,7 +162,54 @@ public class UserController {
         return ResponseEntity.ok(userInfoResponse);
     }
 
-    @PostMapping("/getInfo")
+    @PostMapping("/verifyInfo")
+    public ResponseEntity<UserInfoResponse> modifyInfo(@RequestBody ModifyInfoRequest modifyInfoRequest, HttpServletRequest httpServletRequest){
+        User user = (User) httpServletRequest.getAttribute("user");
+        String id = user.getId();
+
+        modifyInfoRequest.setId(id);
+        int res = userService.updateUserInfo(modifyInfoRequest);
+        if (res == 0)
+            throw new BaseException("修改失败");
+
+        User userShow = userService.getUserInfo(id);
+        if (userShow == null){
+            throw new BaseException("用户不存在");
+        }
+
+        UserInfoResponse userInfoResponse = convertToUserInfo(userShow);
+        Enterprise enterprise = enterpriseService.getEnterpriseById(userShow.getEnterpriseId());
+        userInfoResponse.setEnterpriseName(enterprise.getEnterpriseName());
+
+        return ResponseEntity.ok(userInfoResponse);
+    }
+
+    @PostMapping("/uploadAvatar")
+    public ResponseEntity<StringResponse> uploadAvatar(@RequestParam("file") MultipartFile file,
+                                                       HttpServletRequest httpServletRequest) throws IOException {
+        User user = (User) httpServletRequest.getAttribute("user");
+        String id = user.getId();
+        String name = user.getNickname() + "_avatar.jpg";
+
+        if (ObjectUtils.isEmpty(file) || file.getSize() <= 0) {
+            throw new BaseException("File is empty");
+        }
+        if (!file.getContentType().equals("image/jpeg") && !file.getContentType().equals("image/png")) {
+            throw new BaseException("File must be a jpg/png");
+        }
+        String res = ossConfig.upload(file, "avatar", name);
+        if (res != null) {
+            int res2 = userService.updateAvatar(res, id);
+            if (res2 == 0)
+                throw new BaseException("用户头像后台修改失败");
+            return ResponseEntity.ok(new StringResponse(res));
+        } else {
+            throw new BaseException("简历上传失败");
+        }
+
+    }
+
+
     private UserInfoResponse convertToUserInfo(User user) {
         if (user == null) {
             return null;
