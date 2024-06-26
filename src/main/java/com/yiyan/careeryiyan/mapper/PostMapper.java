@@ -10,8 +10,8 @@ import java.util.List;
 @Mapper
 public interface PostMapper {
 
-    @Insert("INSERT INTO post(title, content, created_at, user_id, photos)" +
-            "VALUES (#{title}, #{content}, #{createdAt}, #{userId}, #{photosJson})")
+    @Insert("INSERT INTO post( content, created_at, user_id, photos)" +
+            "VALUES ( #{content}, #{createdAt}, #{userId}, #{photosJson})")
     @Options(useGeneratedKeys = true, keyProperty = "id", keyColumn = "id")
     int insertPost(Post post);
 
@@ -22,7 +22,6 @@ public interface PostMapper {
     @Select("SELECT * FROM post WHERE id=#{id}")
     @Results(id = "postResultMap", value = {
             @Result(property = "id", column = "id"),
-            @Result(property = "title", column = "title"),
             @Result(property = "content", column = "content"),
             @Result(property = "createdAt", column = "created_at"),
             @Result(property = "userId", column = "user_id"),

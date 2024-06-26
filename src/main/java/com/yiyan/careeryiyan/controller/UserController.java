@@ -100,13 +100,12 @@ public class UserController {
      */
     @PostMapping("/posts/add")
     public ResponseEntity<Map<String, Object>> addPost( @RequestParam("content") String content,
-                                                        @RequestParam("title") String title,
                                                         @RequestParam(value = "photos", required = false) List<MultipartFile> photos,
                                                         HttpServletRequest httpServletRequest) throws IOException {
         User user = (User) httpServletRequest.getAttribute("user");
         if (user == null)
             throw new BaseException("用户不存在");
-        Post post = postService.addPost(title,content,photos, user);
+        Post post = postService.addPost(content,photos, user);
         Map<String, Object> res = post.toDict();
         res.put("author", user.toDict());
         return ResponseEntity.ok(res);
@@ -135,12 +134,15 @@ public class UserController {
 
 
     @GetMapping("/posts/all")
-    public ResponseEntity<List<Map<String, Object>>> getUserPost(HttpServletRequest httpServletRequest) {
+    public ResponseEntity<Map<String, Object>> getUserPost(HttpServletRequest httpServletRequest) {
+        Map<String, Object>res=new HashMap<String, Object>();
         User user = (User) httpServletRequest.getAttribute("user");
         List<Post> posts = postService.getPostsByUser(user);
-        List<Map<String, Object>> res = posts.stream()
+        List<Map<String, Object>> postlist = posts.stream()
                 .map(Post::toDict)
                 .collect(Collectors.toList());
+        res.put("posts",postlist);
+        res.put("author",user.toDict());
         return ResponseEntity.ok(res);
     }
     @GetMapping("/posts/{id}")

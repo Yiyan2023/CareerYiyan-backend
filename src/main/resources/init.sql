@@ -16,7 +16,7 @@ DROP TABLE IF EXISTS `post`;
 CREATE TABLE `post`
 (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    title varchar(40),
+--     title varchar(40),
     content TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     user_id int,
