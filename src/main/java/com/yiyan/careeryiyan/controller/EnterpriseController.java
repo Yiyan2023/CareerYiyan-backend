@@ -3,6 +3,7 @@ package com.yiyan.careeryiyan.controller;
 import com.yiyan.careeryiyan.exception.BaseException;
 import com.yiyan.careeryiyan.model.domain.*;
 import com.yiyan.careeryiyan.model.request.*;
+import com.yiyan.careeryiyan.model.response.EmployeeListResponse;
 import com.yiyan.careeryiyan.model.response.StringResponse;
 import com.yiyan.careeryiyan.model.response.UserApplyDetailResponse;
 import com.yiyan.careeryiyan.service.EnterpriseService;
@@ -177,7 +178,7 @@ public class EnterpriseController {
         return ResponseEntity.ok("添加员工成功");
     }
 
-    @PostMapping("getApplicationList")
+    @PostMapping("/getApplicationList")
     public ResponseEntity getApplicationList(@RequestBody GetApplicationListRequest getApplicationListRequest, HttpServletRequest request) {
         User admin = (User) request.getAttribute("user");
         String recruitmentId = getApplicationListRequest.getRecruitmentId();
@@ -199,14 +200,14 @@ public class EnterpriseController {
 
 
     //用户获取自己的投递列表
-    @PostMapping("getUserApplyList")
+    @PostMapping("/getUserApplyList")
     public ResponseEntity getApplyList(HttpServletRequest httpServletRequest){
         User user = (User) httpServletRequest.getAttribute("user");
         List<UserApplyDetailResponse> applyList = recruitmentService.getUserApplyList(user.getId());
         return ResponseEntity.ok(applyList);
     }
 
-    @PostMapping("changeState")
+    @PostMapping("/changeState")
     public ResponseEntity changeState(@RequestBody Map<String,String> map,HttpServletRequest httpServletRequest){
         String applyId = map.get("applyId");
         int status = Integer.parseInt(map.get("status"));
@@ -259,6 +260,19 @@ public class EnterpriseController {
         }
 
         throw new BaseException("修改失败");
+    }
+
+    @PostMapping("/getEmployeeList")
+    public ResponseEntity getEmployeeList(@RequestBody Map<String,String> requestBody, HttpServletRequest httpServletRequest){
+        User user = (User) httpServletRequest.getAttribute("user");
+        String enterpriseId = requestBody.get("enterpriseId");
+        EnterpriseUser enterpriseUser = enterpriseService.getEnterpriseUserByUserId(user.getId());
+        if(enterpriseUser == null || !Objects.equals(enterpriseUser.getEnterpriseId(),enterpriseId)){
+            throw new BaseException("无权查看企业员工列表");
+        }
+
+        List<EmployeeListResponse> employeeList = enterpriseService.getEmployeeListByEnterpriseId(enterpriseId);
+        return ResponseEntity.ok(employeeList);
     }
 }
 

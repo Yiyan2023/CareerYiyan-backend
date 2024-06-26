@@ -9,6 +9,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
 
 @Service
 public class UserService {
@@ -86,4 +87,6 @@ public class UserService {
         int res = userMapper.updateCV(CV, id);
         return res;
     }
+
+
 }

@@ -15,4 +15,6 @@ public interface EnterpriseMapper {
             "values(#{enterpriseName}, #{enterpriseAddress}, #{enterpriseDescription}, #{enterpriseType}, #{enterpriseLicense}, #{createTime}, #{avatarUrl})")
     @Options(useGeneratedKeys = true, keyProperty = "id")
     int addEnterprise(Enterprise enterprise);
+
+
 }
