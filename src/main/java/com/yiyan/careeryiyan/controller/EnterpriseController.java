@@ -4,6 +4,7 @@ import com.yiyan.careeryiyan.exception.BaseException;
 import com.yiyan.careeryiyan.model.domain.*;
 import com.yiyan.careeryiyan.model.request.*;
 import com.yiyan.careeryiyan.model.response.EmployeeListResponse;
+import com.yiyan.careeryiyan.model.response.EnterpriseInfoResponse;
 import com.yiyan.careeryiyan.model.response.StringResponse;
 import com.yiyan.careeryiyan.model.response.UserApplyDetailResponse;
 import com.yiyan.careeryiyan.service.EnterpriseService;
@@ -63,13 +64,26 @@ public class EnterpriseController {
 
     @PostMapping("/getInfo")
     public ResponseEntity getInfo(@RequestBody GetEnterpriseInfoRequest rq) {
-
+        String userId = rq.getUserId();
         Enterprise enterprise = enterpriseService.getEnterpriseById(rq.getEnterpriseId());
         //System.out.println(enterpriseId);
         if (enterprise == null) {
             throw new BaseException("企业不存在");
         }
-        return ResponseEntity.ok(enterprise);
+        EnterpriseUser enterpriseUser = enterpriseService.getEnterpriseUserByUserId(userId);
+        EnterpriseInfoResponse response= new EnterpriseInfoResponse();
+        if(enterpriseUser == null|| !Objects.equals(enterpriseUser.getEnterpriseId(), enterprise.getId())) {
+            response = new EnterpriseInfoResponse(enterprise, 0);
+        }else{
+            if (enterpriseUser.getRole() == 1 && Objects.equals(enterpriseUser.getEnterpriseId(), enterprise.getId()) ) {
+                response = new EnterpriseInfoResponse(enterprise, 1);
+            }else{
+                if (enterpriseUser.getRole() == 0 && Objects.equals(enterpriseUser.getEnterpriseId(), enterprise.getId() )) {
+                    response = new EnterpriseInfoResponse(enterprise, 2);
+                }
+            }
+        }
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/addRecruitment")

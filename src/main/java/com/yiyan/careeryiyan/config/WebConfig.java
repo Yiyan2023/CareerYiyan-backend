@@ -32,7 +32,7 @@ public class WebConfig implements WebMvcConfigurer {
                         "/user/register",
                         "/user/login",
                         "/notifications/publish",
-                        "/enterprise/getInfo," ,
+                        "/enterprise/getInfo" ,
                         "/enterprise/getRecruitmentList");
     }
 
