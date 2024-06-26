@@ -4,6 +4,7 @@ import com.yiyan.careeryiyan.exception.BaseException;
 import com.yiyan.careeryiyan.model.domain.*;
 import com.yiyan.careeryiyan.model.request.*;
 import com.yiyan.careeryiyan.model.response.StringResponse;
+import com.yiyan.careeryiyan.model.response.UserApplyDetailResponse;
 import com.yiyan.careeryiyan.service.EnterpriseService;
 import com.yiyan.careeryiyan.service.RecruitmentService;
 import jakarta.annotation.Resource;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @RestController
@@ -141,6 +143,14 @@ public class EnterpriseController {
             return ResponseEntity.ok(new StringResponse("申请成功"));
         }
         throw new BaseException("申请失败");
+    }
+
+    //用户获取自己的投递列表
+    @PostMapping("getUserApplyList")
+    public ResponseEntity getApplyList(HttpServletRequest httpServletRequest){
+        User user = (User) httpServletRequest.getAttribute("user");
+        List<UserApplyDetailResponse> applyList = recruitmentService.getUserApplyList(user.getId());
+        return ResponseEntity.ok(applyList);
     }
 }
 
