@@ -28,23 +28,19 @@ public class SearchController {
     @PostMapping("/recruitment")
     public ResponseEntity searchRecruitment(@RequestBody SearchRecruitmentRequest searchRecruitmentRequest,
                                                             HttpServletRequest httpServletRequest) {
-        List<RecruitmentDetailResponse> recruitmentDetailResponses = searchService.searchRecruitment(searchRecruitmentRequest);
-        System.out.println(searchRecruitmentRequest.getRecruitmentName()+searchRecruitmentRequest.getPageNum()+searchRecruitmentRequest.getPageSize());
-        return ResponseEntity.ok(recruitmentDetailResponses);
+        return ResponseEntity.ok(searchService.searchRecruitment(searchRecruitmentRequest));
 
     }
 
     @PostMapping("/enterprise")
     public ResponseEntity searchEnterprise(@RequestBody SearchEnterpriseRequest searchEnterpriseRequest,
                                                             HttpServletRequest httpServletRequest) {
-        List<Enterprise> enterpriseDetailResponses = searchService.searchEnterprise(searchEnterpriseRequest);
-        return ResponseEntity.ok(enterpriseDetailResponses);
+        return ResponseEntity.ok(searchService.searchEnterprise(searchEnterpriseRequest));
     }
 
     @PostMapping("/user")
     public ResponseEntity searchUser(@RequestBody SearchUserRequest searchUserRequest,
                                                             HttpServletRequest httpServletRequest) {
-        List<UserDetailResponse> userDetailResponses = searchService.searchUser(searchUserRequest);
-        return ResponseEntity.ok(userDetailResponses);
+        return ResponseEntity.ok(searchService.searchUser(searchUserRequest));
     }
 }

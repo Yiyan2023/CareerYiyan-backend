@@ -84,4 +84,21 @@ public interface SearchMapper {
             "ORDER BY score DESC\n" +
             "LIMIT #{offset}, #{pageSize};")
     List<UserDetailResponse> searchUser(SearchUserRequest searchUserRequest);
+
+    @Select("SELECT count(*)\n" +
+            "FROM User u,Enterprise e,EnterpriseUser eu\n" +
+            "where u.id = eu.userId and eu.enterpriseId = e.id\n" +
+            "and MATCH(u.username) AGAINST(#{userName} IN NATURAL LANGUAGE MODE)\n")
+    int getSearchUserTotal(SearchUserRequest searchUserRequest);
+
+    @Select("SELECT count(*)\n" +
+            "FROM Enterprise\n" +
+            "WHERE MATCH(enterpriseName) AGAINST(#{enterpriseName} IN NATURAL LANGUAGE MODE)\n")
+    int getSearchEnterpriseTotal(SearchEnterpriseRequest searchEnterpriseRequest);
+
+    @Select("SELECT count(*)\n" +
+            "FROM Recruitment r\n" +
+            "JOIN Enterprise e ON r.enterpriseId = e.id\n" +
+            "WHERE MATCH(r.recruitmentName) AGAINST(#{recruitmentName} IN NATURAL LANGUAGE MODE)\n")
+    int getSearchRecruitmentTotal(SearchRecruitmentRequest searchRecruitmentRequest);
 }
