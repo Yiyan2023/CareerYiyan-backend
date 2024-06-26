@@ -4,6 +4,7 @@ import com.yiyan.careeryiyan.config.OSSConfig;
 import com.yiyan.careeryiyan.exception.BaseException;
 import com.yiyan.careeryiyan.mapper.PostMapper;
 import com.yiyan.careeryiyan.model.domain.Enterprise;
+import com.yiyan.careeryiyan.model.domain.EnterpriseUser;
 import com.yiyan.careeryiyan.model.domain.Post;
 import com.yiyan.careeryiyan.mapper.PostMapper;
 import com.yiyan.careeryiyan.model.domain.Comment;
@@ -226,7 +227,10 @@ public class UserController {
             throw new BaseException("用户不存在");
         }
         UserInfoResponse userInfoResponse = convertToUserInfo(userShow);
-        Enterprise enterprise = enterpriseService.getEnterpriseById(userShow.getEnterpriseId());
+        EnterpriseUser enterpriseUser = enterpriseService.getEnterpriseUserByUserId(id);
+        String enterpriseId = enterpriseUser.getEnterpriseId();
+        Enterprise enterprise = enterpriseService.getEnterpriseById(enterpriseId);
+        userInfoResponse.setEnterpriseId(enterpriseId);
         userInfoResponse.setEnterpriseName(enterprise.getEnterpriseName());
 
         return ResponseEntity.ok(userInfoResponse);
@@ -248,7 +252,10 @@ public class UserController {
         }
 
         UserInfoResponse userInfoResponse = convertToUserInfo(userShow);
-        Enterprise enterprise = enterpriseService.getEnterpriseById(userShow.getEnterpriseId());
+        EnterpriseUser enterpriseUser = enterpriseService.getEnterpriseUserByUserId(id);
+        String enterpriseId = enterpriseUser.getEnterpriseId();
+        Enterprise enterprise = enterpriseService.getEnterpriseById(enterpriseId);
+        userInfoResponse.setEnterpriseId(enterpriseId);
         userInfoResponse.setEnterpriseName(enterprise.getEnterpriseName());
 
         return ResponseEntity.ok(userInfoResponse);

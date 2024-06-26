@@ -9,10 +9,10 @@ import org.apache.ibatis.annotations.*;
 public interface UserMapper {
     @Insert("INSERT INTO User (" +
             "username, nickname, password, email, gender, salt, registerTime, avatarUrl, " +
-            "blog, cv, education, enterpriseId, github, interests, position" +
+            "blog, cv, education, github, interests, position" +
             ") VALUES (" +
             "#{username}, #{nickname}, #{password}, #{email}, #{gender}, #{salt}, #{registerTime}, #{avatarUrl}, " +
-            "#{blog}, #{cv}, #{education}, #{enterpriseId}, #{github}, #{interests}, #{position})")
+            "#{blog}, #{cv}, #{education}, #{github}, #{interests}, #{position})")
     @Options(useGeneratedKeys = true, keyProperty = "id", keyColumn = "id")
     void insertUser(User user);
 
@@ -30,7 +30,6 @@ public interface UserMapper {
             "cv = #{cv}, " +
             "education = #{education}, " +
             "email = #{email}, " +
-            "enterpriseId = #{enterpriseId}, " +
             "gender = #{gender}, " +
             "github = #{github}, " +
             "interests = #{interests}, " +
