@@ -231,11 +231,12 @@ public class UserController {
         }
         UserInfoResponse userInfoResponse = convertToUserInfo(userShow);
         EnterpriseUser enterpriseUser = enterpriseService.getEnterpriseUserByUserId(id);
-        String enterpriseId = enterpriseUser.getEnterpriseId();
-        Enterprise enterprise = enterpriseService.getEnterpriseById(enterpriseId);
-        userInfoResponse.setEnterpriseId(enterpriseId);
-        userInfoResponse.setEnterpriseName(enterprise.getEnterpriseName());
-
+        if(enterpriseUser != null){
+            String enterpriseId = enterpriseUser.getEnterpriseId();
+            Enterprise enterprise = enterpriseService.getEnterpriseById(enterpriseId);
+            userInfoResponse.setEnterpriseId(enterpriseId);
+            userInfoResponse.setEnterpriseName(enterprise.getEnterpriseName());
+        }
         return ResponseEntity.ok(userInfoResponse);
     }
 
