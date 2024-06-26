@@ -32,6 +32,7 @@ public class WebConfig implements WebMvcConfigurer {
                         "/user/register",
                         "/user/login",
                         "/user/salt",
+                        "/user/getInfo",
                         "/notifications/publish",
                         "/enterprise/getInfo" ,
                         "/enterprise/getRecruitmentList",
