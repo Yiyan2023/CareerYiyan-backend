@@ -46,4 +46,8 @@ public class RecruitmentService {
     public Apply getApplyByUserIdAndRecruitmentId(String userId, String recruitmentId) {
         return applyMapper.getApplyByUserIdAndRecruitmentId(userId, recruitmentId);
     }
+
+    public List<Apply> getApplyByRecruitmentId(String recruitmentId) {
+        return applyMapper.getApplyByRecruitmentId(recruitmentId);
+    }
 }

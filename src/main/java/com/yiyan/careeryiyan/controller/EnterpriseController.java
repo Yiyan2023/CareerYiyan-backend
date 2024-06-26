@@ -151,8 +151,6 @@ public class EnterpriseController {
         User user = (User)request.getAttribute("user");
         EnterpriseUser adminUser = enterpriseService.getEnterpriseUserByUserId(user.getId());
         if(adminUser == null||adminUser.getRole() != 0|| !Objects.equals(adminUser.getEnterpriseId(), addEmployeeRequest.getEnterpriseId())){
-            System.out.println(addEmployeeRequest.getEnterpriseId());
-            System.out.println(adminUser.getEnterpriseId());
             throw new BaseException("你不是此企业的管理员");
         }
         EnterpriseUser enterpriseUser = enterpriseService.getEnterpriseUserByUserId(addEmployeeRequest.getUserId());
@@ -175,6 +173,26 @@ public class EnterpriseController {
         enterpriseService.addEnterpriseUser(enterpriseUser);
 
         return ResponseEntity.ok("添加员工成功");
+    }
+
+    @PostMapping("getApplicationList")
+    public ResponseEntity getApplicationList(@RequestBody GetApplicationListRequest getApplicationListRequest, HttpServletRequest request) {
+        User admin = (User) request.getAttribute("user");
+        String recruitmentId = getApplicationListRequest.getRecruitmentId();
+        Recruitment recruitment  = recruitmentService.getRecruitmentById(recruitmentId);
+        if(recruitment==null){
+            throw new BaseException("职位不存在");
+        }
+        EnterpriseUser adminUser = enterpriseService.getEnterpriseUserByUserId(admin.getId());
+        if(adminUser == null||adminUser.getRole() != 0|| !Objects.equals(adminUser.getEnterpriseId(), recruitment.getEnterpriseId())) {
+            throw new BaseException("你不是此企业的管理员");
+        }
+        Enterprise enterprise = enterpriseService.getEnterpriseById(recruitment.getEnterpriseId());
+        if (enterprise == null){
+            throw new BaseException("企业不存在");
+        }
+        List<Apply> applyList = recruitmentService.getApplyByRecruitmentId(recruitmentId);
+        return ResponseEntity.ok(applyList);
     }
 }
 
