@@ -22,7 +22,6 @@ public class User {
     private String blog;
     private String cv;
     private String education;
-    private String enterpriseId;
     private String enterpriseName;
     private String github;
     private String interests;
