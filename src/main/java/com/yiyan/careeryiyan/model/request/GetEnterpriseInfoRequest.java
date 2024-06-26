@@ -5,4 +5,5 @@ import lombok.Data;
 @Data
 public class GetEnterpriseInfoRequest {
     private String enterpriseId;
+    private String userId;
 }
