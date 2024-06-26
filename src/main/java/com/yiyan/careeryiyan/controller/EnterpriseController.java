@@ -176,7 +176,10 @@ public class EnterpriseController {
     public ResponseEntity addApply(@RequestBody AddApplyRequest addApplyRequest, HttpServletRequest request) {
         User user = (User) request.getAttribute("user");
         Apply apply = new Apply(user.getId(), addApplyRequest.getRecruitmentId(), 0, user.getCv());
-
+        EnterpriseUser enterpriseUser = enterpriseService.getEnterpriseUserByUserId(user.getId());
+        if(enterpriseUser!=null&&enterpriseUser.getRole()==0){
+            throw new BaseException("企业管理员不能申请其他职位");
+        }
         Recruitment recruitment = recruitmentService.getRecruitmentById(addApplyRequest.getRecruitmentId());
         if (recruitment == null) {
             throw new BaseException("职位不存在");
