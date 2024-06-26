@@ -1,5 +1,6 @@
 package com.yiyan.careeryiyan.mapper;
 
+import com.yiyan.careeryiyan.model.domain.Apply;
 import com.yiyan.careeryiyan.model.domain.Recruitment;
 import com.yiyan.careeryiyan.model.request.AddRecruitmentRequest;
 import com.yiyan.careeryiyan.model.request.EditRecruitmentRequest;
@@ -44,4 +45,7 @@ public interface RecruitmentMapper {
             "from Apply a, Recruitment r, Enterprise e " +
             "where a.userId = #{id} and a.recruitmentId = r.id and r.enterpriseId = e.id")
     List<UserApplyDetailResponse> getUserApplyList(String id);
+
+    @Select("select * from Apply where id = #{applyId}")
+    Apply getApplyById(String applyId);
 }

@@ -4,6 +4,7 @@ import com.yiyan.careeryiyan.model.domain.Apply;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 import java.util.List;
 
@@ -14,6 +15,9 @@ public interface ApplyMapper {
 
     @Select("SELECT * from Apply where userId = #{userId} and recruitmentId = #{recruitmentId}")
     Apply getApplyByUserIdAndRecruitmentId(String userId, String recruitmentId);
+
+    @Update("UPDATE Apply set status = #{state} where id = #{applyId}")
+    int changeState(String applyId, String state);
 
     @Select("SELECT  * from Apply where recruitmentId = #{recruitmentId}")
     List<Apply> getApplyByRecruitmentId(String recruitmentId);
