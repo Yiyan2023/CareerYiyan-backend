@@ -17,7 +17,7 @@ public class Apply {
     private String id;
     private String userId;
     private String recruitmentId;
-    private String status;
+    private int status;
     private String cvUrl;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @JsonSerialize(using = LocalDateTimeSerializer.class)
@@ -28,7 +28,7 @@ public class Apply {
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private  LocalDateTime updateTime;
 
-    public Apply(String userId, String recruitmentId, String status, String cvUrl) {
+    public Apply(String userId, String recruitmentId, int status, String cvUrl) {
         this.userId = userId;
         this.recruitmentId = recruitmentId;
         this.status = status;

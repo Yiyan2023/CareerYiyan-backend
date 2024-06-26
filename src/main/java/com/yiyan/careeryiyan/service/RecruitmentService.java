@@ -56,8 +56,8 @@ public class RecruitmentService {
         return recruitmentMapper.getUserApplyList(id);
     }
 
-    public int changeState(String applyId, String state) {
-        return applyMapper.changeState(applyId, state);
+    public int changeState(String applyId, int status) {
+        return applyMapper.changeState(applyId, status);
     }
 
     public Apply getApplyById(String applyId) {
