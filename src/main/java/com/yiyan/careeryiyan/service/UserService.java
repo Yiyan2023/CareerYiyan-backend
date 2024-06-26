@@ -41,6 +41,11 @@ public class UserService {
         user.setSalt(salt);
         user.setPassword(saltEncryption(password, salt));
         user.setRegisterTime(created_at);
+        user.setGender("男");
+        user.setEducation("未知");
+        user.setAvatarUrl("https://career-yiyan.oss-cn-beijing.aliyuncs.com/test/chiikawa.png");
+        user.setNickname(username);
+        user.setInterests("该用户没有设置自己的兴趣");
         userMapper.insertUser(user);
     }
 
