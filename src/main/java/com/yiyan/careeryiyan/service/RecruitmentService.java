@@ -48,11 +48,12 @@ public class RecruitmentService {
         return applyMapper.getApplyByUserIdAndRecruitmentId(userId, recruitmentId);
     }
 
+    public List<Apply> getApplyByRecruitmentId(String recruitmentId) {
+        return applyMapper.getApplyByRecruitmentId(recruitmentId);
+    }
+
     public List<UserApplyDetailResponse> getUserApplyList(String id) {
         return recruitmentMapper.getUserApplyList(id);
     }
 
-    public List<Apply> getApplyByRecruitmentId(String recruitmentId) {
-        return applyMapper.getApplyByRecruitmentId(recruitmentId);
-    }
 }
