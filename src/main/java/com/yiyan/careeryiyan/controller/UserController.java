@@ -100,17 +100,26 @@ public class UserController {
      * 创建评论，删除评论，回复评论，
      */
     @PostMapping("/posts/add")
-    public ResponseEntity<Map<String, Object>> addPost( @RequestParam("content") String content,
-                                                        @RequestParam(value = "photos", required = false) List<MultipartFile> photos,
-                                                        HttpServletRequest httpServletRequest) throws IOException {
+    public ResponseEntity<Map<String, Object>> addPost(@RequestBody Map<String,String> requestBody,HttpServletRequest httpServletRequest) throws IOException {
         User user = (User) httpServletRequest.getAttribute("user");
         if (user == null)
             throw new BaseException("用户不存在");
-        Post post = postService.addPost(content,photos, user);
+        Post post = postService.addPost(requestBody.get("content"),requestBody.get("photos"), user);
         Map<String, Object> res = post.toDict();
         res.put("author", user.toDict());
         return ResponseEntity.ok(res);
     }
+//    public ResponseEntity getEmployeeList(@RequestBody Map<String,String> requestBody, HttpServletRequest httpServletRequest){
+//        User user = (User) httpServletRequest.getAttribute("user");
+//        String enterpriseId = requestBody.get("enterpriseId");
+//        EnterpriseUser enterpriseUser = enterpriseService.getEnterpriseUserByUserId(user.getId());
+//        if(enterpriseUser == null || !Objects.equals(enterpriseUser.getEnterpriseId(),enterpriseId)){
+//            throw new BaseException("无权查看企业员工列表");
+//        }
+//
+//        List<EmployeeListResponse> employeeList = enterpriseService.getEmployeeListByEnterpriseId(enterpriseId);
+//        return ResponseEntity.ok(employeeList);
+//    }
 
     @DeleteMapping("/posts/delete/{id}")
     public ResponseEntity<StringResponse> delPost(@PathVariable int id, HttpServletRequest httpServletRequest) {

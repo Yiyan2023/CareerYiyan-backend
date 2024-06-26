@@ -33,20 +33,20 @@ public class  PostService {
     @Resource
     OSSConfig ossConfig;
     
-    public Post addPost(String content,List<MultipartFile> photos, User user) throws IOException {
-        Post post=new Post(content, user.getId());
-        for(MultipartFile file:photos){
-            if (ObjectUtils.isEmpty(file) || file.getSize() <= 0||file.getSize()>=4L * 1024 * 1024) {
-                throw new BaseException("File is empty");
-            }
-            //转换文件类型
-            String contentType = file.getContentType();
-            if (contentType == null || !contentType.startsWith("image/")) {
-                throw new BaseException("File must be an image");
-            }
-            String url=ossConfig.upload(file,"posts",file.getName()+".png");
-            post.addPhoto(url);
-        }
+    public Post addPost(String content,String photos, User user) throws IOException {
+        Post post=new Post(content, user.getId(),photos);
+//        for(MultipartFile file:photos){
+//            if (ObjectUtils.isEmpty(file) || file.getSize() <= 0||file.getSize()>=4L * 1024 * 1024) {
+//                throw new BaseException("File is empty");
+//            }
+//            //转换文件类型
+//            String contentType = file.getContentType();
+//            if (contentType == null || !contentType.startsWith("image/")) {
+//                throw new BaseException("File must be an image");
+//            }
+//            String url=ossConfig.upload(file,"posts",file.getName()+".png");
+//            post.addPhoto(url);
+//        }
         int res=postMapper.insertPost(post);
 
         return post;
