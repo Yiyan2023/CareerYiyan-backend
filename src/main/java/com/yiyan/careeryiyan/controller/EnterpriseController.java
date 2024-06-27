@@ -155,6 +155,11 @@ public class EnterpriseController {
                 !Objects.equals(enterpriseUser.getEnterpriseId(), editRecruitmentRequest.getEnterpriseId())) {
             throw new BaseException("用户不是企业管理员");
         }
+        Recruitment recruitment = recruitmentService.getRecruitmentById(editRecruitmentRequest.getId());
+        if(recruitment.getOfferCount() > editRecruitmentRequest.getHeadCount()){
+            throw new BaseException("招聘人数不能小于已发offer人数");
+        }
+
         if (recruitmentService.updateRecruitment(editRecruitmentRequest) > 0) {
             return ResponseEntity.ok(new StringResponse("修改成功"));
         }
