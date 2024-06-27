@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 
 @Data
 public class AddRecruitmentRequest {
+    private int id;
     private String enterpriseId;
     private String recruitmentName;
     private String recruitmentAddress;

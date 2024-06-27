@@ -93,8 +93,9 @@ public class EnterpriseController {
             throw new BaseException("用户不是企业管理员");
         }
         addRecruitmentRequest.setCreateTime(LocalDateTime.now());
-        if (recruitmentService.addRecruitment(addRecruitmentRequest) > 0) {
-            return ResponseEntity.ok("发布成功");
+        int id = recruitmentService.addRecruitment(addRecruitmentRequest);
+        if (id > 0) {
+            return ResponseEntity.ok(Map.of("recruitmentId",String.valueOf(id)));
         }
 
         throw new BaseException("发布失败");
