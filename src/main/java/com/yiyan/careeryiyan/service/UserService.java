@@ -47,6 +47,7 @@ public class UserService {
         user.setAvatarUrl("https://career-yiyan.oss-cn-beijing.aliyuncs.com/test/chiikawa.png");
         user.setNickname(username);
         user.setInterests("该用户没有设置自己的兴趣");
+        user.setPosition("未知");
         userMapper.insertUser(user);
     }
 
