@@ -318,11 +318,25 @@ public class EnterpriseController {
         }
         //修改apply(accept:status=3 offer被接收   not accept:status=4 offer被拒绝
         int status = isAccept==1?3:4;
-        if(recruitmentService.changeState(applyId,status)>0){
-            return ResponseEntity.ok(new StringResponse("修改成功"));
+        if(recruitmentService.changeState(applyId,status)<=0){
+            throw new BaseException("处理失败");
         }
 
-        throw new BaseException("修改失败");
+        if (status == 3){
+            //已经加入企业不能再加入
+            EnterpriseUser enterpriseUser = enterpriseService.getEnterpriseUserByUserId(user.getId());
+            //判断是否已经加入企业
+            if(enterpriseUser != null){
+                throw new BaseException("您已在企业中");
+            }
+            //将用户加入企业
+            int res=enterpriseService.addUserToEnterprise(apply.getUserId(),recruitment.getEnterpriseId());
+            if (res > 0){
+                return ResponseEntity.ok(new StringResponse("您已加入企业"));
+            }
+        }
+
+        throw new BaseException("处理失败");
     }
 
     @PostMapping("/getEmployeeList")
