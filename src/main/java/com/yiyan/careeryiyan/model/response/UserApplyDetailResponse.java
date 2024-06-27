@@ -48,4 +48,9 @@ public class UserApplyDetailResponse {
     private String enterpriseType;
     private String enterpriseLicense;
     private String avatarUrl;
+
+    //enterpriseUser
+    private String adminId;
+    private String adminName;
+    private String adminAvatar;
 }

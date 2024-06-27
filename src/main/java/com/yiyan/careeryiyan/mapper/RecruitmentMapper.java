@@ -40,12 +40,45 @@ public interface RecruitmentMapper {
     @Delete("delete from Recruitment where id = #{id}")
     int deleteRecruitment(String id);
 
-    @Select("select a.id as id, a.userId as userId, a.recruitmentId as recruitmentId, a.status as status, a.cvUrl as cvUrl, a.createTime as createTime, a.updateTime as updateTime, " +
-            "r.id as enterpriseId, r.recruitmentName as recruitmentName, r.recruitmentAddress as recruitmentAddress, r.recruitmentTag as recruitmentTag, r.minSalary as minSalary, r.maxSalary as maxSalary, r.salaryInterval as salaryInterval, r.education as education, r.recruitmentDescription as recruitmentDescription, r.headCount as headCount, r.offerCount as offerCount, " +
-            "e.enterpriseName as enterpriseName, e.enterpriseAddress as enterpriseAddress, e.enterpriseDescription as enterpriseDescription, e.enterpriseType as enterpriseType, e.enterpriseLicense as enterpriseLicense, e.avatarUrl as avatarUrl " +
-            "from Apply a, Recruitment r, Enterprise e " +
-            "where a.userId = #{id} and a.recruitmentId = r.id and r.enterpriseId = e.id")
-    List<UserApplyDetailResponse> getUserApplyList(String id);
+    @Select("select a.id                     as id,\n" +
+            "       a.userId                 as userId,\n" +
+            "       a.recruitmentId          as recruitmentId,\n" +
+            "       a.status                 as status,\n" +
+            "       a.cvUrl                  as cvUrl,\n" +
+            "       a.createTime             as createTime,\n" +
+            "       a.updateTime             as updateTime,\n" +
+            "       e.id                     as enterpriseId,\n" +
+            "       r.recruitmentName        as recruitmentName,\n" +
+            "       r.recruitmentAddress     as recruitmentAddress,\n" +
+            "       r.recruitmentTag         as recruitmentTag,\n" +
+            "       r.minSalary              as minSalary,\n" +
+            "       r.maxSalary              as maxSalary,\n" +
+            "       r.salaryInterval         as salaryInterval,\n" +
+            "       r.education              as education,\n" +
+            "       r.recruitmentDescription as recruitmentDescription,\n" +
+            "       r.headCount              as headCount,\n" +
+            "       r.offerCount             as offerCount,\n" +
+            "       e.enterpriseName         as enterpriseName,\n" +
+            "       e.enterpriseAddress      as enterpriseAddress,\n" +
+            "       e.enterpriseDescription  as enterpriseDescription,\n" +
+            "       e.enterpriseType         as enterpriseType,\n" +
+            "       e.enterpriseLicense      as enterpriseLicense,\n" +
+            "       e.avatarUrl              as avatarUrl,\n" +
+            "       eu.userId                as adminId,\n" +
+            "       u.username               as adminName,\n" +
+            "       u.avatarUrl              as adminAvatar\n" +
+            "from Apply a,\n" +
+            "     Recruitment r,\n" +
+            "     Enterprise e,\n" +
+            "     EnterpriseUser eu,\n" +
+            "     User u\n"+
+            "where a.userId = #{userId}\n" +
+            "  and a.recruitmentId = r.id\n" +
+            "  and r.enterpriseId = e.id\n" +
+            "  and e.id = eu.enterpriseId\n" +
+            "  and eu.role = 0\n" +
+            "  and u.id = eu.userId\n")
+    List<UserApplyDetailResponse> getUserApplyList(String userId);
 
     @Select("select * from Apply where id = #{applyId}")
     Apply getApplyById(String applyId);
