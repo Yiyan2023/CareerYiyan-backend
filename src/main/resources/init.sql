@@ -111,7 +111,7 @@ CREATE TABLE comment (
                          user_id INT,
                          comment_parent_id INT,
                          comment_content TEXT,
-                         comment_created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                         comment_create_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                          is_delete BOOL DEFAULT 0 NOT NULL,
                          FOREIGN KEY (post_id) REFERENCES post(post_id),
                          FOREIGN KEY (user_id) REFERENCES user(user_id),

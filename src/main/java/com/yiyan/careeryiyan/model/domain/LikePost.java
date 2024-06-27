@@ -6,13 +6,13 @@ import java.util.Date;
 
 @Data
 public class LikePost {
-    private int likePostId;
+    private String likePostId;
     private Date likePostCreateAt;
-    private int userId;
-    private int postId;
+    private String userId;
+    private String postId;
     private boolean isDelete;
 
-    public LikePost(int userId, int postId) {
+    public LikePost(String userId, String postId) {
         this.userId = userId;
         this.postId = postId;
         this.likePostCreateAt = new Date();

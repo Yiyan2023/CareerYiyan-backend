@@ -28,7 +28,7 @@ public class EnterpriseController {
     @PostMapping("/addEnterprise")
     public ResponseEntity addEnterprise(@RequestBody AddEnterpriseRequest addEnterpriseRequest, HttpServletRequest request) {
         User user = (User) request.getAttribute("user");
-        EnterpriseUser enterpriseUser = enterpriseService.getEnterpriseUserByUserId(user.getId());
+        EnterpriseUser enterpriseUser = enterpriseService.getEnterpriseUserByUserId(user.getUserId());
         if (enterpriseUser != null) {
             throw new BaseException("用户已创建过企业或已加入企业！");
         }
@@ -49,7 +49,7 @@ public class EnterpriseController {
             System.out.println(enterprise.getId());
             //enterprise.setId(String.valueOf(id));
             enterpriseUser = new EnterpriseUser();
-            enterpriseUser.setUserId(user.getId());
+            enterpriseUser.setUserId(user.getUserId());
             enterpriseUser.setEnterpriseId(enterprise.getId());
             enterpriseUser.setRole(0);
             enterpriseUser.setCreateTime(LocalDateTime.now());
@@ -92,7 +92,7 @@ public class EnterpriseController {
     @PostMapping("/addRecruitment")
     public ResponseEntity addRecruitment(@RequestBody AddRecruitmentRequest addRecruitmentRequest, HttpServletRequest request) {
         User user = (User) request.getAttribute("user");
-        EnterpriseUser enterpriseUser = enterpriseService.getEnterpriseUserByUserId(user.getId());
+        EnterpriseUser enterpriseUser = enterpriseService.getEnterpriseUserByUserId(user.getUserId());
         if (enterpriseUser == null || enterpriseUser.getRole() != 0 || !Objects.equals(enterpriseUser.getEnterpriseId(), addRecruitmentRequest.getEnterpriseId())) {
             throw new BaseException("用户不是企业管理员");
         }
@@ -150,7 +150,7 @@ public class EnterpriseController {
     @PostMapping("/editRecruitment")
     public ResponseEntity editRecruitment(@RequestBody EditRecruitmentRequest editRecruitmentRequest, HttpServletRequest request) {
         User user = (User) request.getAttribute("user");
-        EnterpriseUser enterpriseUser = enterpriseService.getEnterpriseUserByUserId(user.getId());
+        EnterpriseUser enterpriseUser = enterpriseService.getEnterpriseUserByUserId(user.getUserId());
         if (enterpriseUser == null || enterpriseUser.getRole() != 0 ||
                 !Objects.equals(enterpriseUser.getEnterpriseId(), editRecruitmentRequest.getEnterpriseId())) {
             throw new BaseException("用户不是企业管理员");
@@ -171,7 +171,7 @@ public class EnterpriseController {
     public ResponseEntity deleteRecruitment(@RequestBody DeleteRecruitmentRequest deleteRecruitmentRequest, HttpServletRequest request) {
         User user = (User) request.getAttribute("user");
         String id = deleteRecruitmentRequest.getId();
-        EnterpriseUser enterpriseUser = enterpriseService.getEnterpriseUserByUserId(user.getId());
+        EnterpriseUser enterpriseUser = enterpriseService.getEnterpriseUserByUserId(user.getUserId());
         Recruitment recruitment = recruitmentService.getRecruitmentById(id);
         if (enterpriseUser == null || enterpriseUser.getRole() != 0 ||
                 !Objects.equals(enterpriseUser.getEnterpriseId(), recruitment.getEnterpriseId())) {
@@ -187,15 +187,15 @@ public class EnterpriseController {
     @PostMapping("/apply")
     public ResponseEntity addApply(@RequestBody AddApplyRequest addApplyRequest, HttpServletRequest request) {
         User user = (User) request.getAttribute("user");
-        Apply apply = new Apply(user.getId(), addApplyRequest.getRecruitmentId(), 0, user.getCv());
-        EnterpriseUser enterpriseUser = enterpriseService.getEnterpriseUserByUserId(user.getId());
+        Apply apply = new Apply(user.getUserId(), addApplyRequest.getRecruitmentId(), 0, user.getUserCvUrl());
+        EnterpriseUser enterpriseUser = enterpriseService.getEnterpriseUserByUserId(user.getUserId());
         if(enterpriseUser!=null&&enterpriseUser.getRole()==0){
             throw new BaseException("企业管理员不能申请其他职位");
         }
         Recruitment recruitment = recruitmentService.getRecruitmentById(addApplyRequest.getRecruitmentId());
         if (recruitment == null) {
             throw new BaseException("职位不存在");
-        } else if (recruitmentService.getApplyByUserIdAndRecruitmentId(user.getId(), addApplyRequest.getRecruitmentId()) != null) {
+        } else if (recruitmentService.getApplyByUserIdAndRecruitmentId(user.getUserId(), addApplyRequest.getRecruitmentId()) != null) {
             throw new BaseException("已经申请过该职位");
         } else if (recruitment.getOfferCount() >= recruitment.getHeadCount()) {
             throw new BaseException("该职位已经招满");
@@ -209,7 +209,7 @@ public class EnterpriseController {
     @PostMapping("/addEmployee")
     public ResponseEntity addEmployee(@RequestBody AddEmployeeRequest addEmployeeRequest, HttpServletRequest request){
         User user = (User)request.getAttribute("user");
-        EnterpriseUser adminUser = enterpriseService.getEnterpriseUserByUserId(user.getId());
+        EnterpriseUser adminUser = enterpriseService.getEnterpriseUserByUserId(user.getUserId());
         if(adminUser == null||adminUser.getRole() != 0|| !Objects.equals(adminUser.getEnterpriseId(), addEmployeeRequest.getEnterpriseId())){
             throw new BaseException("你不是此企业的管理员");
         }
@@ -243,7 +243,7 @@ public class EnterpriseController {
         if(recruitment==null){
             throw new BaseException("职位不存在");
         }
-        EnterpriseUser adminUser = enterpriseService.getEnterpriseUserByUserId(admin.getId());
+        EnterpriseUser adminUser = enterpriseService.getEnterpriseUserByUserId(admin.getUserId());
         if(adminUser == null||adminUser.getRole() != 0|| !Objects.equals(adminUser.getEnterpriseId(), recruitment.getEnterpriseId())) {
             throw new BaseException("你不是此企业的管理员");
         }
@@ -266,7 +266,7 @@ public class EnterpriseController {
     @PostMapping("/getUserApplyList")
     public ResponseEntity getApplyList(HttpServletRequest httpServletRequest){
         User user = (User) httpServletRequest.getAttribute("user");
-        List<UserApplyDetailResponse> applyList = recruitmentService.getUserApplyList(user.getId());
+        List<UserApplyDetailResponse> applyList = recruitmentService.getUserApplyList(user.getUserId());
         return ResponseEntity.ok(applyList);
     }
 
@@ -280,7 +280,7 @@ public class EnterpriseController {
         //通过apply查询recruitment
         Recruitment recruitment = recruitmentService.getRecruitmentById(apply.getRecruitmentId());
         //通过userId和recruitment中的enterpriseId查询enterpriseUser
-        EnterpriseUser enterpriseUser = enterpriseService.getEnterpriseUserByUserId(user.getId());
+        EnterpriseUser enterpriseUser = enterpriseService.getEnterpriseUserByUserId(user.getUserId());
         //不是管理员，报错
         if(enterpriseUser == null || enterpriseUser.getRole() != 0 || !Objects.equals(enterpriseUser.getEnterpriseId(),recruitment.getEnterpriseId())){
             throw new BaseException("你不是此企业的管理员");
@@ -303,7 +303,7 @@ public class EnterpriseController {
         }
 
         //判断是否是申请人
-        if(!Objects.equals(apply.getUserId(),user.getId())){
+        if(!Objects.equals(apply.getUserId(),user.getUserId())){
             throw new BaseException("你不是申请人");
         }
         //判断是否发offer(status为1)
@@ -324,7 +324,7 @@ public class EnterpriseController {
 
         if (status == 3){
             //已经加入企业不能再加入
-            EnterpriseUser enterpriseUser = enterpriseService.getEnterpriseUserByUserId(user.getId());
+            EnterpriseUser enterpriseUser = enterpriseService.getEnterpriseUserByUserId(user.getUserId());
             //判断是否已经加入企业
             if(enterpriseUser != null){
                 throw new BaseException("您已在企业中");
@@ -343,7 +343,7 @@ public class EnterpriseController {
     public ResponseEntity getEmployeeList(@RequestBody Map<String,String> requestBody, HttpServletRequest httpServletRequest){
         User user = (User) httpServletRequest.getAttribute("user");
         String enterpriseId = requestBody.get("enterpriseId");
-        EnterpriseUser enterpriseUser = enterpriseService.getEnterpriseUserByUserId(user.getId());
+        EnterpriseUser enterpriseUser = enterpriseService.getEnterpriseUserByUserId(user.getUserId());
         if(enterpriseUser == null || !Objects.equals(enterpriseUser.getEnterpriseId(),enterpriseId)){
             throw new BaseException("无权查看企业员工列表");
         }

@@ -53,10 +53,10 @@ public class GetRecruitmentInfoResponse {
         this.setHeadCount(recruitment.getHeadCount());
         this.setOfferCount(recruitment.getOfferCount());
 
-        this.setHrId(hr.getId());
-        this.setHrName(hr.getUsername());
-        this.setHrAvatarUrl(hr.getAvatarUrl());
-        this.setGender(hr.getGender());
+        this.setHrId(hr.getUserId());
+        this.setHrName(hr.getUserName());
+        this.setHrAvatarUrl(hr.getUserAvatarUrl());
+        this.setGender(hr.getUserGender());
 
         this.setAuth(auth);
     }

@@ -4,8 +4,8 @@ import lombok.Data;
 
 @Data
 public class AddPostRequest {
-    private String content;
-    private String photos;
+    private String postContent;
+    private String postPhotoUrls;
 
     // getters and setters
 }

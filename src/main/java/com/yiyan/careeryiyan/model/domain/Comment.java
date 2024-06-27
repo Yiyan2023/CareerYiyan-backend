@@ -9,19 +9,19 @@ import java.util.Map;
 
 @Data
 public class Comment {
-    private int commentId;
-    private int postId;
-    private int userId;
-    private int commentParentId;
+    private String commentId;
+    private String postId;
+    private String userId;
+    private String commentParentId;
     private String commentContent;
-    private Date commentCreatedAt;
+    private Date commentCreateAt;
     private boolean isDelete;
 
-    public Comment(int postId, int userId, String commentContent, int commentParentId) {
+    public Comment(String postId, String userId, String commentContent, String commentParentId) {
         this.postId = postId;
         this.userId = userId;
         this.commentContent = commentContent;
-        this.commentCreatedAt = new Date();
+        this.commentCreateAt = new Date();
         this.commentParentId = commentParentId;
         this.isDelete = false;
     }
@@ -30,8 +30,8 @@ public class Comment {
         Map<String, Object> map = new HashMap<>();
         map.put("commentId", commentId);
         map.put("commentContent", commentContent);
-        map.put("commentCreatedAt", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(commentCreatedAt));
-        map.put("isDelete", isDelete);
+        map.put("commentCreateAt", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(commentCreateAt));
+//        map.put("isDelete", isDelete);
         return map;
     }
 }

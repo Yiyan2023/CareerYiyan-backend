@@ -38,7 +38,7 @@ public class PostController {
         User user = (User) httpServletRequest.getAttribute("user");
         if (user == null)
             throw new BaseException("用户不存在");
-        Post post = postService.addPost(req.getContent(), req.getPhotos(), user);
+        Post post = postService.addPost(req.getPostContent(), req.getPostPhotoUrls(), user);
         Map<String, Object> res = post.toDict();
         res.put("author", user.toDict());
         return ResponseEntity.ok(res);
@@ -54,14 +54,23 @@ public class PostController {
         String response = res ? "删除成功" : "删除失败";
         return ResponseEntity.ok(new StringResponse(response));
     }
-
     @PostMapping("/like/{id}")
     public ResponseEntity<StringResponse> likePost(@PathVariable int id,@RequestParam boolean status, HttpServletRequest httpServletRequest) {
         User user = (User) httpServletRequest.getAttribute("user");
         if (user == null)
             throw new BaseException("用户不存在");
-        boolean res = postService.like(String.valueOf(id),user,status,1);
-        String response = res ? "点赞成功" : "删除失败";
+        boolean res = postService.likePost(String.valueOf(id),user,status);
+        String response = res ? "点赞成功" : "点赞失败";
+        return ResponseEntity.ok(new StringResponse(response));
+    }
+
+    @PostMapping("/comments/like/{id}")
+    public ResponseEntity<StringResponse> likeComment(@PathVariable int id,@RequestParam boolean status, HttpServletRequest httpServletRequest) {
+        User user = (User) httpServletRequest.getAttribute("user");
+        if (user == null)
+            throw new BaseException("用户不存在");
+        boolean res = postService.likeComment(String.valueOf(id),user,status);
+        String response = res ? "评论点赞成功" : "评论点赞失败";
         return ResponseEntity.ok(new StringResponse(response));
     }
     /*
@@ -74,14 +83,21 @@ public class PostController {
         User user = (User) httpServletRequest.getAttribute("user");
         if (user == null)
             throw new BaseException("用户不存在");
-        return ResponseEntity.ok(postService.repost(String.valueOf(id),user,title));
+        Map<String, Object> res=postService.repost(String.valueOf(id),user,title);
+        if(res==null){
+            res=new HashMap<>();
+            res.put("res","父帖已删除");
+        }
+
+        return ResponseEntity.ok(res);
     }
 
 
     @GetMapping("/all")
     public ResponseEntity<Map<String, Object>> getUserPost(HttpServletRequest httpServletRequest) {
-        Map<String, Object>res=new HashMap<String, Object>();
         User user = (User) httpServletRequest.getAttribute("user");
+        if(user==null)
+            throw new BaseException("用户不存在");
         return ResponseEntity.ok(postService.getPostsByUser(user));
     }
     @GetMapping("/user/{id}")
