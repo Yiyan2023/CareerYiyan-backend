@@ -20,7 +20,8 @@ public interface EnterpriseUserMapper {
 
     @Select("select * " +
             "from User u, EnterpriseUser eu " +
-            "where u.id = eu.userId and eu.isDeleted = 0 and eu.enterpriseId = #{enterpriseId}")
+            "where u.id = eu.userId and eu.isDeleted = 0 and eu.enterpriseId = #{enterpriseId} " +
+            "and eu.role = 1")
     List<EmployeeListResponse> getEmployeeListByEnterpriseId(String enterpriseId);
 
     @Select("SELECT * from EnterpriseUser eu " +
