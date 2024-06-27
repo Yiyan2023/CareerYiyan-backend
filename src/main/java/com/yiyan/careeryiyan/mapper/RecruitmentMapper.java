@@ -15,6 +15,7 @@ public interface RecruitmentMapper {
             ",minSalary,maxSalary,salaryInterval,headCount,offerCount,createTime,education,recruitmentDescription)"
             +" VALUES (#{enterpriseId},#{recruitmentName},#{recruitmentAddress}," +
             "#{recruitmentTag},#{minSalary},#{maxSalary},#{salaryInterval},#{headCount},#{offerCount},#{createTime},#{education},#{recruitmentDescription})")
+    @Options(useGeneratedKeys = true, keyProperty = "id")
     int addRecruitment(AddRecruitmentRequest addRecruitmentRequest);
 
     @Select("select * from Recruitment r where r.enterpriseId=#{enterpriseId}")

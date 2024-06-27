@@ -23,7 +23,8 @@ public class RecruitmentService {
     ApplyMapper applyMapper;
 
     public int addRecruitment(AddRecruitmentRequest addRecruitmentRequest) {
-        return recruitmentMapper.addRecruitment(addRecruitmentRequest);
+        recruitmentMapper.addRecruitment(addRecruitmentRequest);
+        return addRecruitmentRequest.getId();
     }
 
     public List<Recruitment> getRecruitmentList(String enterpriseId) {
