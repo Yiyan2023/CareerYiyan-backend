@@ -45,4 +45,8 @@ public class EnterpriseService {
     public EnterpriseUser getEnterpriseAdminByEnterpriseId(String enterpriseId) {
         return enterpriseUserMapper.getEnterpriseAdminByEnterpriseId(enterpriseId);
     }
+
+    public Enterprise getEnterpriseByName(String enterpriseName) {
+        return enterpriseMapper.getEnterpriseByName(enterpriseName);
+    }
 }
