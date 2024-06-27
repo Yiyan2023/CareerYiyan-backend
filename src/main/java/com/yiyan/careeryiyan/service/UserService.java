@@ -55,6 +55,7 @@ public class UserService {
             throw new BaseException("邮箱未注册");
         }
         password = saltEncryption(password, user.getSalt());
+        System.out.println(password);
         if (!user.getPassword().equals(password)) {
             throw new BaseException("密码不正确");
         }

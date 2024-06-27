@@ -121,7 +121,7 @@ public class UserController {
 //        return ResponseEntity.ok(employeeList);
 //    }
 
-    @DeleteMapping("/posts/delete/{id}")
+    @PostMapping("/posts/delete/{id}")
     public ResponseEntity<StringResponse> delPost(@PathVariable int id, HttpServletRequest httpServletRequest) {
         User user = (User) httpServletRequest.getAttribute("user");
         if (user == null)
@@ -186,7 +186,7 @@ public class UserController {
         responseData.put("author", user.toDict());
         return ResponseEntity.ok(responseData);
     }
-    @DeleteMapping("/posts/comments/delete/{id}")
+    @PostMapping("/posts/comments/delete/{id}")
     public ResponseEntity<StringResponse> delComment(@PathVariable int id, HttpServletRequest httpServletRequest) {
         User user = (User) httpServletRequest.getAttribute("user");
         if (user == null)
