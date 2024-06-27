@@ -5,7 +5,7 @@ import com.yiyan.careeryiyan.model.domain.Comment;
 import com.yiyan.careeryiyan.model.domain.Post;
 import com.yiyan.careeryiyan.model.domain.User;
 import com.yiyan.careeryiyan.model.request.AddCommentRequest;
-import com.yiyan.careeryiyan.model.request.PostRequest;
+import com.yiyan.careeryiyan.model.request.AddPostRequest;
 import com.yiyan.careeryiyan.model.response.StringResponse;
 import com.yiyan.careeryiyan.service.PostService;
 import com.yiyan.careeryiyan.service.UserService;
@@ -13,13 +13,12 @@ import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+
 @RestController
 @RequestMapping("/posts")
 public class PostController {
@@ -34,7 +33,7 @@ public class PostController {
     UserService userService;
 
     @PostMapping("/add")
-    public ResponseEntity<Map<String, Object>> addPost(@RequestBody PostRequest req,
+    public ResponseEntity<Map<String, Object>> addPost(@RequestBody AddPostRequest req,
                                                        HttpServletRequest httpServletRequest) throws IOException {
         User user = (User) httpServletRequest.getAttribute("user");
         if (user == null)
