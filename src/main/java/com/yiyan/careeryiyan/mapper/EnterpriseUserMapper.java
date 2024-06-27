@@ -27,4 +27,8 @@ public interface EnterpriseUserMapper {
     @Select("SELECT * from EnterpriseUser eu " +
             "where eu.enterpriseId = #{enterpriseId} and eu.isDeleted = 0 and eu.role = 0")
     EnterpriseUser getEnterpriseAdminByEnterpriseId(String enterpriseId);
+
+    @Insert("insert into EnterpriseUser (enterpriseId, userId, role,createTime)" +
+            "values(#{enterpriseId}, #{userId}, 1,now())")
+    int addUserToEnterprise(String userId, String enterpriseId);
 }
