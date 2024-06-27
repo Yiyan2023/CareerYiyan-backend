@@ -51,8 +51,6 @@ public class UserController {
     @Resource
     UserService userService;
     @Resource
-    PostService postService;
-    @Resource
     OSSConfig ossConfig;
     @Resource
     EnterpriseService enterpriseService;
@@ -95,124 +93,7 @@ public class UserController {
         return ResponseEntity.ok(user.toDict());
     }
 
-    /*
-     * 新建动态、删除动态，获取用户所有动态，点赞动态
-     * 创建评论，删除评论，回复评论，
-     */
-    @PostMapping("/posts/add")
-    public ResponseEntity<Map<String, Object>> addPost(@RequestBody Map<String,String> requestBody,HttpServletRequest httpServletRequest) throws IOException {
-        User user = (User) httpServletRequest.getAttribute("user");
-        if (user == null)
-            throw new BaseException("用户不存在");
-        Post post = postService.addPost(requestBody.get("content"),requestBody.get("photos"), user);
-        Map<String, Object> res = post.toDict();
-        res.put("author", user.toDict());
-        return ResponseEntity.ok(res);
-    }
-//    public ResponseEntity getEmployeeList(@RequestBody Map<String,String> requestBody, HttpServletRequest httpServletRequest){
-//        User user = (User) httpServletRequest.getAttribute("user");
-//        String enterpriseId = requestBody.get("enterpriseId");
-//        EnterpriseUser enterpriseUser = enterpriseService.getEnterpriseUserByUserId(user.getId());
-//        if(enterpriseUser == null || !Objects.equals(enterpriseUser.getEnterpriseId(),enterpriseId)){
-//            throw new BaseException("无权查看企业员工列表");
-//        }
-//
-//        List<EmployeeListResponse> employeeList = enterpriseService.getEmployeeListByEnterpriseId(enterpriseId);
-//        return ResponseEntity.ok(employeeList);
-//    }
 
-    @PostMapping("/posts/delete/{id}")
-    public ResponseEntity<StringResponse> delPost(@PathVariable int id, HttpServletRequest httpServletRequest) {
-        User user = (User) httpServletRequest.getAttribute("user");
-        if (user == null)
-
-            throw new BaseException("用户不存在");
-        boolean res = postService.delPost(String.valueOf(id), user);
-        String response = res ? "删除成功" : "删除失败";
-        return ResponseEntity.ok(new StringResponse(response));
-    }
-
-    @PostMapping("/posts/like/{id}")
-    public ResponseEntity<StringResponse> likePost(@PathVariable int id,@RequestParam boolean status, HttpServletRequest httpServletRequest) {
-        User user = (User) httpServletRequest.getAttribute("user");
-        if (user == null)
-            throw new BaseException("用户不存在");
-        boolean res = postService.like(String.valueOf(id),user,status,1);
-        String response = res ? "点赞成功" : "删除失败";
-        return ResponseEntity.ok(new StringResponse(response));
-    }
-
-
-    @GetMapping("/posts/all")
-    public ResponseEntity<Map<String, Object>> getUserPost(HttpServletRequest httpServletRequest) {
-        Map<String, Object>res=new HashMap<String, Object>();
-        User user = (User) httpServletRequest.getAttribute("user");
-        List<Post> posts = postService.getPostsByUser(user);
-        List<Map<String, Object>> postlist = posts.stream()
-                .map(Post::toDict)
-                .collect(Collectors.toList());
-        res.put("posts",postlist);
-        res.put("author",user.toDict());
-        return ResponseEntity.ok(res);
-    }
-
-    @GetMapping("/posts/user/{id}")
-    public ResponseEntity<Map<String, Object>> getUserPost1(@PathVariable int id,
-                                                            HttpServletRequest httpServletRequest) {
-        Map<String, Object>res=new HashMap<String, Object>();
-        User user = userService.getUserInfo(String.valueOf(id));
-        List<Post> posts = postService.getPostsByUser(user);
-        List<Map<String, Object>> postlist = posts.stream()
-                .map(Post::toDict)
-                .collect(Collectors.toList());
-        res.put("posts",postlist);
-        res.put("author",user.toDict());
-        return ResponseEntity.ok(res);
-    }
-    @GetMapping("/posts/{id}")
-    public ResponseEntity<Map<String,Object>> getPost(@PathVariable int id,HttpServletRequest httpServletRequest){
-        User user = (User) httpServletRequest.getAttribute("user");
-        if (user == null) {
-            throw new BaseException("用户不存在");
-        }
-        Map<String,Object> res=postService.getPost(String.valueOf(id),user);
-        res.put("comments",postService.getAllComments(String.valueOf(id)));
-        return ResponseEntity.ok(res);
-    }
-
-    /*
-     * * 创建评论，删除评论，获取所有评论
-     */
-    @PostMapping("/posts/comments/add")
-    public ResponseEntity<Map<String, Object>> addComment(@RequestBody AddCommentRequest req, HttpServletRequest httpServletRequest) {
-        User user = (User) httpServletRequest.getAttribute("user");
-        if (user == null) {
-            throw new BaseException("用户不存在");
-        }
-
-        Comment comment = postService.addComment(req, user);
-        if (comment == null) {
-            throw new BaseException("新建失败");
-        }
-
-        Map<String, Object> responseData = new HashMap<>();
-        responseData.putAll(comment.toDict());
-        responseData.put("author", user.toDict());
-        return ResponseEntity.ok(responseData);
-    }
-    @PostMapping("/posts/comments/delete/{id}")
-    public ResponseEntity<StringResponse> delComment(@PathVariable int id, HttpServletRequest httpServletRequest) {
-        User user = (User) httpServletRequest.getAttribute("user");
-        if (user == null)
-            throw new BaseException("用户不存在");
-        boolean res = postService.delComment(String.valueOf(id), user);
-        String response = res ? "删除成功" : "删除失败";
-        return ResponseEntity.ok(new StringResponse(response));
-    }
-    @GetMapping("/posts/{id}/comments")
-    public ResponseEntity<List<Map<String, Object>>> getAllComment(@PathVariable int id,HttpServletRequest httpServletRequest){
-        return ResponseEntity.ok(postService.getAllComments(String.valueOf(id)));
-    }
     @PostMapping("/uploadCV")
     public ResponseEntity<StringResponse> uploadCV(@RequestParam("file") MultipartFile file,
             HttpServletRequest httpServletRequest) throws IOException {

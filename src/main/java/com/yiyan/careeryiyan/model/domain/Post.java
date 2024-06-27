@@ -12,11 +12,14 @@ import java.util.*;
 @Data
 public class Post {
     private String id;
+    private String title;
     private String content;
     private Date createdAt;
     private String userId;
     private boolean isPrivate;
     private String photos;
+    private String parentId;
+
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     public Post( String content, String userId,String photos) {
@@ -87,6 +90,8 @@ public class Post {
         map.put("content", content);
         map.put("createdAt", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(createdAt));
         map.put("photos", getPhotos());  // 使用 getter 确保 photos 是最新的
+        map.put("origin", new HashMap<>());
+        map.put("title",title);
         return map;
     }
 }

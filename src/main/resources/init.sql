@@ -16,12 +16,13 @@ DROP TABLE IF EXISTS `post`;
 CREATE TABLE `post`
 (
     id INT AUTO_INCREMENT PRIMARY KEY,
---     title varchar(40),
+    title varchar(40) null ,
     content TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     user_id int,
     is_private bool default false,
-    photos json
+    photos json,
+    parent_id int default 0
 );
 
 

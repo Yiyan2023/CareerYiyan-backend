@@ -10,8 +10,8 @@ import java.util.List;
 @Mapper
 public interface PostMapper {
 
-    @Insert("INSERT INTO post( content, created_at, user_id, photos)" +
-            "VALUES ( #{content}, #{createdAt}, #{userId}, #{photos})")
+    @Insert("INSERT INTO post( content, created_at, user_id, photos,title)" +
+            "VALUES ( #{content}, #{createdAt}, #{userId}, #{photos},#{title})")
     @Options(useGeneratedKeys = true, keyProperty = "id", keyColumn = "id")
     int insertPost(Post post);
 

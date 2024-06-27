@@ -17,10 +17,7 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,20 +32,7 @@ public class  PostService {
     
     public Post addPost(String content,String photos, User user) throws IOException {
         Post post=new Post(content, user.getId(),photos);
-//        for(MultipartFile file:photos){
-//            if (ObjectUtils.isEmpty(file) || file.getSize() <= 0||file.getSize()>=4L * 1024 * 1024) {
-//                throw new BaseException("File is empty");
-//            }
-//            //转换文件类型
-//            String contentType = file.getContentType();
-//            if (contentType == null || !contentType.startsWith("image/")) {
-//                throw new BaseException("File must be an image");
-//            }
-//            String url=ossConfig.upload(file,"posts",file.getName()+".png");
-//            post.addPhoto(url);
-//        }
         int res=postMapper.insertPost(post);
-
         return post;
     }
 
@@ -68,19 +52,34 @@ public class  PostService {
     }
 
     
-    public List<Post> getPostsByUser(User user) {
-        return postMapper.getPostByUser(user.getId());
+    public Map<String,Object> getPostsByUser(User user) {
+        List<Post> postlist=postMapper.getPostByUser(user.getId());
+        List<Map<String,Object>>posts=new ArrayList<Map<String,Object>>();
+        Map<String,Object>res=new HashMap<String,Object>();
+        for(Post post : postlist){
+            Map<String,Object>postDict=post.toDict();
+            if(!post.getParentId().equals("0")){
+                Post parent = postMapper.getPostById(post.getParentId());
+                User origin=userMapper.getUserById(parent.getUserId());
+                postDict.put("origin",origin.toDict());
+            }
+            posts.add(postDict);
+        }
+        res.put("posts",posts);
+        res.put("author",user.toDict());
+        return res;
     }
 
     public Map<String, Object> getPost(String id, User user) {
         Post post = postMapper.getPostById(id);
         User author=userMapper.getUserById(post.getUserId());
-        if (post == null) {
-            System.out.println("null222");
-            return null;
-        }
         Map<String, Object> postDict = post.toDict();
         postDict.put("author", author.toDict());
+        if(!post.getParentId().equals("0")){
+            Post parent=postMapper.getPostById(post.getParentId());
+            User origin=userMapper.getUserById(parent.getUserId());
+            postDict.put("origin", origin.toDict());
+        }
         return postDict;
     }
     
@@ -150,9 +149,24 @@ public class  PostService {
         }
         return res;
     }
+    public Map<String, Object> repost(String postId,User user,String title){
 
-//    
-//    public List<Post> getPostsByEn(User user) {
-//        return null;
-//    }
+        Map<String, Object>res=new HashMap<String, Object>();
+        Post post=postMapper.getPostById(postId);
+        if(!post.getParentId().equals("0")){
+            post=postMapper.getPostById(post.getParentId());
+        }
+        User origin=userMapper.getUserById(post.getUserId());
+        Post newPost=post;
+        newPost.setCreatedAt(new Date());
+        newPost.setUserId(user.getId());
+        newPost.setParentId(postId);
+        newPost.setTitle(title);
+        postMapper.insertPost(post);
+        res.put("posts",post.toDict());
+        res.put("author",user.toDict());
+        res.put("origin",origin.toDict());
+        return res;
+    }
+
 }

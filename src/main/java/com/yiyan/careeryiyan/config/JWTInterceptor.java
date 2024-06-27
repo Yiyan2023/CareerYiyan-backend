@@ -36,7 +36,6 @@ public class JWTInterceptor implements HandlerInterceptor {
             User user = userMapper.getUserById(id);
             if(user == null) {
                 System.out.println("1");
-
             }
             request.setAttribute("user", user);
             return true;
