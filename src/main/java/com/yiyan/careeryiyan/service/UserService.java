@@ -3,6 +3,7 @@ package com.yiyan.careeryiyan.service;
 import com.yiyan.careeryiyan.exception.BaseException;
 import com.yiyan.careeryiyan.mapper.UserMapper;
 import com.yiyan.careeryiyan.model.domain.User;
+import com.yiyan.careeryiyan.model.domain.UserJobPreferences;
 import com.yiyan.careeryiyan.model.request.ModifyInfoRequest;
 import jakarta.annotation.Resource;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -95,4 +96,7 @@ public class UserService {
     }
 
 
+    public List<UserJobPreferences> getUserJobPreferences(String userId) {
+        return userMapper.getUserJobPreferences(userId);
+    }
 }

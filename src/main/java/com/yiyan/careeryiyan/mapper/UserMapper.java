@@ -2,8 +2,11 @@ package com.yiyan.careeryiyan.mapper;
 
 
 import com.yiyan.careeryiyan.model.domain.User;
+import com.yiyan.careeryiyan.model.domain.UserJobPreferences;
 import com.yiyan.careeryiyan.model.request.ModifyInfoRequest;
 import org.apache.ibatis.annotations.*;
+
+import java.util.List;
 
 @Mapper
 public interface UserMapper {
@@ -46,4 +49,6 @@ public interface UserMapper {
     @Update("UPDATE User SET CV=#{CV, jdbcType=VARCHAR}  WHERE id = #{id}")
     int updateCV(String CV,String id);
 
+    @Select("SELECT * FROM UserJobPreferences WHERE userId=#{userId}")
+    List<UserJobPreferences> getUserJobPreferences(String userId);
 }

@@ -242,7 +242,13 @@ public class EnterpriseController {
             throw new BaseException("企业不存在");
         }
         List<Apply> applyList = recruitmentService.getApplyByRecruitmentId(recruitmentId);
-        return ResponseEntity.ok(applyList);
+        List<GetApplicationListResponse> responseList = new ArrayList<>();
+        for (Apply apply : applyList) {
+            User user = userService.getUserInfo(apply.getUserId());
+            List<UserJobPreferences> userJobPreferences = userService.getUserJobPreferences(apply.getUserId());
+            responseList.add(new GetApplicationListResponse(apply, user, userJobPreferences));
+        }
+        return ResponseEntity.ok(responseList);
     }
 
 
