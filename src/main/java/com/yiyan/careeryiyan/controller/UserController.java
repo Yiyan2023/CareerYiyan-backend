@@ -155,6 +155,20 @@ public class UserController {
         res.put("author",user.toDict());
         return ResponseEntity.ok(res);
     }
+
+    @GetMapping("/posts/user/{id}")
+    public ResponseEntity<Map<String, Object>> getUserPost1(@PathVariable int id,
+                                                            HttpServletRequest httpServletRequest) {
+        Map<String, Object>res=new HashMap<String, Object>();
+        User user = userService.getUserInfo(String.valueOf(id));
+        List<Post> posts = postService.getPostsByUser(user);
+        List<Map<String, Object>> postlist = posts.stream()
+                .map(Post::toDict)
+                .collect(Collectors.toList());
+        res.put("posts",postlist);
+        res.put("author",user.toDict());
+        return ResponseEntity.ok(res);
+    }
     @GetMapping("/posts/{id}")
     public ResponseEntity<Map<String,Object>> getPost(@PathVariable int id,HttpServletRequest httpServletRequest){
         User user = (User) httpServletRequest.getAttribute("user");
