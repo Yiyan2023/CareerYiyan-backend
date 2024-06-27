@@ -17,4 +17,6 @@ public interface EnterpriseMapper {
     int addEnterprise(Enterprise enterprise);
 
 
+    @Select("SELECT * from Enterprise where enterpriseName = #{enterpriseName}")
+    Enterprise getEnterpriseByName(String enterpriseName);
 }

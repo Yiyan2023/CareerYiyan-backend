@@ -32,6 +32,10 @@ public class EnterpriseController {
         if (enterpriseUser != null) {
             throw new BaseException("用户已创建过企业或已加入企业！");
         }
+        //检查企业重名
+        if (enterpriseService.getEnterpriseByName(addEnterpriseRequest.getEnterpriseName()) != null) {
+            throw new BaseException("企业名已存在");
+        }
         Enterprise enterprise = new Enterprise();
         enterprise.setEnterpriseAddress(addEnterpriseRequest.getEnterpriseAddress());
         enterprise.setEnterpriseName(addEnterpriseRequest.getEnterpriseName());
