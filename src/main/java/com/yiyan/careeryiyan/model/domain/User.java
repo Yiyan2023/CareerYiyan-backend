@@ -25,12 +25,12 @@ public class User {
     private String userGithubUrl;
     private String userBlogUrl;
     private int userInfluence;
-    private boolean isDelete;
+    private int isDelete;
 
     public User() {
         this.userRegAt = new Date();
         this.userInfluence = 0;
-        this.isDelete = false;
+        this.isDelete = 0;
     }
 
     public Map<String, Object> toDict() {

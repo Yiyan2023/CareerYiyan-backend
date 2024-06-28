@@ -7,6 +7,7 @@ import com.yiyan.careeryiyan.model.response.*;
 import com.yiyan.careeryiyan.service.EnterpriseService;
 import com.yiyan.careeryiyan.service.RecruitmentService;
 import com.yiyan.careeryiyan.service.UserService;
+import com.yiyan.careeryiyan.utils.MapUtil;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +27,7 @@ public class EnterpriseController {
     private UserService userService;
 
     //refactor completed 2024年6月28日22点47分
+    //simple test passed 2024年6月29日01点46分
     @PostMapping("/addEnterprise")
     public ResponseEntity addEnterprise(@RequestBody AddEnterpriseRequest addEnterpriseRequest, HttpServletRequest request) {
         User user = (User) request.getAttribute("user");
@@ -59,7 +61,7 @@ public class EnterpriseController {
             }
             //System.out.println(enterprise.getId());
             Map<String ,String> rsp = new HashMap<>();
-            rsp.put("enterpriseId",enterprise.getEpId());
+            rsp.put("epId",enterprise.getEpId());
             return ResponseEntity.ok(rsp);
 
         }
@@ -67,6 +69,7 @@ public class EnterpriseController {
     }
 
     //refactor completed 2024年6月28日22点47分
+    //simple test passed 2024年6月29日01点42分
     @PostMapping("/getInfo")
     public ResponseEntity getInfo(@RequestBody GetEnterpriseInfoRequest rq) {
         String userId = rq.getUserId();
@@ -93,6 +96,7 @@ public class EnterpriseController {
     }
 
     //refactor completed 2024年6月28日22点47分
+    //simple test passed 2024年6月29日01点41分
     @PostMapping("/addRecruitment")
     public ResponseEntity addRecruitment(@RequestBody AddRecruitmentRequest addRecruitmentRequest, HttpServletRequest request) {
         User user = (User) request.getAttribute("user");
@@ -103,12 +107,13 @@ public class EnterpriseController {
         addRecruitmentRequest.setRcCreateAt(LocalDateTime.now());
         String rcId = recruitmentService.addRecruitment(addRecruitmentRequest);
         if (Integer.parseInt(rcId) > 0) {
-            return ResponseEntity.ok(Map.of("recruitmentId", rcId));
+            return ResponseEntity.ok(Map.of("rcId", rcId));
         }
         throw new BaseException("发布失败");
     }
 
     //refactor completed 2024年6月28日22点47分
+    //simple test passed 2024年6月29日01点37分
     @PostMapping("/getRecruitmentList")
     public ResponseEntity getRecruitmentList(@RequestBody GetRecruitmentListRequest getRecruitmentListRequest) {
         String enterpriseId = getRecruitmentListRequest.getEpId();
@@ -120,6 +125,7 @@ public class EnterpriseController {
     }
 
     //refactor completed 2024年6月28日22点47分
+    //simple test passed 2024年6月29日01点36分
     @PostMapping("/getRecruitmentInfo")
     public ResponseEntity getRecruitmentInfo(@RequestBody GetRecruitmentInfoRequest getRecruitmentInfoRequest) {
         String rcId = getRecruitmentInfoRequest.getRcId();
@@ -145,6 +151,7 @@ public class EnterpriseController {
     }
 
     //refactor completed 2024年6月28日22点47分
+    //simple test passed 2024年6月29日01点34分
     @PostMapping("/editRecruitment")
     public ResponseEntity editRecruitment(@RequestBody EditRecruitmentRequest editRecruitmentRequest, HttpServletRequest request) {
         User user = (User) request.getAttribute("user");
@@ -166,22 +173,24 @@ public class EnterpriseController {
     }
 
     //refactor completed 2024年6月28日22点47分
-    @PostMapping("/deleteRecruitment")
-    public ResponseEntity deleteRecruitment(@RequestBody DeleteRecruitmentRequest deleteRecruitmentRequest, HttpServletRequest request) {
-        User user = (User) request.getAttribute("user");
-        String id = deleteRecruitmentRequest.getRcId();
-        EnterpriseUser enterpriseUser = enterpriseService.getEnterpriseUserByUserId(user.getUserId());
-        Recruitment recruitment = recruitmentService.getRecruitmentById(id);
-        if (enterpriseUser == null || enterpriseUser.getEpUserAuth() != 0 ||
-                !Objects.equals(enterpriseUser.getEpId(), recruitment.getEpId())) {
-            throw new BaseException("用户不是企业管理员");
-        }
-        if (recruitmentService.deleteRecruitment(id) > 0) {
-            return ResponseEntity.ok(new StringResponse("修改成功"));
-        }
+    // 被废弃 at 2024年6月29日01点29分
 
-        throw new BaseException("修改失败");
-    }
+//    @PostMapping("/deleteRecruitment")
+//    public ResponseEntity deleteRecruitment(@RequestBody DeleteRecruitmentRequest deleteRecruitmentRequest, HttpServletRequest request) {
+//        User user = (User) request.getAttribute("user");
+//        String id = deleteRecruitmentRequest.getRcId();
+//        EnterpriseUser enterpriseUser = enterpriseService.getEnterpriseUserByUserId(user.getUserId());
+//        Recruitment recruitment = recruitmentService.getRecruitmentById(id);
+//        if (enterpriseUser == null || enterpriseUser.getEpUserAuth() != 0 ||
+//                !Objects.equals(enterpriseUser.getEpId(), recruitment.getEpId())) {
+//            throw new BaseException("用户不是企业管理员");
+//        }
+//        if (recruitmentService.deleteRecruitment(id) > 0) {
+//            return ResponseEntity.ok(new StringResponse("修改成功"));
+//        }
+//
+//        throw new BaseException("修改失败");
+//    }
 
     //refactor completed 2024年6月28日22点48分
     //simple test passed 2024年6月29日00点24分
@@ -286,15 +295,18 @@ public class EnterpriseController {
 
 
     //refactor completed 2024年6月28日22点48分
+    //simple test passed 2024年6月29日01点21分
     //用户获取自己的投递列表
     @PostMapping("/getUserApplyList")
     public ResponseEntity getApplyList(HttpServletRequest httpServletRequest){
         User user = (User) httpServletRequest.getAttribute("user");
         List<Map<String, Object>> applyList = recruitmentService.getUserApplyList(user.getUserId());
+        applyList = MapUtil.convertKeysToCamelCase(applyList);
         return ResponseEntity.ok(applyList);
     }
 
     //refactor completed 2024年6月28日22点48分
+    //simple test passed 2024年6月29日00点45分
     @PostMapping("/changeState")
     public ResponseEntity changeState(@RequestBody Map<String,String> map,HttpServletRequest httpServletRequest){
         String applyId = map.get("applyId");
@@ -318,6 +330,7 @@ public class EnterpriseController {
     }
 
     //refactor completed 2024年6月28日22点48分
+    //simple test passed 2024年6月29日01点06分
     @PostMapping("/acceptOffer")
     public ResponseEntity acceptOffer(@RequestBody Map<String,String> map,HttpServletRequest httpServletRequest){
         String applyId = map.get("applyId");
@@ -327,7 +340,6 @@ public class EnterpriseController {
         if(apply == null){
             throw new BaseException("申请不存在");
         }
-
         //判断是否是申请人
         if(!Objects.equals(apply.getUserId(),user.getUserId())){
             throw new BaseException("你不是申请人");
@@ -336,18 +348,12 @@ public class EnterpriseController {
         if(apply.getApplyStatus()!=1){
             throw new BaseException("该岗位没有向你发放offer");
         }
-
         //判断相应recruitment是否招满
         Recruitment recruitment = recruitmentService.getRecruitmentById(apply.getRcId());
         if(recruitment.getRcOfferCount()>=recruitment.getRcTotalCount()){
             throw new BaseException("该岗位已经招满");
         }
-        //修改apply(accept:status=3 offer被接收   not accept:status=4 offer被拒绝
         int status = isAccept==1?3:4;
-        if(recruitmentService.changeState(applyId,status)<=0){
-            throw new BaseException("处理失败");
-        }
-
         if (status == 3){
             //已经加入企业不能再加入
             EnterpriseUser enterpriseUser = enterpriseService.getEnterpriseUserByUserId(user.getUserId());
@@ -358,18 +364,23 @@ public class EnterpriseController {
             //将用户加入企业
             int res=enterpriseService.addUserToEnterprise(apply.getUserId(),recruitment.getEpId());
             if (res > 0){
-                return ResponseEntity.ok(new StringResponse("您已加入企业"));
+                return ResponseEntity.ok(new StringResponse("您已成功加入企业"));
             }
         }
-
-        throw new BaseException("处理失败");
+        //修改apply(accept:status=3 offer被接收   not accept:status=4 offer被拒绝
+        if(recruitmentService.changeState(applyId,status)<=0){
+            throw new BaseException("处理失败");
+        }
+        return ResponseEntity.ok(new StringResponse("处理成功"));
+        //throw new BaseException("处理失败");
     }
 
     //refactor completed 2024年6月28日22点55分
+    //simple test passed 2024年6月29日00点42分
     @PostMapping("/getEmployeeList")
     public ResponseEntity getEmployeeList(@RequestBody Map<String,String> requestBody, HttpServletRequest httpServletRequest){
         User user = (User) httpServletRequest.getAttribute("user");
-        String enterpriseId = requestBody.get("enterpriseId");
+        String enterpriseId = requestBody.get("epId");
         EnterpriseUser enterpriseUser = enterpriseService.getEnterpriseUserByUserId(user.getUserId());
         if(enterpriseUser == null || !Objects.equals(enterpriseUser.getEpId(),enterpriseId)){
             throw new BaseException("无权查看企业员工列表");
@@ -378,11 +389,11 @@ public class EnterpriseController {
         return ResponseEntity.ok(employeeList);
     }
 
-    // refactor completed 2024年6月28日22点49
-    // 分
+    // refactor completed 2024年6月28日22点49分
+    // simple test passed 2024年6月29日00点37分
     @PostMapping("/getAdmin")
     public ResponseEntity getAdmin(@RequestBody Map<String,String> requestBody){
-        String enterpriseId = requestBody.get("enterpriseId");
+        String enterpriseId = requestBody.get("epId");
         EnterpriseUser enterpriseUser = enterpriseService.getEnterpriseAdminByEnterpriseId(enterpriseId);
         if(enterpriseUser == null){
             throw new BaseException("企业不存在");
