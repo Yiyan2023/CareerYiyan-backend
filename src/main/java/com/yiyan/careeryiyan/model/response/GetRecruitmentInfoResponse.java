@@ -39,25 +39,25 @@ public class GetRecruitmentInfoResponse {
 
     public GetRecruitmentInfoResponse() {}
     public GetRecruitmentInfoResponse(Recruitment recruitment, User hr,int auth){
-        this.setId(recruitment.getId());
-        this.setEnterpriseId(recruitment.getEnterpriseId());
-        this.setRecruitmentName(recruitment.getRecruitmentName());
-        this.setRecruitmentAddress(recruitment.getRecruitmentAddress());
-        this.setRecruitmentTag(recruitment.getRecruitmentTag());
-        this.setMinSalary(recruitment.getMinSalary());
-        this.setMaxSalary(recruitment.getMaxSalary());
-        this.setSalaryInterval(recruitment.getSalaryInterval());
-        this.setEducation(recruitment.getEducation());
-        this.setRecruitmentDescription(recruitment.getRecruitmentDescription());
-        this.setCreateTime(recruitment.getCreateTime());
-        this.setHeadCount(recruitment.getHeadCount());
-        this.setOfferCount(recruitment.getOfferCount());
-
-        this.setHrId(hr.getUserId());
-        this.setHrName(hr.getUserName());
-        this.setHrAvatarUrl(hr.getUserAvatarUrl());
-        this.setGender(hr.getUserGender());
-
-        this.setAuth(auth);
+//        this.setId(recruitment.getId());
+//        this.setEnterpriseId(recruitment.getEnterpriseId());
+//        this.setRecruitmentName(recruitment.getRecruitmentName());
+//        this.setRecruitmentAddress(recruitment.getRecruitmentAddress());
+//        this.setRecruitmentTag(recruitment.getRecruitmentTag());
+//        this.setMinSalary(recruitment.getMinSalary());
+//        this.setMaxSalary(recruitment.getMaxSalary());
+//        this.setSalaryInterval(recruitment.getSalaryInterval());
+//        this.setEducation(recruitment.getEducation());
+//        this.setRecruitmentDescription(recruitment.getRecruitmentDescription());
+//        this.setCreateTime(recruitment.getCreateTime());
+//        this.setHeadCount(recruitment.getHeadCount());
+//        this.setOfferCount(recruitment.getOfferCount());
+//
+//        this.setHrId(hr.getUserId());
+//        this.setHrName(hr.getUserName());
+//        this.setHrAvatarUrl(hr.getUserAvatarUrl());
+//        this.setGender(hr.getUserGender());
+//
+//        this.setAuth(auth);
     }
 }

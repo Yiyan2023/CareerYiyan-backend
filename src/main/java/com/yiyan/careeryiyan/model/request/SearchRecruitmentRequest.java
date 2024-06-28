@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 public class SearchRecruitmentRequest {
-    private String recruitmentName;
+    private String rcName;
     private int pageSize;
     private int pageNum;
 

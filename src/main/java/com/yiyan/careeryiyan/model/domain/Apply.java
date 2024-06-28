@@ -19,7 +19,7 @@ public class Apply {
     private LocalDateTime applyCreateAt;
     private String applyCvUrl;
     private String applyId;
-    private String applyStatus;
+    private int applyStatus;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
@@ -27,4 +27,11 @@ public class Apply {
     private String isDelete;
     private String rcId;
     private String userId;
+
+    public Apply(String userId, String rcId, int applyStatus, String applyCvUrl) {
+        this.userId = userId;
+        this.rcId = rcId;
+        this.applyStatus = applyStatus;
+        this.applyCvUrl = applyCvUrl;
+    }
 }

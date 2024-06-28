@@ -5,5 +5,5 @@ import lombok.Data;
 @Data
 public class AddApplyRequest {
     private String userId;
-    private String recruitmentId;
+    private String rcId;
 }

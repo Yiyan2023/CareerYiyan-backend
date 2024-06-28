@@ -4,5 +4,5 @@ import lombok.Data;
 
 @Data
 public class GetApplicationListRequest {
-    private String recruitmentId;
+    private String rcId;
 }

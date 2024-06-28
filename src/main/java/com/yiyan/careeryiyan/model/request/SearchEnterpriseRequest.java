@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class SearchEnterpriseRequest {
-    private String enterpriseName;
+    private String epName;
     private int pageSize;
     private int pageNum;
 

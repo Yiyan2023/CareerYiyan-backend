@@ -11,17 +11,17 @@ import java.time.LocalDateTime;
 
 @Data
 public class EditRecruitmentRequest {
-    private String id;
-    private String enterpriseId;
-    private String recruitmentName;
-    private String recruitmentAddress;
-    private String recruitmentTag;
-    private int minSalary;
-    private int maxSalary;
-    private int salaryInterval;
-    private String education;
-    private String recruitmentDescription;
-    private int headCount;
-    private int offerCount;
+    private String rcId;
+    private String epId;
+    private String rcName;
+    private String rcAddr;
+    private String rcTag;
+    private int rcMinSalary;
+    private int rcMaxSalary;
+    private int rcSalaryCount;
+    private String rcEdu;
+    private String rcDesc;
+    private int rcTotalCount;
+    private int rcOfferCount;
 }
 

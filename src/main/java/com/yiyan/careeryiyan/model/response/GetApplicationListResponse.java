@@ -44,18 +44,18 @@ public class GetApplicationListResponse {
     private String username;
 
     public GetApplicationListResponse(Apply apply, User user, List<UserJobPreferences> userJobPreferences) {
-        this.id = apply.getId();
-        this.userId = apply.getUserId();
-        this.recruitmentId = apply.getRecruitmentId();
-        this.status = apply.getStatus();
-        this.cvUrl = apply.getCvUrl();
-        this.createTime = apply.getCreateTime();
-        this.updateTime = apply.getUpdateTime();
-        this.avatarUrl = user.getUserAvatarUrl();
-        this.userTag = userJobPreferences.stream()
-                .map(UserJobPreferences::getRecruitmentTag)
-                .collect(Collectors.toList());
-        this.education = user.getUserEdu();
-        this.username = user.getUserName();
+//        this.id = apply.getId();
+//        this.userId = apply.getUserId();
+//        this.recruitmentId = apply.getRecruitmentId();
+//        this.status = apply.getStatus();
+//        this.cvUrl = apply.getCvUrl();
+//        this.createTime = apply.getCreateTime();
+//        this.updateTime = apply.getUpdateTime();
+//        this.avatarUrl = user.getUserAvatarUrl();
+//        this.userTag = userJobPreferences.stream()
+//                .map(UserJobPreferences::getRecruitmentTag)
+//                .collect(Collectors.toList());
+//        this.education = user.getUserEdu();
+//        this.username = user.getUserName();
     }
 }

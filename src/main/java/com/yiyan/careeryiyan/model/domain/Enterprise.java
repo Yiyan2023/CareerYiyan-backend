@@ -22,7 +22,7 @@ public class Enterprise {
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime epCreateAt;
     private String epDesc;
-    private long epId;
+    private String epId;
     /**
      * 企业凭证的链接，目前没用
      */

@@ -135,10 +135,10 @@ public class UserController {
         UserInfoResponse userInfoResponse = convertToUserInfo(userShow);
         EnterpriseUser enterpriseUser = enterpriseService.getEnterpriseUserByUserId(id);
         if(enterpriseUser != null){
-            String enterpriseId = enterpriseUser.getEnterpriseId();
+            String enterpriseId = enterpriseUser.getEpId();
             Enterprise enterprise = enterpriseService.getEnterpriseById(enterpriseId);
             userInfoResponse.setEnterpriseId(enterpriseId);
-            userInfoResponse.setEnterpriseName(enterprise.getEnterpriseName());
+            userInfoResponse.setEnterpriseName(enterprise.getEpName());
         }
         return ResponseEntity.ok(userInfoResponse);
     }
@@ -160,10 +160,10 @@ public class UserController {
 
         UserInfoResponse userInfoResponse = convertToUserInfo(userShow);
         EnterpriseUser enterpriseUser = enterpriseService.getEnterpriseUserByUserId(id);
-        String enterpriseId = enterpriseUser.getEnterpriseId();
+        String enterpriseId = enterpriseUser.getEpId();
         Enterprise enterprise = enterpriseService.getEnterpriseById(enterpriseId);
         userInfoResponse.setEnterpriseId(enterpriseId);
-        userInfoResponse.setEnterpriseName(enterprise.getEnterpriseName());
+        userInfoResponse.setEnterpriseName(enterprise.getEpName());
 
         return ResponseEntity.ok(userInfoResponse);
     }

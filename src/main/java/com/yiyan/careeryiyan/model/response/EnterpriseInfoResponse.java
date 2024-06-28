@@ -29,14 +29,14 @@ public class EnterpriseInfoResponse {
 
     public EnterpriseInfoResponse() {}
     public EnterpriseInfoResponse(Enterprise enterprise,int auth){
-        this.id = enterprise.getId();
-        this.enterpriseName = enterprise.getEnterpriseName();
-        this.enterpriseAddress = enterprise.getEnterpriseAddress();
-        this.enterpriseDescription = enterprise.getEnterpriseDescription();
-        this.enterpriseType = enterprise.getEnterpriseType();
-        this.enterpriseLicense = enterprise.getEnterpriseLicense();
-        this.createTime = enterprise.getCreateTime();
-        this.avatarUrl = enterprise.getAvatarUrl();
-        this.auth = auth;
+//        this.id = enterprise.getId();
+//        this.enterpriseName = enterprise.getEnterpriseName();
+//        this.enterpriseAddress = enterprise.getEnterpriseAddress();
+//        this.enterpriseDescription = enterprise.getEnterpriseDescription();
+//        this.enterpriseType = enterprise.getEnterpriseType();
+//        this.enterpriseLicense = enterprise.getEnterpriseLicense();
+//        this.createTime = enterprise.getCreateTime();
+//        this.avatarUrl = enterprise.getAvatarUrl();
+//        this.auth = auth;
     }
 }
