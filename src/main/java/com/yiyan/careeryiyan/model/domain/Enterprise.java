@@ -15,17 +15,22 @@ import java.util.Map;
 
 @Data
 public class Enterprise {
-    private String id;
-    private String enterpriseName;
-    private String enterpriseAddress;
-    private String enterpriseDescription;
-    private String enterpriseType;
-    private String enterpriseLicense;
-    //待定补充
+    private String epAddr;
+    private String epAvatarUrl;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    private LocalDateTime createTime;
-    private String avatarUrl;
-
+    private LocalDateTime epCreateAt;
+    private String epDesc;
+    private long epId;
+    /**
+     * 企业凭证的链接，目前没用
+     */
+    private String epLicense;
+    private String epName;
+    /**
+     * 企业类型，比如：互联网企业、国有企业
+     */
+    private String epType;
+    private int isDelete;
 }
