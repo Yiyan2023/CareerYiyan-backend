@@ -60,7 +60,7 @@ public class RecruitmentService {
 
     @Transactional(rollbackFor = Exception.class)
     public int changeState(String applyId, int status) {
-        if (status == 1 || status == 4) {
+        if (status == 1 || status == 3 || status == 4) {
             //发offer
             try {
                 // 获取加锁的Apply记录
@@ -69,7 +69,10 @@ public class RecruitmentService {
                 // 执行更新操作
                 if (status == 1) {
                     rowsAffected = applyMapper.increaseOfferCountAndChangeStatus(applyId, status);
-                } else {
+                } else if(status == 3){
+                    rowsAffected = applyMapper.increaseAcceptCountAndChangeStatus(applyId, status);
+                }else
+                    if(status == 4){
                     rowsAffected = applyMapper.decreaseOfferCountAndChangeStatus(applyId, status);
                 }
                 // 检查更新是否成功

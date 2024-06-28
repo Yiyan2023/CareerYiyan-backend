@@ -42,4 +42,10 @@ public interface ApplyMapper {
             + "SET rc.rc_offer_count = rc.rc_offer_count - 1, a.apply_status = #{status} "
             + "WHERE a.apply_id = #{applyId}")
     int decreaseOfferCountAndChangeStatus(String applyId, int status);
+
+    @Update("UPDATE recruitment rc "
+            + "JOIN apply a ON rc.rc_id = a.rc_id "
+            + "SET rc.rc_accept_count = rc.rc_accept_count + 1, a.apply_status = #{status} "
+            + "WHERE a.apply_id = #{applyId}")
+    int increaseAcceptCountAndChangeStatus(String applyId, int status);
 }

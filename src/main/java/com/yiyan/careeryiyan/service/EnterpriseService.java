@@ -48,7 +48,7 @@ public class EnterpriseService {
         return enterpriseMapper.getEnterpriseByName(enterpriseName);
     }
 
-    public int  addUserToEnterprise(String userId, String enterpriseId) {
-        return enterpriseUserMapper.addUserToEnterprise(userId, enterpriseId);
+    public int  addUserToEnterprise(String userId, String epId) {
+        return enterpriseUserMapper.addUserToEnterprise(userId, epId);
     }
 }
