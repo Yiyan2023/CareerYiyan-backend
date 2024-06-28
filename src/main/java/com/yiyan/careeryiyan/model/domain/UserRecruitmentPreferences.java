@@ -3,8 +3,8 @@ package com.yiyan.careeryiyan.model.domain;
 import lombok.Data;
 
 @Data
-public class UserJobPreferences {
-    private String id;
+public class UserRecruitmentPreferences {
+    private String userRcPrefId;
     private String userId;
-    private String recruitmentTag;
+    private String rcTag;
 }

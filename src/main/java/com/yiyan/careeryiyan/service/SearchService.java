@@ -6,7 +6,7 @@ import com.yiyan.careeryiyan.model.domain.Enterprise;
 import com.yiyan.careeryiyan.model.request.SearchEnterpriseRequest;
 import com.yiyan.careeryiyan.model.request.SearchRecruitmentRequest;
 import com.yiyan.careeryiyan.model.request.SearchUserRequest;
-import com.yiyan.careeryiyan.model.response.RecruitmentDetailResponse;
+//import com.yiyan.careeryiyan.model.response.RecruitmentDetailResponse;
 import com.yiyan.careeryiyan.model.response.UserDetailResponse;
 import io.jsonwebtoken.impl.crypto.MacProvider;
 import jakarta.annotation.Resource;

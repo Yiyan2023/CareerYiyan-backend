@@ -3,7 +3,7 @@ package com.yiyan.careeryiyan.service;
 import com.yiyan.careeryiyan.exception.BaseException;
 import com.yiyan.careeryiyan.mapper.UserMapper;
 import com.yiyan.careeryiyan.model.domain.User;
-import com.yiyan.careeryiyan.model.domain.UserJobPreferences;
+import com.yiyan.careeryiyan.model.domain.UserRecruitmentPreferences;
 import com.yiyan.careeryiyan.model.request.ModifyInfoRequest;
 import jakarta.annotation.Resource;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -25,27 +25,27 @@ public class UserService {
     }
 
 
-    public void register(String username, String password, String email, String salt) {
+    public void register(String userName, String userPwd, String userEmail, String userSalt) {
 
-        boolean isEmailValid = email.matches("^\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*$");
+        boolean isEmailValid = userEmail.matches("^\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*$");
         if (!isEmailValid) {
             throw new BaseException("邮箱格式不正确");
         }
-        User user = userMapper.getUserByEmail(email);
+        User user = userMapper.getUserByEmail(userEmail);
         Date created_at = new Date();
         if (user != null) {
             throw new BaseException("邮箱已注册");
         }
         user = new User();
-        user.setUserName(username);
-        user.setUserEmail(email);
-        user.setUserSalt(salt);
-        user.setUserPwd(saltEncryption(password, salt));
+        user.setUserName(userName);
+        user.setUserEmail(userEmail);
+        user.setUserSalt(userSalt);
+        user.setUserPwd(saltEncryption(userPwd, userSalt));
         user.setUserRegAt(created_at);
         user.setUserGender("男");
         user.setUserEdu("未知");
         user.setUserAvatarUrl("https://career-yiyan.oss-cn-beijing.aliyuncs.com/test/chiikawa.png");
-        user.setUserNickname(username);
+        user.setUserNickname(userName);
         user.setUserInterest("该用户没有设置自己的兴趣");
 //        user.("未知"); 这是原本的position字段
 
@@ -98,7 +98,7 @@ public class UserService {
     }
 
 
-    public List<UserJobPreferences> getUserJobPreferences(String userId) {
-        return userMapper.getUserJobPreferences(userId);
+    public List<UserRecruitmentPreferences> getUserRecruitmentPreferences(String userId) {
+        return userMapper.getUserRecruitmentPreferences(userId);
     }
 }

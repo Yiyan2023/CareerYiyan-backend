@@ -2,16 +2,14 @@ package com.yiyan.careeryiyan.service;
 
 import com.yiyan.careeryiyan.mapper.EnterpriseMapper;
 import com.yiyan.careeryiyan.mapper.EnterpriseUserMapper;
-import com.yiyan.careeryiyan.mapper.UserMapper;
 import com.yiyan.careeryiyan.model.domain.Enterprise;
 import com.yiyan.careeryiyan.model.domain.EnterpriseUser;
-import com.yiyan.careeryiyan.model.domain.User;
-import com.yiyan.careeryiyan.model.response.EmployeeListResponse;
+//import com.yiyan.careeryiyan.model.response.EmployeeListResponse;
 import jakarta.annotation.Resource;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class EnterpriseService {
@@ -34,10 +32,10 @@ public class EnterpriseService {
     }
 
 
-    public Enterprise getEnterpriseById(String id) {
-        return enterpriseMapper.getEnterpriseById(id);
+    public Enterprise getEnterpriseByEpId(String epId) {
+        return enterpriseMapper.getEnterpriseByEpId(epId);
     }
-    public List<EmployeeListResponse> getEmployeeListByEnterpriseId(String enterpriseId) {
+    public List<Map<String, Object>> getEmployeeListByEnterpriseId(String enterpriseId) {
         return enterpriseUserMapper.getEmployeeListByEnterpriseId(enterpriseId);
     }
 
