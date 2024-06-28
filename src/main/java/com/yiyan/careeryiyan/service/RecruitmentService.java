@@ -25,7 +25,7 @@ public class RecruitmentService {
         return addRecruitmentRequest.getRcId();
     }
 
-    public List<Recruitment> getRecruitmentList(String enterpriseId) {
+    public List<Map<String, Object>> getRecruitmentList(String enterpriseId) {
         return recruitmentMapper.getRecruitmentList(enterpriseId);
     }
 
@@ -92,4 +92,7 @@ public class RecruitmentService {
     }
 
 
+    public Map<String, Object> getRecruitmentInfo(String recruitmentId) {
+        return recruitmentMapper.getRecruitmentInfo(recruitmentId);
+    }
 }

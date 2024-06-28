@@ -1,13 +1,9 @@
 package com.yiyan.careeryiyan.controller;
 
 
-import com.yiyan.careeryiyan.model.domain.Enterprise;
 import com.yiyan.careeryiyan.model.request.SearchEnterpriseRequest;
 import com.yiyan.careeryiyan.model.request.SearchRecruitmentRequest;
 import com.yiyan.careeryiyan.model.request.SearchUserRequest;
-import com.yiyan.careeryiyan.model.response.RecruitmentDetailResponse;
-import com.yiyan.careeryiyan.model.response.StringResponse;
-import com.yiyan.careeryiyan.model.response.UserDetailResponse;
 import com.yiyan.careeryiyan.service.SearchService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,8 +12,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/search")

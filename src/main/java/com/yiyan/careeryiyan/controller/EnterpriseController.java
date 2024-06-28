@@ -74,19 +74,22 @@ public class EnterpriseController {
             throw new BaseException("企业不存在");
         }
         EnterpriseUser enterpriseUser = enterpriseService.getEnterpriseUserByUserId(userId);
-        EnterpriseInfoResponse response= new EnterpriseInfoResponse();
+        Map map = enterprise.toDict();
+        int auth=0;
         if(enterpriseUser == null|| !Objects.equals(enterpriseUser.getEpId(), enterprise.getEpId())) {
-            response = new EnterpriseInfoResponse(enterprise, 0);
+
+            auth=0;
         }else{
             if (enterpriseUser.getEpUserAuth() == 1 && Objects.equals(enterpriseUser.getEpId(), enterprise.getEpId()) ) {
-                response = new EnterpriseInfoResponse(enterprise, 1);
+                auth=1;
             }else{
                 if (enterpriseUser.getEpUserAuth() == 0 && Objects.equals(enterpriseUser.getEpId(), enterprise.getEpId() )) {
-                    response = new EnterpriseInfoResponse(enterprise, 2);
+                    auth=2;
                 }
             }
         }
-        return ResponseEntity.ok(response);
+        map.put("auth",auth);
+        return ResponseEntity.ok(map);
     }
 
     @PostMapping("/addRecruitment")
@@ -99,38 +102,29 @@ public class EnterpriseController {
         addRecruitmentRequest.setRcCreateAt(LocalDateTime.now());
         String rcId = recruitmentService.addRecruitment(addRecruitmentRequest);
         if (Integer.parseInt(rcId) > 0) {
-            return ResponseEntity.ok(Map.of("recruitmentId",String.valueOf(rcId)));
+            return ResponseEntity.ok(Map.of("recruitmentId", rcId));
         }
 
         throw new BaseException("发布失败");
-
     }
 
     @PostMapping("/getRecruitmentList")
     public ResponseEntity getRecruitmentList(@RequestBody GetRecruitmentListRequest getRecruitmentListRequest) {
         String enterpriseId = getRecruitmentListRequest.getEpId();
-        List<Recruitment> recruitmentList = recruitmentService.getRecruitmentList(enterpriseId);
+        List<Map<String, Object>> recruitmentList = recruitmentService.getRecruitmentList(enterpriseId);
         if (recruitmentList == null) {
             return ResponseEntity.ok(new ArrayList<>());
         }
-        EnterpriseUser enterpriseAdmin = enterpriseService.getEnterpriseAdminByEnterpriseId(enterpriseId);
-        if(enterpriseAdmin == null){
-            return ResponseEntity.ok(new ArrayList<>());
-        }
-        User admin = userService.getUserInfo(enterpriseAdmin.getUserId());
-        List<GetRecruitmentListResponse> recruitmentResponseList = new ArrayList<>();
-        for (Recruitment recruitment : recruitmentList) {
-            recruitmentResponseList.add(new GetRecruitmentListResponse(recruitment, admin));
-        }
-        return ResponseEntity.ok(recruitmentResponseList);
+        return ResponseEntity.ok(recruitmentList);
     }
 
     @PostMapping("/getRecruitmentInfo")
     public ResponseEntity getRecruitmentInfo(@RequestBody GetRecruitmentInfoRequest getRecruitmentInfoRequest) {
-        String recruitmentId = getRecruitmentInfoRequest.getRcId();
+        String rcId = getRecruitmentInfoRequest.getRcId();
         String userId = getRecruitmentInfoRequest.getUserId();
-        Recruitment recruitment = recruitmentService.getRecruitmentById(recruitmentId);
-        if(recruitment==null){
+        Recruitment recruitment = recruitmentService.getRecruitmentById(rcId);
+        Map<String,Object> map = recruitmentService.getRecruitmentInfo(rcId);
+        if (map == null) {
             throw new BaseException("岗位不存在");
         }
         EnterpriseUser enterpriseAdmin = enterpriseService.getEnterpriseAdminByEnterpriseId(recruitment.getEpId());
@@ -139,12 +133,13 @@ public class EnterpriseController {
         if(enterpriseAdmin.getEpUserAuth() == 0 && Objects.equals(userId, enterpriseAdmin.getUserId())){
             auth = 2;//管理员
         }else {
-            Apply apply = recruitmentService.getApplyByUserIdAndRecruitmentId(userId, recruitmentId);
+            Apply apply = recruitmentService.getApplyByUserIdAndRecruitmentId(userId, rcId);
             if (apply != null) {
                 auth = 1;
             }
         }
-        return ResponseEntity.ok(new GetRecruitmentInfoResponse(recruitment, admin, auth));
+        map.put("auth",auth);
+        return ResponseEntity.ok(map);
     }
 
     @PostMapping("/editRecruitment")
@@ -235,31 +230,31 @@ public class EnterpriseController {
         return ResponseEntity.ok("添加员工成功");
     }
 
-    @PostMapping("/getApplicationList")
-    public ResponseEntity getApplicationList(@RequestBody GetApplicationListRequest getApplicationListRequest, HttpServletRequest request) {
-        User admin = (User) request.getAttribute("user");
-        String recruitmentId = getApplicationListRequest.getRcId();
-        Recruitment recruitment  = recruitmentService.getRecruitmentById(recruitmentId);
-        if(recruitment==null){
-            throw new BaseException("职位不存在");
-        }
-        EnterpriseUser adminUser = enterpriseService.getEnterpriseUserByUserId(admin.getUserId());
-        if(adminUser == null||adminUser.getEpUserAuth() != 0|| !Objects.equals(adminUser.getEpId(), recruitment.getEpId())) {
-            throw new BaseException("你不是此企业的管理员");
-        }
-        Enterprise enterprise = enterpriseService.getEnterpriseById(recruitment.getEpId());
-        if (enterprise == null){
-            throw new BaseException("企业不存在");
-        }
-        List<Apply> applyList = recruitmentService.getApplyByRecruitmentId(recruitmentId);
-        List<GetApplicationListResponse> responseList = new ArrayList<>();
-        for (Apply apply : applyList) {
-            User user = userService.getUserInfo(apply.getUserId());
-            List<UserJobPreferences> userJobPreferences = userService.getUserJobPreferences(apply.getUserId());
-            responseList.add(new GetApplicationListResponse(apply, user, userJobPreferences));
-        }
-        return ResponseEntity.ok(responseList);
-    }
+//    @PostMapping("/getApplicationList")
+//    public ResponseEntity getApplicationList(@RequestBody GetApplicationListRequest getApplicationListRequest, HttpServletRequest request) {
+//        User admin = (User) request.getAttribute("user");
+//        String recruitmentId = getApplicationListRequest.getRcId();
+//        Recruitment recruitment  = recruitmentService.getRecruitmentById(recruitmentId);
+//        if(recruitment==null){
+//            throw new BaseException("职位不存在");
+//        }
+//        EnterpriseUser adminUser = enterpriseService.getEnterpriseUserByUserId(admin.getUserId());
+//        if(adminUser == null||adminUser.getEpUserAuth() != 0|| !Objects.equals(adminUser.getEpId(), recruitment.getEpId())) {
+//            throw new BaseException("你不是此企业的管理员");
+//        }
+//        Enterprise enterprise = enterpriseService.getEnterpriseById(recruitment.getEpId());
+//        if (enterprise == null){
+//            throw new BaseException("企业不存在");
+//        }
+//        List<Apply> applyList = recruitmentService.getApplyByRecruitmentId(recruitmentId);
+//        List<GetApplicationListResponse> responseList = new ArrayList<>();
+//        for (Apply apply : applyList) {
+//            User user = userService.getUserInfo(apply.getUserId());
+//            List<UserJobPreferences> userJobPreferences = userService.getUserJobPreferences(apply.getUserId());
+//            responseList.add(new GetApplicationListResponse(apply, user, userJobPreferences));
+//        }
+//        return ResponseEntity.ok(responseList);
+//    }
 
 
     //用户获取自己的投递列表
@@ -339,18 +334,18 @@ public class EnterpriseController {
         throw new BaseException("处理失败");
     }
 
-    @PostMapping("/getEmployeeList")
-    public ResponseEntity getEmployeeList(@RequestBody Map<String,String> requestBody, HttpServletRequest httpServletRequest){
-        User user = (User) httpServletRequest.getAttribute("user");
-        String enterpriseId = requestBody.get("enterpriseId");
-        EnterpriseUser enterpriseUser = enterpriseService.getEnterpriseUserByUserId(user.getUserId());
-        if(enterpriseUser == null || !Objects.equals(enterpriseUser.getEpId(),enterpriseId)){
-            throw new BaseException("无权查看企业员工列表");
-        }
-
-        List<EmployeeListResponse> employeeList = enterpriseService.getEmployeeListByEnterpriseId(enterpriseId);
-        return ResponseEntity.ok(employeeList);
-    }
+//    @PostMapping("/getEmployeeList")
+//    public ResponseEntity getEmployeeList(@RequestBody Map<String,String> requestBody, HttpServletRequest httpServletRequest){
+//        User user = (User) httpServletRequest.getAttribute("user");
+//        String enterpriseId = requestBody.get("enterpriseId");
+//        EnterpriseUser enterpriseUser = enterpriseService.getEnterpriseUserByUserId(user.getUserId());
+//        if(enterpriseUser == null || !Objects.equals(enterpriseUser.getEpId(),enterpriseId)){
+//            throw new BaseException("无权查看企业员工列表");
+//        }
+//
+//        List<EmployeeListResponse> employeeList = enterpriseService.getEmployeeListByEnterpriseId(enterpriseId);
+//        return ResponseEntity.ok(employeeList);
+//    }
 
     @PostMapping("/getAdmin")
     public ResponseEntity getAdmin(@RequestBody Map<String,String> requestBody){

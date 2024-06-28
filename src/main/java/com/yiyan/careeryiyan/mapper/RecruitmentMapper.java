@@ -21,8 +21,28 @@ public interface RecruitmentMapper {
     @Options(useGeneratedKeys = true, keyProperty = "rc_id")
     int addRecruitment(AddRecruitmentRequest addRecruitmentRequest);
 
-    @Select("select * from recruitment  where ep_id=#{epId} and is_delete=0")
-    List<Recruitment> getRecruitmentList(String epId);
+//    @Select("select * from recruitment  where ep_id=#{epId} and is_delete=0")
+//    List<Recruitment> getRecruitmentList(String epId);
+
+    //一个epId下所有recruitment和其admin的信息
+    @Select("select r.*,\n" +
+            "       u.user_id as hrId,u.user_name as hrName,\n" +
+            "       u.user_avatar_url as hrAvatarUrl, u.user_gender as hrGender\n" +
+            "       from recruitment r,enterprise_user eu,user u\n" +
+            "where eu.ep_id=#{epId} and r.ep_id=eu.ep_id and eu.ep_user_auth=0 and\n" +
+            "      eu.user_id=u.user_id\n" +
+            "  and  r.is_delete=0 and eu.is_delete=0 and u.is_delete=0;")
+    List<Map<String,Object>> getRecruitmentList(String epId);
+
+    //recruitment及其admin的信息
+    @Select("select r.*,\n" +
+            "       u.user_id as hrId,u.user_name as hrName,\n" +
+            "       u.user_avatar_url as hrAvatarUrl, u.user_gender as hrGender\n" +
+            "       from recruitment r,enterprise_user eu,user u\n" +
+            "where r.rc_id=? and r.ep_id=eu.ep_id and eu.ep_user_auth=0 and\n" +
+            "      eu.user_id=u.user_id\n" +
+            "  and  r.is_delete=0 and eu.is_delete=0 and u.is_delete=0;")
+    Map<String, Object> getRecruitmentInfo(String recruitmentId);
 
 //    @Update("update Recruitment set recruitmentName = #{recruitmentName}, " +
 //            "recruitmentAddress = #{recruitmentAddress}, " +
@@ -70,4 +90,6 @@ public interface RecruitmentMapper {
 
     @Select("select * from apply where apply_id = #{applyId}")
     Apply getApplyById(String applyId);
+
+
 }

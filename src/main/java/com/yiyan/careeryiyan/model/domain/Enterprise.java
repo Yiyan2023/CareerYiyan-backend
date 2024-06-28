@@ -33,4 +33,17 @@ public class Enterprise {
      */
     private String epType;
     private int isDelete;
+    public Map<String, Object> toDict() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("epAddr", epAddr);
+        map.put("epAvatarUrl", epAvatarUrl);
+        map.put("epCreateAt", epCreateAt);
+        map.put("epDesc", epDesc);
+        map.put("epId", epId);
+        map.put("epLicense", epLicense);
+        map.put("epName", epName);
+        map.put("epType", epType);
+        map.put("isDelete", isDelete);
+        return map;
+    }
 }
