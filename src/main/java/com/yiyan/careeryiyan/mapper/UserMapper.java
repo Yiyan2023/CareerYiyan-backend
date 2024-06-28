@@ -30,7 +30,7 @@ public interface UserMapper {
     @Select("SELECT * FROM user WHERE user_id=#{id}")
     User getUserById(String id);
 
-    @Update("UPDATE user WHERE user_id = #{userId}")
+    @Update("UPDATE user WHERE id = #{id}")
     void updateUser(User user);
 
     @Update("UPDATE user SET " +
@@ -50,8 +50,8 @@ public interface UserMapper {
     @Update("UPDATE user SET user_avatar_url=#{avatarUrl, jdbcType=VARCHAR}  WHERE user_id = #{id}")
     int updateAvatarUrl(String avatarUrl,String id);
 
-    @Update("UPDATE user SET user_cv_url=#{cvUrl, jdbcType=VARCHAR}  WHERE user_id = #{userId}")
-    int updateCV(String cvUrl,String userId);
+    @Update("UPDATE user SET user_cv_url=#{CV, jdbcType=VARCHAR}  WHERE user_id = #{id}")
+    int updateCV(String CV,String id);
 
     @Select("SELECT * FROM user_recruitment_preferences WHERE user_id=#{userId}")
     List<UserRecruitmentPreferences> getUserRecruitmentPreferences(String userId);

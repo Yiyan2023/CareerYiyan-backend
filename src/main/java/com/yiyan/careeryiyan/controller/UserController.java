@@ -81,11 +81,11 @@ public class UserController {
 
 
     @PostMapping("/uploadCV")
-    public ResponseEntity<StringResponse> uploadCV(@RequestParam("file") MultipartFile file,
+    public ResponseEntity<Map<String, String>> uploadCV(@RequestParam("file") MultipartFile file,
             HttpServletRequest httpServletRequest) throws IOException {
         User user = (User) httpServletRequest.getAttribute("user");
         String id = user.getUserId();
-        String name = user.getUserNickname() + "_CV.pdf";
+        String name = user.getUserName() + "_CV.pdf";
 
         if (ObjectUtils.isEmpty(file) || file.getSize() <= 0) {
             throw new BaseException("File is empty");
@@ -93,12 +93,14 @@ public class UserController {
         if (!file.getContentType().equals("application/pdf")) {
             throw new BaseException("File must be a PDF");
         }
-        String res = ossConfig.upload(file, "CV", name);
-        if (res != null) {
-            int res2 = userService.updateCV(res, id);
+        Map<String, String> res = new HashMap<>();
+        String userCvUrl = ossConfig.upload(file, "CV", name);
+        if (userCvUrl != null) {
+            int res2 = userService.updateCV(userCvUrl, id);
             if (res2 == 0)
                 throw new BaseException("用户头像后台修改失败");
-            return ResponseEntity.ok(new StringResponse(res));
+            res.put("userCvUrl", userCvUrl);
+            return ResponseEntity.ok(res);
         } else {
             throw new BaseException("简历上传失败");
         }
@@ -106,56 +108,66 @@ public class UserController {
     }
 
     @PostMapping("/getInfo")
-    public ResponseEntity<UserInfoResponse> showInfo(@RequestBody StringRequest stringRequest){
-        String id = stringRequest.getValue();
+    public ResponseEntity<Map<String, Object>> showInfo(@RequestBody UserIdRequest userIdRequest){
+        String id = userIdRequest.getUserId();
 
-//        System.out.println(id);
-//        System.out.println(stringRequest);
-
+        Map<String, Object> res = new HashMap<>();
         User userShow = userService.getUserInfo(id);
-
-//        System.out.println(userShow);
         if (userShow == null){
             throw new BaseException("用户不存在");
         }
-        UserInfoResponse userInfoResponse = convertToUserInfo(userShow);
+        res.put("user", userShow);
+
         EnterpriseUser enterpriseUser = enterpriseService.getEnterpriseUserByUserId(id);
-        if(enterpriseUser != null){
-            String enterpriseId = enterpriseUser.getEpId();
-            Enterprise enterprise = enterpriseService.getEnterpriseByEpId(enterpriseId);
-            userInfoResponse.setEnterpriseId(enterpriseId);
-            userInfoResponse.setEnterpriseName(enterprise.getEpName());
+        Map<String, Object> enterprise = new HashMap<>();
+
+        if(enterpriseUser == null){
+            enterprise.put("epUserId", null);
+            enterprise.put("epId",null);
+            enterprise.put("epUserAuth", null);
+            enterprise.put("epUserTitle", null);
+            enterprise.put("epUserCreateAt", null);
+            enterprise.put("isDelete", null);
+            enterprise.put("epName", null);
+        } else {
+            enterprise.put("epUserId", enterpriseUser.getUserId());
+            enterprise.put("epId",enterpriseUser.getUserId());
+            enterprise.put("epUserAuth", enterpriseUser);
+            enterprise.put("epUserTitle", null);
+            enterprise.put("epUserCreateAt", null);
+            enterprise.put("isDelete", null);
+            enterprise.put("epName", null);
         }
         return ResponseEntity.ok(userInfoResponse);
     }
 
     @PostMapping("/verifyInfo")
-    public ResponseEntity<UserInfoResponse> modifyInfo(@RequestBody ModifyInfoRequest modifyInfoRequest, HttpServletRequest httpServletRequest){
+    public ResponseEntity<StringResponse> modifyInfo(@RequestBody ModifyInfoRequest modifyInfoRequest, HttpServletRequest httpServletRequest){
         User user = (User) httpServletRequest.getAttribute("user");
         String id = user.getUserId();
 
-        modifyInfoRequest.setId(id);
-        int res = userService.updateUserInfo(modifyInfoRequest);
+        // 修改user表
+        modifyInfoRequest.getUser().setUserId(id);
+        int res = userService.updateUserInfo(modifyInfoRequest.getUser());
         if (res == 0)
             throw new BaseException("修改失败");
 
-        User userShow = userService.getUserInfo(id);
-        if (userShow == null){
-            throw new BaseException("用户不存在");
+        // 修改rc表
+        String rcTag = "";
+        List<String> rcTagList = modifyInfoRequest.getRcTag();
+        for(int i = 0; i < rcTagList.size(); i++){
+            if(i > 0){
+                rcTag = rcTag + "-";
+            }
+            rcTag = rcTag + rcTagList.get(i);
         }
+        res =
 
-        UserInfoResponse userInfoResponse = convertToUserInfo(userShow);
-        EnterpriseUser enterpriseUser = enterpriseService.getEnterpriseUserByUserId(id);
-        String enterpriseId = enterpriseUser.getEpId();
-        Enterprise enterprise = enterpriseService.getEnterpriseByEpId(enterpriseId);
-        userInfoResponse.setEnterpriseId(enterpriseId);
-        userInfoResponse.setEnterpriseName(enterprise.getEpName());
-
-        return ResponseEntity.ok(userInfoResponse);
+        return ResponseEntity.ok(new StringResponse("修改成功"));
     }
 
     @PostMapping("/uploadAvatar")
-    public ResponseEntity<StringResponse> uploadAvatar(@RequestParam("file") MultipartFile file,
+    public ResponseEntity<Map<String, String>> uploadAvatar(@RequestParam("file") MultipartFile file,
                                                        HttpServletRequest httpServletRequest) throws IOException {
         User user = (User) httpServletRequest.getAttribute("user");
         String id = user.getUserId();
@@ -167,12 +179,14 @@ public class UserController {
         if (!file.getContentType().equals("image/jpeg") && !file.getContentType().equals("image/png")) {
             throw new BaseException("File must be a jpg/png");
         }
-        String res = ossConfig.upload(file, "avatar", name);
+        Map<String, String> res = new HashMap<>();
+        String userAvatarUrl = ossConfig.upload(file, "avatar", name);
         if (res != null) {
-            int res2 = userService.updateAvatar(res, id);
+            int res2 = userService.updateAvatar(userAvatarUrl, id);
             if (res2 == 0)
                 throw new BaseException("用户头像后台修改失败");
-            return ResponseEntity.ok(new StringResponse(res));
+            res.put("userAvatarUrl", userAvatarUrl);
+            return ResponseEntity.ok(res);
         } else {
             throw new BaseException("简历上传失败");
         }

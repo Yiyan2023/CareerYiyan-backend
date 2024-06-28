@@ -79,8 +79,8 @@ public class UserService {
         return user.getUserSalt();
     }
 
-    public int updateUserInfo(ModifyInfoRequest request){
-        int res = userMapper.modifyUser(request);
+    public int updateUserInfo(User user){
+        int res = userMapper.modifyUser(user);
         if(res == 0){
             throw new BaseException("修改失败");
         }
