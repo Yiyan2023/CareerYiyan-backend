@@ -10,19 +10,20 @@ import java.util.List;
 
 @Mapper
 public interface UserMapper {
-    @Insert("INSERT INTO User (" +
-            "username, nickname, password, email, gender, salt, registerTime, avatarUrl, " +
-            "blog, cv, education, github, interests, position" +
+    @Insert("INSERT INTO user (" +
+            "user_name, user_pwd, user_email, user_gender, user_salt, user_reg_at, user_avatar_url, " +
+            "user_nickname, user_edu, user_interest, user_cv_url, user_addr, user_github_url, user_blog_url" +
             ") VALUES (" +
-            "#{username}, #{nickname}, #{password}, #{email}, #{gender}, #{salt}, #{registerTime}, #{avatarUrl}, " +
-            "#{blog}, #{cv}, #{education}, #{github}, #{interests}, #{position})")
-    @Options(useGeneratedKeys = true, keyProperty = "id", keyColumn = "id")
+            "#{userName}, #{userPwd}, #{userEmail}, #{userGender}, #{userSalt}, #{userRegAt}, #{userAvatarUrl}, " +
+            "#{userNickname}, #{userEdu}, #{userInterest}, #{userCvUrl}, #{userAddr}, #{userGithubUrl}, #{userBlogUrl}" +
+            ")")
+    @Options(useGeneratedKeys = true, keyProperty = "userId", keyColumn = "user_id")
     void insertUser(User user);
 
-    @Select("SELECT * FROM User WHERE email=#{email} ORDER BY id DESC LIMIT 1")
+    @Select("SELECT * FROM user WHERE user_email=#{email} ORDER BY user_id DESC LIMIT 1")
     User getUserByEmail(String email);
 
-    @Select("SELECT * FROM User WHERE id=#{id}")
+    @Select("SELECT * FROM user WHERE user_id=#{id}")
     User getUserById(String id);
 
     @Update("UPDATE User WHERE id = #{id}")

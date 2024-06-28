@@ -40,7 +40,7 @@ public class FileController {
     public ResponseEntity<StringResponse> upload(@RequestParam("file") MultipartFile file,
                                                    HttpServletRequest httpServletRequest) throws IOException {
         User user = (User) httpServletRequest.getAttribute("user");
-        String name = user.getNickname() + generateRandomString(10);
+        String name = user.getUserNickname() + generateRandomString(10);
 
         String res = ossConfig.upload(file, "other", name);
         if (res != null){

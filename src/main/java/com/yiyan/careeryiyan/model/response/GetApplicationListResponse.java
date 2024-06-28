@@ -51,11 +51,11 @@ public class GetApplicationListResponse {
         this.cvUrl = apply.getCvUrl();
         this.createTime = apply.getCreateTime();
         this.updateTime = apply.getUpdateTime();
-        this.avatarUrl = user.getAvatarUrl();
+        this.avatarUrl = user.getUserAvatarUrl();
         this.userTag = userJobPreferences.stream()
                 .map(UserJobPreferences::getRecruitmentTag)
                 .collect(Collectors.toList());
-        this.education = user.getEducation();
-        this.username = user.getUsername();
+        this.education = user.getUserEdu();
+        this.username = user.getUserName();
     }
 }

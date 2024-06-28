@@ -79,7 +79,7 @@ public class UserController {
         String password = loginRequest.getPassword();
         User user = userService.login(email, password);
         Map<String, Object> map = user.toDict();
-        String token = JwtUtil.generateToken(user.getId());
+        String token = JwtUtil.generateToken(user.getUserId());
         map.put("token", token);
         return ResponseEntity.ok(map);
     }
@@ -98,8 +98,8 @@ public class UserController {
     public ResponseEntity<StringResponse> uploadCV(@RequestParam("file") MultipartFile file,
             HttpServletRequest httpServletRequest) throws IOException {
         User user = (User) httpServletRequest.getAttribute("user");
-        String id = user.getId();
-        String name = user.getNickname() + "_CV.pdf";
+        String id = user.getUserId();
+        String name = user.getUserNickname() + "_CV.pdf";
 
         if (ObjectUtils.isEmpty(file) || file.getSize() <= 0) {
             throw new BaseException("File is empty");
@@ -146,7 +146,7 @@ public class UserController {
     @PostMapping("/verifyInfo")
     public ResponseEntity<UserInfoResponse> modifyInfo(@RequestBody ModifyInfoRequest modifyInfoRequest, HttpServletRequest httpServletRequest){
         User user = (User) httpServletRequest.getAttribute("user");
-        String id = user.getId();
+        String id = user.getUserId();
 
         modifyInfoRequest.setId(id);
         int res = userService.updateUserInfo(modifyInfoRequest);
@@ -172,8 +172,8 @@ public class UserController {
     public ResponseEntity<StringResponse> uploadAvatar(@RequestParam("file") MultipartFile file,
                                                        HttpServletRequest httpServletRequest) throws IOException {
         User user = (User) httpServletRequest.getAttribute("user");
-        String id = user.getId();
-        String name = user.getNickname() + "_avatar.jpg";
+        String id = user.getUserId();
+        String name = user.getUserNickname()+ "_avatar.jpg";
 
         if (ObjectUtils.isEmpty(file) || file.getSize() <= 0) {
             throw new BaseException("File is empty");

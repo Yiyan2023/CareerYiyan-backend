@@ -4,10 +4,7 @@ import com.yiyan.careeryiyan.config.OSSConfig;
 import com.yiyan.careeryiyan.exception.BaseException;
 import com.yiyan.careeryiyan.mapper.PostMapper;
 import com.yiyan.careeryiyan.mapper.UserMapper;
-import com.yiyan.careeryiyan.model.domain.Comment;
-import com.yiyan.careeryiyan.model.domain.Like;
-import com.yiyan.careeryiyan.model.domain.Post;
-import com.yiyan.careeryiyan.model.domain.User;
+import com.yiyan.careeryiyan.model.domain.*;
 import com.yiyan.careeryiyan.model.request.AddCommentRequest;
 import com.yiyan.careeryiyan.model.request.AddPostRequest;
 
@@ -30,8 +27,8 @@ public class  PostService {
     @Resource
     OSSConfig ossConfig;
     
-    public Post addPost(String content,String photos, User user) throws IOException {
-        Post post=new Post(content, user.getId(),photos);
+    public Post addPost(String content,String photos, User user)  {
+        Post post=new Post(content, user.getUserId(),photos,null,null);
         int res=postMapper.insertPost(post);
         return post;
     }
@@ -44,7 +41,7 @@ public class  PostService {
         if(post.getUserId()==null){
             System.out.println(post);
         }
-        if(!post.getUserId().equals(user.getId()))
+        if(!post.getUserId().equals(user.getUserId()))
             return false;
         postMapper.deletePost(id);
         //企业相关
@@ -53,13 +50,13 @@ public class  PostService {
 
     
     public Map<String,Object> getPostsByUser(User user) {
-        List<Post> postlist=postMapper.getPostByUser(user.getId());
+        List<Post> postlist=postMapper.getPostByUser(user.getUserId());
         List<Map<String,Object>>posts=new ArrayList<Map<String,Object>>();
         Map<String,Object>res=new HashMap<String,Object>();
         for(Post post : postlist){
             Map<String,Object>postDict=post.toDict();
-            if(!post.getParentId().equals("0")){
-                Post parent = postMapper.getPostById(post.getParentId());
+            if(!(post.getPostParentId()==null)){
+                Post parent = postMapper.getPostById(String.valueOf(post.getPostParentId()));
                 User origin=userMapper.getUserById(parent.getUserId());
                 postDict.put("origin",origin.toDict());
             }
@@ -75,35 +72,60 @@ public class  PostService {
         User author=userMapper.getUserById(post.getUserId());
         Map<String, Object> postDict = post.toDict();
         postDict.put("author", author.toDict());
-        if(!post.getParentId().equals("0")){
-            Post parent=postMapper.getPostById(post.getParentId());
+        if(!(post.getPostParentId()==null)){
+            Post parent = postMapper.getPostById(String.valueOf(post.getPostParentId()));
             User origin=userMapper.getUserById(parent.getUserId());
             postDict.put("origin", origin.toDict());
         }
         return postDict;
     }
     
-    public boolean like(String id, User user,boolean status,int type) {
+    public boolean likePost(String id, User user,boolean status) {
         Post post=postMapper.getPostById(id);
-        if(post==null)
+        if(post==null){
+
+            System.out.println(id);
             return false;
-        //先查找like
-        System.out.println(user.getId()+id+type);
-        Like like=postMapper.getLike(user.getId(),id,type);
+            //
+        }
+        System.out.println(1);
+        LikePost like=postMapper.getLikePost(user.getUserId(),id);
         //点赞
         if(status && like==null){
-            like=new Like(user.getId(), String.valueOf(type),id);
-            postMapper.insertLike(like);
+            like=new LikePost(user.getUserId(),id);
+            postMapper.insertLikePost(like);
             System.out.println("点赞");
         }
         else if(!status&&like!=null){
-            postMapper.deleteLike(like.getId());
+            postMapper.deleteLikePost(like.getLikePostId());
         }
         else
             return  false;
         return true;
     }
 
+    public boolean likeComment(String id, User user,boolean status) {
+        Comment comment=postMapper.getCommentById(id);
+        if(comment==null){
+            System.out.println(id);
+            return false;
+        }
+
+        LikeComment like=postMapper.getLikeComment(user.getUserId(),id);
+        //点赞
+        if(status && like==null){
+            like=new LikeComment(user.getUserId(),id);
+            postMapper.insertLikeComment(like);
+            System.out.println("点赞");
+        }
+        else if(!status&&like!=null){
+            System.out.println("取消点赞");
+            postMapper.deleteLikeComment(like.getLikeCommentId());
+        }
+        else
+            return  false;
+        return true;
+    }
     
     public Comment addComment(AddCommentRequest req, User user) {
         System.out.println("nihao:"+req.getParentId());
@@ -112,8 +134,10 @@ public class  PostService {
         if(req.getContent()==null||req.getContent().equals("")||parentId==null||(!parentId.equals("0")&&parent==null)){
             return null;
         }
-
-        Comment comment=new Comment(req.getPostId(), user.getId(), req.getContent(),req.getParentId());
+        Post post=postMapper.getPostById(req.getPostId());
+        if(post==null)
+            return null;
+        Comment comment=new Comment(req.getPostId(), user.getUserId(), req.getContent(),parentId.equals("0")?null:parentId);
         postMapper.insertComment(comment);
         return comment;
     }
@@ -121,22 +145,24 @@ public class  PostService {
     
     public boolean delComment(String id, User user) {
         Comment comment=postMapper.getCommentById(id);
-        if(comment==null||!comment.getUserId().equals(user.getId()))
+//        System.out.println(comment==null);
+        if(comment==null||!comment.getUserId().equals(user.getUserId()))
             return false;
 
-        postMapper.delComment(id);
+        postMapper.deleteComment(id);
         return true;
     }
 
     
     public List<Map<String,Object>> getAllComments(String postId) {
-        List<Comment>comments=postMapper.getAllComments(postId,"0");
+        List<Comment>comments=postMapper.getAllComments(postId,null);
+        System.out.println(comments.size());
         List<Map<String,Object>> res=new ArrayList<Map<String,Object>>();
         for(Comment comment : comments){
             Map<String,Object> c=comment.toDict();
             User user=userMapper.getUserById(comment.getUserId());
             c.put("author",user.toDict());
-            List<Comment>replyList=postMapper.getAllComments(postId,comment.getId());
+            List<Comment>replyList=postMapper.getAllComments(postId,comment.getCommentId());
             List<Map<String,Object>> replies=new ArrayList<>();
             for(Comment reply : replyList){
                 Map<String,Object>r=reply.toDict();
@@ -150,18 +176,26 @@ public class  PostService {
         return res;
     }
     public Map<String, Object> repost(String postId,User user,String title){
-
         Map<String, Object>res=new HashMap<String, Object>();
         Post post=postMapper.getPostById(postId);
-        if(!post.getParentId().equals("0")){
-            post=postMapper.getPostById(post.getParentId());
+        if(post ==null){
+            System.out.println("帖子Id: "+postId+" is null");
+            return null;
+        }
+        if(post.getPostParentId()!=null){
+            System.out.println("有父帖 "+post.getPostParentId());
+            post=postMapper.getPostById(String.valueOf(post.getPostParentId()));
+        }
+        if(post ==null){
+            System.out.println("帖子"+" is null");
+            return null;
         }
         User origin=userMapper.getUserById(post.getUserId());
         Post newPost=post;
-        newPost.setCreatedAt(new Date());
-        newPost.setUserId(user.getId());
-        newPost.setParentId(postId);
-        newPost.setTitle(title);
+        newPost.setPostCreateAt(new Date());
+        newPost.setUserId(user.getUserId());
+        newPost.setPostParentId(Integer.parseInt(post.getPostId()));
+        newPost.setPostTitle(title);
         postMapper.insertPost(post);
         res.put("posts",post.toDict());
         res.put("author",user.toDict());

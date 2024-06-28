@@ -21,6 +21,7 @@ public class WebConfig implements WebMvcConfigurer {
                 .addPathPatterns("/user/**",
                         "/notifications/**",
                         "/ai/**",
+                        "/posts/**",
                         "/element/**",
                         "/project/**",
                         "/template/**",

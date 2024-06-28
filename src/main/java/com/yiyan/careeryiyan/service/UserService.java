@@ -37,17 +37,18 @@ public class UserService {
             throw new BaseException("邮箱已注册");
         }
         user = new User();
-        user.setUsername(username);
-        user.setEmail(email);
-        user.setSalt(salt);
-        user.setPassword(saltEncryption(password, salt));
-        user.setRegisterTime(created_at);
-        user.setGender("男");
-        user.setEducation("未知");
-        user.setAvatarUrl("https://career-yiyan.oss-cn-beijing.aliyuncs.com/test/chiikawa.png");
-        user.setNickname(username);
-        user.setInterests("该用户没有设置自己的兴趣");
-        user.setPosition("未知");
+        user.setUserName(username);
+        user.setUserEmail(email);
+        user.setUserSalt(salt);
+        user.setUserPwd(saltEncryption(password, salt));
+        user.setUserRegAt(created_at);
+        user.setUserGender("男");
+        user.setUserEdu("未知");
+        user.setUserAvatarUrl("https://career-yiyan.oss-cn-beijing.aliyuncs.com/test/chiikawa.png");
+        user.setUserNickname(username);
+        user.setUserInterest("该用户没有设置自己的兴趣");
+//        user.("未知"); 这是原本的position字段
+
         userMapper.insertUser(user);
     }
 
@@ -56,9 +57,9 @@ public class UserService {
         if (user == null) {
             throw new BaseException("邮箱未注册");
         }
-        password = saltEncryption(password, user.getSalt());
+        password = saltEncryption(password, user.getUserSalt());
         System.out.println(password);
-        if (!user.getPassword().equals(password)) {
+        if (!user.getUserPwd().equals(password)) {
             throw new BaseException("密码不正确");
         }
         return user;
@@ -75,7 +76,7 @@ public class UserService {
         User user = userMapper.getUserByEmail(email);
         if(user==null)
             throw new BaseException("用户不存在");
-        return user.getSalt();
+        return user.getUserSalt();
     }
 
     public int updateUserInfo(ModifyInfoRequest request){
