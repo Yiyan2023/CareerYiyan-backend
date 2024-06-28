@@ -8,15 +8,18 @@ import org.apache.ibatis.annotations.Select;
 
 @Mapper
 public interface EnterpriseMapper {
-    @Select(" SELECT * from Enterprise where Enterprise.id = #{id}")
+    @Select(" select * from enterprise\n" +
+            " where is_delete=0 and ep_id={#epId};")
     Enterprise getEnterpriseById(String id);
 
-    @Insert("INSERT into Enterprise(enterpriseName, enterpriseAddress, enterpriseDescription, enterpriseType, enterpriseLicense,createTime,avatarUrl) " +
-            "values(#{enterpriseName}, #{enterpriseAddress}, #{enterpriseDescription}, #{enterpriseType}, #{enterpriseLicense}, #{createTime}, #{avatarUrl})")
-    @Options(useGeneratedKeys = true, keyProperty = "id")
+    @Insert("insert into enterprise(ep_name, ep_addr, ep_desc, ep_type, ep_license, ep_create_at, ep_avatar_url) " +
+            "values(#{epName}, #{epAddr}, #{epDesc}, #{epType}, #{epLicense}, #{epCreateAt}, #{epAvatarUrl});")
+//@Insert("insert into enterprise(epName, epAddr, epDesc, epType, epLicense, epCreateAt, epAvatarUrl) " +
+//        "values(#{epName}, #{epAddr}, #{epDesc}, #{epType}, #{epLicense}, #{epCreateAt}, #{epAvatarUrl});")
+    @Options(useGeneratedKeys = true, keyProperty = "epId")
     int addEnterprise(Enterprise enterprise);
 
 
-    @Select("SELECT * from Enterprise where enterpriseName = #{enterpriseName}")
+    @Select("SELECT * from enterprise where ep_name = #{epName}")
     Enterprise getEnterpriseByName(String enterpriseName);
 }

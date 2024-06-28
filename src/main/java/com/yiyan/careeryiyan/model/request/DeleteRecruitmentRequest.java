@@ -4,5 +4,5 @@ import lombok.Data;
 
 @Data
 public class DeleteRecruitmentRequest {
-    private String id;
+    private String rcId;
 }

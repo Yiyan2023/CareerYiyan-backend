@@ -1,19 +1,17 @@
 package com.yiyan.careeryiyan.service;
 
-import com.yiyan.careeryiyan.exception.BaseException;
 import com.yiyan.careeryiyan.mapper.ApplyMapper;
 import com.yiyan.careeryiyan.mapper.RecruitmentMapper;
 import com.yiyan.careeryiyan.model.domain.Apply;
 import com.yiyan.careeryiyan.model.domain.Recruitment;
-import com.yiyan.careeryiyan.model.request.AddApplyRequest;
 import com.yiyan.careeryiyan.model.request.AddRecruitmentRequest;
 import com.yiyan.careeryiyan.model.request.EditRecruitmentRequest;
-import com.yiyan.careeryiyan.model.response.UserApplyDetailResponse;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class RecruitmentService {
@@ -22,12 +20,12 @@ public class RecruitmentService {
     @Resource
     ApplyMapper applyMapper;
 
-    public int addRecruitment(AddRecruitmentRequest addRecruitmentRequest) {
+    public String addRecruitment(AddRecruitmentRequest addRecruitmentRequest) {
         recruitmentMapper.addRecruitment(addRecruitmentRequest);
-        return addRecruitmentRequest.getId();
+        return addRecruitmentRequest.getRcId();
     }
 
-    public List<Recruitment> getRecruitmentList(String enterpriseId) {
+    public List<Map<String, Object>> getRecruitmentList(String enterpriseId) {
         return recruitmentMapper.getRecruitmentList(enterpriseId);
     }
 
@@ -56,7 +54,7 @@ public class RecruitmentService {
         return applyMapper.getApplyByRecruitmentId(recruitmentId);
     }
 
-    public List<UserApplyDetailResponse> getUserApplyList(String id) {
+    public List<Map<String, Object>> getUserApplyList(String id) {
         return recruitmentMapper.getUserApplyList(id);
     }
 
@@ -94,4 +92,7 @@ public class RecruitmentService {
     }
 
 
+    public Map<String, Object> getRecruitmentInfo(String recruitmentId) {
+        return recruitmentMapper.getRecruitmentInfo(recruitmentId);
+    }
 }

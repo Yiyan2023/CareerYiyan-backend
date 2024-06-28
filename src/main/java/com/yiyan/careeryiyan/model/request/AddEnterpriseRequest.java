@@ -6,13 +6,13 @@ import java.util.Date;
 
 @Data
 public class AddEnterpriseRequest {
-    private String enterpriseName;
-    private String enterpriseAddress;
-    private String enterpriseDescription;
-    private String enterpriseType;
-    private String enterpriseLicense;
+    private String epName;
+    private String epAddr;
+    private String epDesc;
+    private String epType;
+    private String epLicense;
     //待定补充
 
-    private String avatarUrl;
+    private String epAvatarUrl;
 
 }
