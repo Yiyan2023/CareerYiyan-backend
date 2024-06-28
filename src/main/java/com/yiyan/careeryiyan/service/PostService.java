@@ -55,7 +55,7 @@ public class  PostService {
         Map<String,Object>res=new HashMap<String,Object>();
         for(Post post : postlist){
             Map<String,Object>postDict=post.toDict();
-            if(!(post.getPostParentId()==null)){
+            if(post.getPostParentId()!=1){
                 Post parent = postMapper.getPostById(String.valueOf(post.getPostParentId()));
                 User origin=userMapper.getUserById(parent.getUserId());
                 postDict.put("origin",origin.toDict());
@@ -72,7 +72,7 @@ public class  PostService {
         User author=userMapper.getUserById(post.getUserId());
         Map<String, Object> postDict = post.toDict();
         postDict.put("author", author.toDict());
-        if(!(post.getPostParentId()==null)){
+        if(post.getPostParentId()!=1){
             Post parent = postMapper.getPostById(String.valueOf(post.getPostParentId()));
             User origin=userMapper.getUserById(parent.getUserId());
             postDict.put("origin", origin.toDict());
@@ -182,7 +182,7 @@ public class  PostService {
             System.out.println("帖子Id: "+postId+" is null");
             return null;
         }
-        if(post.getPostParentId()!=null){
+        if(post.getPostParentId()!=1){
             System.out.println("有父帖 "+post.getPostParentId());
             post=postMapper.getPostById(String.valueOf(post.getPostParentId()));
         }

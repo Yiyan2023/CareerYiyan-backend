@@ -44,8 +44,10 @@ public class PostController {
         return ResponseEntity.ok(res);
     }
 
-    @PostMapping("/delete/{id}")
-    public ResponseEntity<StringResponse> delPost(@PathVariable int id, HttpServletRequest httpServletRequest) {
+    @PostMapping("/delete")
+    public ResponseEntity<StringResponse> delPost(@RequestBody Map<String,String> map, HttpServletRequest httpServletRequest) {
+//        String id=rb.getParameter("id");
+        String id=map.get("id");
         User user = (User) httpServletRequest.getAttribute("user");
         if (user == null)
 
@@ -54,8 +56,10 @@ public class PostController {
         String response = res ? "删除成功" : "删除失败";
         return ResponseEntity.ok(new StringResponse(response));
     }
-    @PostMapping("/like/{id}")
-    public ResponseEntity<StringResponse> likePost(@PathVariable int id,@RequestParam boolean status, HttpServletRequest httpServletRequest) {
+    @PostMapping("/like")
+    public ResponseEntity<StringResponse> likePost(@RequestBody Map<String,String> map, HttpServletRequest httpServletRequest) {
+        String id=map.get("id");
+        boolean status= Boolean.parseBoolean(map.get("status"));
         User user = (User) httpServletRequest.getAttribute("user");
         if (user == null)
             throw new BaseException("用户不存在");
@@ -64,8 +68,10 @@ public class PostController {
         return ResponseEntity.ok(new StringResponse(response));
     }
 
-    @PostMapping("/comments/like/{id}")
-    public ResponseEntity<StringResponse> likeComment(@PathVariable int id,@RequestParam boolean status, HttpServletRequest httpServletRequest) {
+    @PostMapping("/comments/like")
+    public ResponseEntity<StringResponse> likeComment(@RequestBody Map<String,String> map, HttpServletRequest httpServletRequest) {
+        String id=map.get("id");
+        boolean status= Boolean.parseBoolean(map.get("status"));
         User user = (User) httpServletRequest.getAttribute("user");
         if (user == null)
             throw new BaseException("用户不存在");
@@ -76,10 +82,11 @@ public class PostController {
     /*
     转发动态
      */
-    @PostMapping("repost/{id}")
-    public ResponseEntity<Map<String, Object>> repost(@PathVariable int id,
-                                                      @RequestParam String title,
+    @PostMapping("repost")
+    public ResponseEntity<Map<String, Object>> repost(@RequestBody Map<String,String> map,
                                                       HttpServletRequest httpServletRequest) {
+        String id=map.get("id");
+        String title = map.get("title");
         User user = (User) httpServletRequest.getAttribute("user");
         if (user == null)
             throw new BaseException("用户不存在");
@@ -100,15 +107,16 @@ public class PostController {
             throw new BaseException("用户不存在");
         return ResponseEntity.ok(postService.getPostsByUser(user));
     }
-    @GetMapping("/user/{id}")
-    public ResponseEntity<Map<String, Object>> getUser(@PathVariable int id,HttpServletRequest httpServletRequest) {
+    @GetMapping("/user")
+    public ResponseEntity<Map<String, Object>> getUser(@RequestParam int id,HttpServletRequest httpServletRequest) {
+//        String id=map.get("id");
         User user=userService.getUserInfo(String.valueOf(id));
         return ResponseEntity.ok(postService.getPostsByUser(user));
     }
 
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Map<String,Object>> getPost(@PathVariable int id,HttpServletRequest httpServletRequest){
+    @GetMapping("")
+    public ResponseEntity<Map<String,Object>> getPost(@RequestParam int id,HttpServletRequest httpServletRequest){
         User user = (User) httpServletRequest.getAttribute("user");
         if (user == null) {
             throw new BaseException("用户不存在");
@@ -138,8 +146,9 @@ public class PostController {
         responseData.put("author", user.toDict());
         return ResponseEntity.ok(responseData);
     }
-    @PostMapping("/comments/delete/{id}")
-    public ResponseEntity<StringResponse> delComment(@PathVariable int id, HttpServletRequest httpServletRequest) {
+    @PostMapping("/comments/delete")
+    public ResponseEntity<StringResponse> delComment(@RequestBody Map<String,String> map, HttpServletRequest httpServletRequest) {
+        String id=map.get("id");
         User user = (User) httpServletRequest.getAttribute("user");
         if (user == null)
             throw new BaseException("用户不存在");
@@ -147,8 +156,9 @@ public class PostController {
         String response = res ? "删除成功" : "删除失败";
         return ResponseEntity.ok(new StringResponse(response));
     }
-    @GetMapping("/{id}/comments")
-    public ResponseEntity<List<Map<String, Object>>> getAllComment(@PathVariable int id,HttpServletRequest httpServletRequest){
+    @GetMapping("/comments")
+    public ResponseEntity<List<Map<String, Object>>> getAllComment(@RequestParam int id,HttpServletRequest httpServletRequest){
+//        String id=map.get("id");
         return ResponseEntity.ok(postService.getAllComments(String.valueOf(id)));
     }
 }

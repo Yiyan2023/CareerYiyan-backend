@@ -76,7 +76,6 @@ CREATE TABLE enterprise_user (
                                  ep_user_title INT,
                                  ep_user_create_at DATETIME,
                                  is_delete BOOL DEFAULT 0 NOT NULL,
-                                 factor INT DEFAULT 0,
                                  FOREIGN KEY (ep_id) REFERENCES enterprise(ep_id),
                                  FOREIGN KEY (user_id) REFERENCES user(user_id)
 );
@@ -181,4 +180,3 @@ CREATE TABLE message (
                          FOREIGN KEY (msg_send_user_id) REFERENCES user(user_id),
                          FOREIGN KEY (msg_reply_msg_id) REFERENCES message(msg_id)
 );
- 
