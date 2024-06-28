@@ -22,6 +22,7 @@ public class WebConfig implements WebMvcConfigurer {
                         "/notifications/**",
                         "/ai/**",
                         "/posts/**",
+                        "/follow/**",
                         "/element/**",
                         "/project/**",
                         "/template/**",
