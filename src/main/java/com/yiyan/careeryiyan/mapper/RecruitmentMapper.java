@@ -4,7 +4,7 @@ import com.yiyan.careeryiyan.model.domain.Apply;
 import com.yiyan.careeryiyan.model.domain.Recruitment;
 import com.yiyan.careeryiyan.model.request.AddRecruitmentRequest;
 import com.yiyan.careeryiyan.model.request.EditRecruitmentRequest;
-import com.yiyan.careeryiyan.model.response.UserApplyDetailResponse;
+//import com.yiyan.careeryiyan.model.response.UserApplyDetailResponse;
 import org.apache.ibatis.annotations.*;
 
 import java.util.List;

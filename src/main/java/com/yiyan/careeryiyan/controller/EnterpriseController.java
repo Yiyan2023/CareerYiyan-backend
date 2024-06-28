@@ -25,6 +25,7 @@ public class EnterpriseController {
     @Resource
     private UserService userService;
 
+    //refactor completed 2024年6月28日22点47分
     @PostMapping("/addEnterprise")
     public ResponseEntity addEnterprise(@RequestBody AddEnterpriseRequest addEnterpriseRequest, HttpServletRequest request) {
         User user = (User) request.getAttribute("user");
@@ -65,11 +66,11 @@ public class EnterpriseController {
         throw new BaseException("创建企业失败！");
     }
 
+    //refactor completed 2024年6月28日22点47分
     @PostMapping("/getInfo")
     public ResponseEntity getInfo(@RequestBody GetEnterpriseInfoRequest rq) {
         String userId = rq.getUserId();
-        Enterprise enterprise = enterpriseService.getEnterpriseById(rq.getEpId());
-        //System.out.println(enterpriseId);
+        Enterprise enterprise = enterpriseService.getEnterpriseByEpId(rq.getEpId());
         if (enterprise == null) {
             throw new BaseException("企业不存在");
         }
@@ -77,7 +78,6 @@ public class EnterpriseController {
         Map map = enterprise.toDict();
         int auth=0;
         if(enterpriseUser == null|| !Objects.equals(enterpriseUser.getEpId(), enterprise.getEpId())) {
-
             auth=0;
         }else{
             if (enterpriseUser.getEpUserAuth() == 1 && Objects.equals(enterpriseUser.getEpId(), enterprise.getEpId()) ) {
@@ -92,6 +92,7 @@ public class EnterpriseController {
         return ResponseEntity.ok(map);
     }
 
+    //refactor completed 2024年6月28日22点47分
     @PostMapping("/addRecruitment")
     public ResponseEntity addRecruitment(@RequestBody AddRecruitmentRequest addRecruitmentRequest, HttpServletRequest request) {
         User user = (User) request.getAttribute("user");
@@ -104,10 +105,10 @@ public class EnterpriseController {
         if (Integer.parseInt(rcId) > 0) {
             return ResponseEntity.ok(Map.of("recruitmentId", rcId));
         }
-
         throw new BaseException("发布失败");
     }
 
+    //refactor completed 2024年6月28日22点47分
     @PostMapping("/getRecruitmentList")
     public ResponseEntity getRecruitmentList(@RequestBody GetRecruitmentListRequest getRecruitmentListRequest) {
         String enterpriseId = getRecruitmentListRequest.getEpId();
@@ -118,6 +119,7 @@ public class EnterpriseController {
         return ResponseEntity.ok(recruitmentList);
     }
 
+    //refactor completed 2024年6月28日22点47分
     @PostMapping("/getRecruitmentInfo")
     public ResponseEntity getRecruitmentInfo(@RequestBody GetRecruitmentInfoRequest getRecruitmentInfoRequest) {
         String rcId = getRecruitmentInfoRequest.getRcId();
@@ -142,6 +144,7 @@ public class EnterpriseController {
         return ResponseEntity.ok(map);
     }
 
+    //refactor completed 2024年6月28日22点47分
     @PostMapping("/editRecruitment")
     public ResponseEntity editRecruitment(@RequestBody EditRecruitmentRequest editRecruitmentRequest, HttpServletRequest request) {
         User user = (User) request.getAttribute("user");
@@ -162,6 +165,7 @@ public class EnterpriseController {
         throw new BaseException("修改失败");
     }
 
+    //refactor completed 2024年6月28日22点47分
     @PostMapping("/deleteRecruitment")
     public ResponseEntity deleteRecruitment(@RequestBody DeleteRecruitmentRequest deleteRecruitmentRequest, HttpServletRequest request) {
         User user = (User) request.getAttribute("user");
@@ -179,6 +183,8 @@ public class EnterpriseController {
         throw new BaseException("修改失败");
     }
 
+    //refactor completed 2024年6月28日22点48分
+    //simple test passed 2024年6月29日00点24分
     @PostMapping("/apply")
     public ResponseEntity addApply(@RequestBody AddApplyRequest addApplyRequest, HttpServletRequest request) {
         User user = (User) request.getAttribute("user");
@@ -201,9 +207,13 @@ public class EnterpriseController {
         throw new BaseException("申请失败");
     }
 
+    //refactor completed 2024年6月28日22点48分
+    //simple test passed 2024年6月28日23点44分
     @PostMapping("/addEmployee")
     public ResponseEntity addEmployee(@RequestBody AddEmployeeRequest addEmployeeRequest, HttpServletRequest request){
         User user = (User)request.getAttribute("user");
+        System.out.println("userId = "+ user.getUserId());
+        System.out.println("epId = " + addEmployeeRequest.getEpId());
         EnterpriseUser adminUser = enterpriseService.getEnterpriseUserByUserId(user.getUserId());
         if(adminUser == null||adminUser.getEpUserAuth() != 0|| !Objects.equals(adminUser.getEpId(), addEmployeeRequest.getEpId())){
             throw new BaseException("你不是此企业的管理员");
@@ -212,7 +222,7 @@ public class EnterpriseController {
         if(enterpriseUser!=null){
             throw new BaseException("此用户已有所属企业");
         }
-        Enterprise enterprise = enterpriseService.getEnterpriseById(addEmployeeRequest.getEpId());
+        Enterprise enterprise = enterpriseService.getEnterpriseByEpId(addEmployeeRequest.getEpId());
         if (enterprise == null){
             throw new BaseException("企业不存在");
         }
@@ -230,33 +240,52 @@ public class EnterpriseController {
         return ResponseEntity.ok("添加员工成功");
     }
 
-//    @PostMapping("/getApplicationList")
-//    public ResponseEntity getApplicationList(@RequestBody GetApplicationListRequest getApplicationListRequest, HttpServletRequest request) {
-//        User admin = (User) request.getAttribute("user");
-//        String recruitmentId = getApplicationListRequest.getRcId();
-//        Recruitment recruitment  = recruitmentService.getRecruitmentById(recruitmentId);
-//        if(recruitment==null){
-//            throw new BaseException("职位不存在");
-//        }
-//        EnterpriseUser adminUser = enterpriseService.getEnterpriseUserByUserId(admin.getUserId());
-//        if(adminUser == null||adminUser.getEpUserAuth() != 0|| !Objects.equals(adminUser.getEpId(), recruitment.getEpId())) {
-//            throw new BaseException("你不是此企业的管理员");
-//        }
-//        Enterprise enterprise = enterpriseService.getEnterpriseById(recruitment.getEpId());
-//        if (enterprise == null){
-//            throw new BaseException("企业不存在");
-//        }
-//        List<Apply> applyList = recruitmentService.getApplyByRecruitmentId(recruitmentId);
-//        List<GetApplicationListResponse> responseList = new ArrayList<>();
-//        for (Apply apply : applyList) {
-//            User user = userService.getUserInfo(apply.getUserId());
-//            List<UserJobPreferences> userJobPreferences = userService.getUserJobPreferences(apply.getUserId());
-//            responseList.add(new GetApplicationListResponse(apply, user, userJobPreferences));
-//        }
-//        return ResponseEntity.ok(responseList);
-//    }
+    //refactor completed 2024年6月28日23点40分
+    //simple test passed 2024年6月28日23点40分
+    @PostMapping("/getApplicationList")
+    public ResponseEntity getApplicationList(@RequestBody GetApplicationListRequest getApplicationListRequest, HttpServletRequest request) {
+        User admin = (User) request.getAttribute("user");
+        String recruitmentId = getApplicationListRequest.getRcId();
+        Recruitment recruitment  = recruitmentService.getRecruitmentById(recruitmentId);
+        if(recruitment==null){
+            throw new BaseException("职位不存在");
+        }
+        EnterpriseUser adminUser = enterpriseService.getEnterpriseUserByUserId(admin.getUserId());
+        if(adminUser == null||adminUser.getEpUserAuth() != 0|| !Objects.equals(adminUser.getEpId(), recruitment.getEpId())) {
+            throw new BaseException("你不是此企业的管理员");
+        }
+        System.out.println("epId is "+recruitment.getEpId());
+        Enterprise enterprise = enterpriseService.getEnterpriseByEpId(recruitment.getEpId());
+        if (enterprise == null){
+            throw new BaseException("企业不存在");
+        }
+        List<Apply> applyList = recruitmentService.getApplyByRecruitmentId(recruitmentId);
+        List<Map<String,Object>> responseList = new ArrayList<>();
+        for (Apply apply : applyList) {
+            User user = userService.getUserInfo(apply.getUserId());
+            List<UserRecruitmentPreferences> userRecruitmentPreferences = userService.getUserRecruitmentPreferences(apply.getUserId());
+            Map<String, Object> map = new HashMap<>();
+            map.put("applyId", apply.getApplyId());
+            map.put("applyCvUrl", apply.getApplyCvUrl());
+            map.put("applyStatus", apply.getApplyStatus());
+            map.put("applyCreateAt", apply.getApplyCreateAt());
+            map.put("applyUpdateAt",apply.getApplyUpdateAt());
+            map.put("rcId",apply.getRcId());
+
+            map.put("userName", user.getUserNickname());
+            map.put("userAvatarUrl", user.getUserAvatarUrl());
+            map.put("userEdu", user.getUserEdu());
+            map.put("userId", user.getUserId());
+            map.put("userInterest", user.getUserInterest());
+
+            map.put("userRecruitmentPreferences", userRecruitmentPreferences.stream());
+            responseList.add(map);
+        }
+        return ResponseEntity.ok(responseList);
+    }
 
 
+    //refactor completed 2024年6月28日22点48分
     //用户获取自己的投递列表
     @PostMapping("/getUserApplyList")
     public ResponseEntity getApplyList(HttpServletRequest httpServletRequest){
@@ -265,6 +294,7 @@ public class EnterpriseController {
         return ResponseEntity.ok(applyList);
     }
 
+    //refactor completed 2024年6月28日22点48分
     @PostMapping("/changeState")
     public ResponseEntity changeState(@RequestBody Map<String,String> map,HttpServletRequest httpServletRequest){
         String applyId = map.get("applyId");
@@ -287,6 +317,7 @@ public class EnterpriseController {
         throw new BaseException("修改失败");
     }
 
+    //refactor completed 2024年6月28日22点48分
     @PostMapping("/acceptOffer")
     public ResponseEntity acceptOffer(@RequestBody Map<String,String> map,HttpServletRequest httpServletRequest){
         String applyId = map.get("applyId");
@@ -334,19 +365,21 @@ public class EnterpriseController {
         throw new BaseException("处理失败");
     }
 
-//    @PostMapping("/getEmployeeList")
-//    public ResponseEntity getEmployeeList(@RequestBody Map<String,String> requestBody, HttpServletRequest httpServletRequest){
-//        User user = (User) httpServletRequest.getAttribute("user");
-//        String enterpriseId = requestBody.get("enterpriseId");
-//        EnterpriseUser enterpriseUser = enterpriseService.getEnterpriseUserByUserId(user.getUserId());
-//        if(enterpriseUser == null || !Objects.equals(enterpriseUser.getEpId(),enterpriseId)){
-//            throw new BaseException("无权查看企业员工列表");
-//        }
-//
-//        List<EmployeeListResponse> employeeList = enterpriseService.getEmployeeListByEnterpriseId(enterpriseId);
-//        return ResponseEntity.ok(employeeList);
-//    }
+    //refactor completed 2024年6月28日22点55分
+    @PostMapping("/getEmployeeList")
+    public ResponseEntity getEmployeeList(@RequestBody Map<String,String> requestBody, HttpServletRequest httpServletRequest){
+        User user = (User) httpServletRequest.getAttribute("user");
+        String enterpriseId = requestBody.get("enterpriseId");
+        EnterpriseUser enterpriseUser = enterpriseService.getEnterpriseUserByUserId(user.getUserId());
+        if(enterpriseUser == null || !Objects.equals(enterpriseUser.getEpId(),enterpriseId)){
+            throw new BaseException("无权查看企业员工列表");
+        }
+        List<Map<String, Object>> employeeList = enterpriseService.getEmployeeListByEnterpriseId(enterpriseId);
+        return ResponseEntity.ok(employeeList);
+    }
 
+    // refactor completed 2024年6月28日22点49
+    // 分
     @PostMapping("/getAdmin")
     public ResponseEntity getAdmin(@RequestBody Map<String,String> requestBody){
         String enterpriseId = requestBody.get("enterpriseId");

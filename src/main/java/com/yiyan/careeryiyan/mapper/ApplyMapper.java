@@ -10,35 +10,36 @@ import java.util.List;
 
 @Mapper
 public interface ApplyMapper {
-    @Insert("INSERT into Apply(userId, recruitmentId, status, cvUrl, createTime, updateTime) values(#{userId}, #{recruitmentId}, #{status}, #{cvUrl}, #{createTime}, #{updateTime})")
+    @Insert("INSERT into apply(user_id, rc_id, apply_status, apply_cv_url, apply_create_at, apply_update_at) " +
+            "values(#{userId}, #{rcId}, #{applyStatus}, #{applyCvUrl}, #{applyCreateAt}, #{applyUpdateAt})")
     int addApply(Apply apply);
 
-    @Select("SELECT * from Apply where userId = #{userId} and recruitmentId = #{recruitmentId}")
+    @Select("SELECT * from apply where user_Id = #{userId} and rc_id = #{recruitmentId}")
     Apply getApplyByUserIdAndRecruitmentId(String userId, String recruitmentId);
 
 
-    @Select("SELECT  * from Apply where recruitmentId = #{recruitmentId}")
+    @Select("SELECT  * from apply where rc_id = #{recruitmentId}")
     List<Apply> getApplyByRecruitmentId(String recruitmentId);
 
 
-    @Select("SELECT a.*, r.offerCount "
-            + "FROM Apply a "
-            + "JOIN Recruitment r ON a.recruitmentId = r.id "
-            + "WHERE a.id = #{applyId} FOR UPDATE")
+    @Select("SELECT a.*, r.rc_offer_count "
+            + "FROM apply a "
+            + "JOIN recruitment r ON a.rc_id = r.rc_id "
+            + "WHERE a.apply_id = #{applyId} FOR UPDATE")
     Apply getApplyAndRecruitmentForUpdate(String applyId);
 
-    @Update("UPDATE Apply SET status = #{status} WHERE id = #{applyId}")
+    @Update("UPDATE apply SET apply_status = #{status} WHERE apply_id = #{applyId}")
     int changeStatus(String applyId, int status);
 
-    @Update("UPDATE Recruitment r "
-            + "JOIN Apply a ON r.id = a.recruitmentId "
-            + "SET r.offerCount = r.offerCount + 1, a.status = #{status} "
-            + "WHERE a.id = #{applyId}")
+    @Update("UPDATE recruitment rc "
+            + "JOIN apply a ON rc.rc_id = a.rc_id "
+            + "SET rc.rc_offer_count = rc.rc_offer_count + 1, a.apply_status = #{status} "
+            + "WHERE a.apply_id = #{applyId}")
     int increaseOfferCountAndChangeStatus(String applyId, int status);
 
-    @Update("UPDATE Recruitment r "
-            + "JOIN Apply a ON r.id = a.recruitmentId "
-            + "SET r.offerCount = r.offerCount - 1, a.status = #{status} "
-            + "WHERE a.id = #{applyId}")
+    @Update("UPDATE recruitment rc "
+            + "JOIN apply a ON rc.rc_id = a.rc_id "
+            + "SET rc.rc_offer_count = rc.rc_offer_count - 1, a.apply_status = #{status} "
+            + "WHERE a.apply_id = #{applyId}")
     int decreaseOfferCountAndChangeStatus(String applyId, int status);
 }

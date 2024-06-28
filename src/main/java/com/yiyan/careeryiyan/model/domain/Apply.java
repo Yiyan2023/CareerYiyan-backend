@@ -33,5 +33,8 @@ public class Apply {
         this.rcId = rcId;
         this.applyStatus = applyStatus;
         this.applyCvUrl = applyCvUrl;
+        this.applyCreateAt = LocalDateTime.now();
+        this.applyUpdateAt = this.applyCreateAt;
+
     }
 }
