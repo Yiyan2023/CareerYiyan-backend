@@ -10,21 +10,24 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
+
 public class Recruitment {
-    private String id;
-    private String enterpriseId;
-    private String recruitmentName;
-    private String recruitmentAddress;
-    private String recruitmentTag;
-    private int minSalary;
-    private int maxSalary;
-    private int salaryInterval;
-    private String education;
-    private String recruitmentDescription;
+    private String epId;
+    private int isDelete;
+    private int rcAcceptCount;
+    private String rcAddr;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    private LocalDateTime createTime;
-    private int headCount;
-    private int offerCount;
+    private LocalDateTime rcCreateAt;
+    private String rcDesc;
+    private String rcEdu;
+    private String rcId;
+    private int rcMaxSalary;
+    private int rcMinSalary;
+    private String rcName;
+    private int rcOfferCount;
+    private int rcSalaryCount;
+    private String rcTag;
+    private int rcTotalCount;
 }
