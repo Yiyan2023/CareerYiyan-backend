@@ -99,9 +99,10 @@ CREATE TABLE post (
                       post_create_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                       user_id INT,
                       post_photo_urls JSON,
-                      post_parent_id INT DEFAULT 0,
+                      post_parent_id INT NULL,
                       is_delete BOOL DEFAULT 0 NOT NULL,
-                      FOREIGN KEY (user_id) REFERENCES user(user_id)
+                      FOREIGN KEY (user_id) REFERENCES user(user_id),
+                      FOREIGN KEY (post_parent_id) REFERENCES post(post_id)
 );
 -- 评论表
 CREATE TABLE comment (
@@ -110,7 +111,7 @@ CREATE TABLE comment (
                          user_id INT,
                          comment_parent_id INT,
                          comment_content TEXT,
-                         comment_create_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                         comment_created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                          is_delete BOOL DEFAULT 0 NOT NULL,
                          FOREIGN KEY (post_id) REFERENCES post(post_id),
                          FOREIGN KEY (user_id) REFERENCES user(user_id),
@@ -141,21 +142,27 @@ CREATE TABLE like_comment (
 
 
 -- 关注企业表
+DROP TABLE IF EXISTS follow_enterprise;
 CREATE TABLE follow_enterprise (
                                    follow_ep_id INT AUTO_INCREMENT PRIMARY KEY,
                                    ep_id INT,
+                                   user_id INT,
                                    follow_ep_create_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                                    is_delete BOOL DEFAULT 0 NOT NULL,
-                                   FOREIGN KEY (ep_id) REFERENCES enterprise(ep_id)
+                                   FOREIGN KEY (ep_id) REFERENCES enterprise(ep_id),
+                                   FOREIGN KEY (user_id) REFERENCES user(user_id)
 );
 
 -- 关注用户表
+DROP TABLE IF EXISTS follow_user;
 CREATE TABLE follow_user (
                              follow_user_id INT AUTO_INCREMENT PRIMARY KEY,
+                             following_user_id INT,
                              user_id INT,
                              follow_user_create_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                              is_delete BOOL DEFAULT 0 NOT NULL,
-                             FOREIGN KEY (user_id) REFERENCES user(user_id)
+                             FOREIGN KEY (user_id) REFERENCES user(user_id),
+                             FOREIGN KEY (following_user_id) REFERENCES user(user_id)
 );
 
 -- 聊天表
