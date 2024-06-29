@@ -1,8 +1,12 @@
 package com.yiyan.careeryiyan.service;
 
+import com.yiyan.careeryiyan.mapper.EnterpriseMapper;
 import com.yiyan.careeryiyan.mapper.FollowMapper;
+import com.yiyan.careeryiyan.mapper.UserMapper;
+import com.yiyan.careeryiyan.model.domain.Enterprise;
 import com.yiyan.careeryiyan.model.domain.FollowEnterprise;
 import com.yiyan.careeryiyan.model.domain.FollowUser;
+import com.yiyan.careeryiyan.model.domain.User;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
@@ -16,9 +20,18 @@ public class FollowService {
     @Resource
     FollowMapper followMapper;
 
+    @Resource
+    EnterpriseMapper enterpriseMapper;
+
+    @Resource
+    UserMapper userMapper;
+
     public int followUser(String userId, String targetUserId) {
         //关注返回0，取关返回1
-        System.out.println(userId + " " + targetUserId);
+        User targetUser =userMapper.getUserById(targetUserId);
+        if(targetUser==null){
+            return -1;
+        }
         FollowUser followUser = followMapper.getFollowUser(userId, targetUserId);
 
         if (followUser == null) {
@@ -34,6 +47,10 @@ public class FollowService {
     public int followEnterprise(String userId, String epId) {
         FollowEnterprise fp = followMapper.getFollowEp(userId, epId);
         //M:判断企业是否存在 记得判断
+        Enterprise enterprise=enterpriseMapper.getEnterpriseByEpId(epId);
+        if(enterprise == null){
+            return -1;
+        }
         System.out.println(userId + " " + epId);
         if (fp == null) {
             followMapper.insertFollowEnterprise(userId, epId);

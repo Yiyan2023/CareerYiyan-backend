@@ -32,8 +32,6 @@ public class PostController {
     PostService postService;
     @Resource
     UserService userService;
-    @Resource
-    PostMapper postMapper;
 
     @PostMapping("/add")
     public ResponseEntity<Map<String, Object>> addPost(@RequestBody AddPostRequest req,
