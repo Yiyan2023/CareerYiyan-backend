@@ -6,6 +6,7 @@ import com.yiyan.careeryiyan.model.domain.LikePost;
 import com.yiyan.careeryiyan.model.domain.Post;
 import org.apache.ibatis.annotations.*;
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface PostMapper {
@@ -32,7 +33,15 @@ public interface PostMapper {
     @Select("SELECT * FROM like_post WHERE user_id = #{userId} AND post_id = #{postId} AND is_delete = 0")
     LikePost getLikePost(String userId, String postId);
 
-//    @Delete("DELETE FROM like_post WHERE like_post_id = #{likePostId}")
+    @Select("SELECT COUNT(*) FROM like_post WHERE " +
+            "post_id IN (SELECT post_id FROM post WHERE user_id = #{userId})")
+    int getLikePostCount(@Param("userId") String userId);
+
+    @Select("SELECT COUNT(*) FROM like_comment WHERE " +
+            "comment_id IN (SELECT comment_id FROM comment WHERE post_id " +
+            "IN (SELECT post_id FROM post WHERE user_id = #{userId}))")
+    int getLikeCommentCount(@Param("userId") String userId);
+
     @Update("UPDATE like_post SET is_delete=1 WHERE like_post_id = #{likePostId}")
     void deleteLikePost(String likePostId);
 
@@ -60,7 +69,31 @@ public interface PostMapper {
     @Select("SELECT * FROM like_comment WHERE user_id = #{userId} AND comment_id = #{commentId} AND is_delete = 0")
     LikeComment getLikeComment(String userId, String commentId);
 
-//    @Delete("DELETE FROM like_comment WHERE like_comment_id = #{likeCommentId}")
     @Update("UPDATE like_comment SET is_delete=1 WHERE like_comment_id = #{likeCommentId}")
     void deleteLikeComment(String likeCommentId);
+
+
+
+    @Select("CALL get_enterprise_posts(#{epId})")
+    List<Map<String, Object>> getEnterprisesPosts(@Param("epId")  String epId);
+
+
+    @Select("SELECT p.post_id AS postId, " +
+            "p.post_title AS postTitle, " +
+            "p.post_content AS postContent, " +
+            "DATE_FORMAT(p.post_create_at, '%Y-%m-%d %H:%i:%s') AS postCreateAt, " +
+            "p.user_id AS userId, " +
+            "p.post_photo_urls AS postPhotoUrls, " +
+            "p.post_parent_id AS postParentId " +
+            "FROM post p " +
+            "WHERE user_id IN (" +
+            "    SELECT following_user_id " +
+            "    FROM follow_user " +
+            "    WHERE user_id = #{userId}" +
+            ")")
+    List<Map<String, Object>> getFollowUserPost(@Param("userId") String userId);
+
+    @Select("CALL get_followed_enterprises_posts(#{userId})")
+    List<Map<String, Object>> getFollowedEnterprisesPosts(@Param("userId")  String userId);
+
 }

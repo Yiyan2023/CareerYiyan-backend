@@ -104,6 +104,114 @@ CREATE TABLE post (
                       FOREIGN KEY (user_id) REFERENCES user(user_id),
                       FOREIGN KEY (post_parent_id) REFERENCES post(post_id)
 );
+#企业动态
+
+-- 企业动态
+USE cyy_v2;
+DROP PROCEDURE IF EXISTS get_enterprise_posts;
+DELIMITER //
+CREATE PROCEDURE get_enterprise_posts(IN input_ep_id INT)
+BEGIN
+    -- 声明并设置变量来存储 LIMIT 值
+    DECLARE limit_value INT;
+    -- 计算前50%的用户数量
+    SELECT CEIL(COUNT(DISTINCT eu.user_id) * 1) INTO limit_value
+    FROM enterprise_user eu
+    WHERE eu.ep_id = input_ep_id
+      AND eu.is_delete = 0;
+    -- 主查询
+    SELECT
+        p.post_id AS postId,
+        p.post_title AS postTitle,
+        p.post_content AS postContent,
+        DATE_FORMAT(p.post_create_at, '%Y-%m-%d %H:%i:%s') AS postCreateAt,
+        p.user_id AS userId,
+        p.post_photo_urls AS postPhotoUrls,
+        p.post_parent_id AS postParentId,
+        u.user_avatar_url AS userAvatarUrl,
+        u.user_nickname AS userNickname,
+        u.user_name AS userName,
+        u.user_gender AS userGender,
+        u.user_influence as userInfluence
+    FROM post p
+             INNER JOIN (
+        SELECT u.user_id
+        FROM user u
+                 INNER JOIN (
+            SELECT DISTINCT eu.user_id
+            FROM enterprise_user eu
+            WHERE eu.ep_id = input_ep_id
+              AND eu.is_delete = 0
+        ) enterprise_users ON u.user_id = enterprise_users.user_id
+        WHERE u.is_delete = 0
+        ORDER BY u.user_influence DESC
+        LIMIT limit_value
+    ) top_users ON p.user_id = top_users.user_id
+             JOIN user u ON p.user_id = u.user_id
+    WHERE p.is_delete = 0
+    ORDER BY p.post_create_at DESC;
+END //
+
+DELIMITER ;
+
+
+#关注的企业动态
+USE cyy_v2;
+DROP PROCEDURE IF EXISTS get_followed_enterprises_posts;
+DELIMITER //
+
+CREATE PROCEDURE get_followed_enterprises_posts(IN input_user_id INT)
+BEGIN
+    -- 声明并设置变量来存储 LIMIT 值
+    DECLARE limit_value INT;
+
+    -- 计算前50%的用户数量
+    SELECT CEIL(COUNT(DISTINCT eu.user_id) * 1) INTO limit_value
+    FROM follow_enterprise fe
+             JOIN enterprise_user eu ON fe.ep_id = eu.ep_id
+    WHERE fe.user_id = input_user_id
+      AND fe.is_delete = 0
+      AND eu.is_delete = 0;
+
+    -- 主查询
+    SELECT
+        p.post_id AS postId,
+        p.post_title AS postTitle,
+        p.post_content AS postContent,
+        DATE_FORMAT(p.post_create_at, '%Y-%m-%d %H:%i:%s') AS postCreateAt,
+        p.user_id AS userId,
+        p.post_photo_urls AS postPhotoUrls,
+        p.post_parent_id AS postParentId,
+        u.user_avatar_url AS userAvatarUrl,
+        u.user_nickname AS userNickname,
+        u.user_name AS userName,
+        u.user_gender AS userGender
+    FROM post p
+             INNER JOIN (
+        SELECT u.user_id
+        FROM user u
+                 INNER JOIN (
+            SELECT DISTINCT eu.user_id
+            FROM follow_enterprise fe
+                     JOIN enterprise_user eu ON fe.ep_id = eu.ep_id
+            WHERE fe.user_id = input_user_id
+              AND fe.is_delete = 0
+              AND eu.is_delete = 0
+        ) followed_users ON u.user_id = followed_users.user_id
+        WHERE u.is_delete = 0
+        ORDER BY u.user_influence DESC
+        LIMIT limit_value
+    ) top_users ON p.user_id = top_users.user_id
+             JOIN user u ON p.user_id = u.user_id
+    WHERE p.is_delete = 0
+    ORDER BY p.post_create_at DESC;
+END //
+
+DELIMITER ;
+
+
+
+
 -- 评论表
 CREATE TABLE comment (
                          comment_id INT AUTO_INCREMENT PRIMARY KEY,
