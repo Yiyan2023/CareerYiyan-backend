@@ -29,6 +29,7 @@ public class  PostService {
     
     public Post addPost(String content,String photos, User user)  {
         Post post=new Post(content, user.getUserId(),photos,null,null);
+        userMapper.updateInfluence(postMapper.getLikePostCount(user.getUserId())*2+ postMapper.getLikeCommentCount(user.getUserId()), user.getUserId());
         int res=postMapper.insertPost(post);
         return post;
     }
@@ -197,10 +198,29 @@ public class  PostService {
         newPost.setPostParentId(Integer.parseInt(post.getPostId()));
         newPost.setPostTitle(title);
         postMapper.insertPost(post);
+        userMapper.updateInfluence(postMapper.getLikePostCount(user.getUserId())*2+ postMapper.getLikeCommentCount(user.getUserId()), user.getUserId());
         res.put("posts",post.toDict());
         res.put("author",user.toDict());
         res.put("origin",origin.toDict());
         return res;
+    }
+
+    public List<Map<String, Object>> getEnterprisePost(String epId){
+        //M:企业是否存在
+        return postMapper.getEnterprisesPosts(epId);
+    }
+    public List<Map<String,Object>> getUsersPost(String userId){//关注的用户动态
+        List<Map<String,Object>> res=postMapper.getFollowUserPost(userId);
+        for(Map<String, Object> post:res){
+            User user=userMapper.getUserById(String.valueOf(post.get("userId")));
+            post.put("author",user.toDict());
+        }
+        return res;
+    }
+    public List<Map<String,Object>> geEnterprisePost(String userId){
+
+        return  postMapper.getFollowedEnterprisesPosts(userId);
+
     }
 
 }

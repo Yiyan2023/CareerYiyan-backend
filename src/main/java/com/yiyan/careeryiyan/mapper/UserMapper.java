@@ -20,6 +20,10 @@ public interface UserMapper {
     @Options(useGeneratedKeys = true, keyProperty = "userId", keyColumn = "user_id")
     void insertUser(User user);
 
+    @Update("UPDATE user SET user_influence=influence WHERE user_id=#{userId}")
+    void updateInfluence(int influence,String userId);
+
+
     @Select("SELECT * FROM user WHERE user_email=#{email} ORDER BY user_id DESC LIMIT 1")
     User getUserByEmail(String email);
 

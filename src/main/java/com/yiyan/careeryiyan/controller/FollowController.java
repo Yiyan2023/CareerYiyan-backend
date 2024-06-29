@@ -24,7 +24,8 @@ public class FollowController {
         if (user == null)
             throw new BaseException("用户不存在");
         String userId = map.get("userId");
-
+        if(userId.equals(user.getUserId()))
+            throw new BaseException("不能关注自己");
         int res = followService.followUser(user.getUserId(), userId);
         String response = res==0 ? "关注成功" : "取消关注成功";
         return ResponseEntity.ok(new StringResponse(response));
