@@ -401,6 +401,27 @@ public class EnterpriseController {
         User admin = userService.getUserInfo(enterpriseUser.getUserId());
         return ResponseEntity.ok(admin);
     }
+
+    @PostMapping("/transferAdmin")
+    public ResponseEntity transferAdmin(@RequestBody Map<String,String> requestBody,HttpServletRequest httpServletRequest){
+        User admin = (User) httpServletRequest.getAttribute("user");
+        String epId = requestBody.get("epId");
+        String newAdminId = requestBody.get("userId");
+        System.out.println("epId = "+epId);
+        System.out.println("newAdminId = "+newAdminId);
+        EnterpriseUser oldAdmin = enterpriseService.getEnterpriseUserByUserId(admin.getUserId());
+        if(oldAdmin == null || oldAdmin.getEpUserAuth() != 0 || !Objects.equals(oldAdmin.getEpId(),epId)){
+            throw new BaseException("你不是此企业的管理员");
+        }
+        EnterpriseUser newAdmin = enterpriseService.getEnterpriseUserByUserId(newAdminId);
+        if(newAdmin == null || !Objects.equals(newAdmin.getEpId(),epId)){
+            throw new BaseException("新管理员不在此企业");
+        }
+        if(enterpriseService.transferAdmin(oldAdmin.getEpUserId(),newAdmin.getEpUserId())>0){
+            return ResponseEntity.ok(new StringResponse("转让成功"));
+        }
+        throw new BaseException("转让失败");
+    }
 }
 
 

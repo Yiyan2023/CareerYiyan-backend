@@ -2,10 +2,7 @@ package com.yiyan.careeryiyan.mapper;
 
 import com.yiyan.careeryiyan.model.domain.EnterpriseUser;
 //import com.yiyan.careeryiyan.model.response.EmployeeListResponse;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Options;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 
 import java.util.List;
 import java.util.Map;
@@ -34,4 +31,15 @@ public interface EnterpriseUserMapper {
     @Insert("insert into enterprise_user (ep_id, user_id, ep_user_auth,ep_user_create_at)" +
             "values(#{epId}, #{userId}, 1,now())")
     int addUserToEnterprise(String userId, String epId);
+
+    @Update("<script> update enterprise_user\n" +
+            "        set ep_user_auth = 1\n" +
+            "        where ep_user_id=#{oldEpUserId};\n" +
+            "\n" +
+            "    update enterprise_user\n" +
+            "    set ep_user_auth = 0\n" +
+            "    where ep_user_id = #{newEpUserId}; </script>")
+
+    int transferAdmin(String oldEpUserId,  String newEpUserId);
+
 }
