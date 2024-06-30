@@ -28,7 +28,8 @@ public class WebConfig implements WebMvcConfigurer {
                         "/template/**",
                         "/folder/**",
                         "/enterprise/**",
-                        "/file/**"
+                        "/file/**",
+                        "/chat/**"
                         )
                 .excludePathPatterns(
                         "/user/register",
