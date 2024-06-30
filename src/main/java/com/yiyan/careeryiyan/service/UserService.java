@@ -1,11 +1,10 @@
 package com.yiyan.careeryiyan.service;
 
 import com.yiyan.careeryiyan.exception.BaseException;
-import com.yiyan.careeryiyan.mapper.UserJobPreferencesMapper;
+import com.yiyan.careeryiyan.mapper.UserRecruitmentPreferencesMapper;
 import com.yiyan.careeryiyan.mapper.UserMapper;
 import com.yiyan.careeryiyan.model.domain.User;
 import com.yiyan.careeryiyan.model.domain.UserRecruitmentPreferences;
-import com.yiyan.careeryiyan.model.request.ModifyInfoRequest;
 import jakarta.annotation.Resource;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.stereotype.Service;
@@ -20,7 +19,7 @@ public class UserService {
     @Resource
     UserMapper userMapper;
     @Resource
-    UserJobPreferencesMapper userJobPreferencesMapper;
+    UserRecruitmentPreferencesMapper userRecruitmentPreferencesMapper;
 
     public static String saltEncryption(String password, String salt) {
         password = password + salt;
@@ -102,14 +101,14 @@ public class UserService {
 
 
     public List<UserRecruitmentPreferences> getUserRecruitmentPreferences(String userId) {
-        return userMapper.getUserRecruitmentPreferences(userId);
+        return userRecruitmentPreferencesMapper.getUserRecruitmentPreferences(userId);
     }
 
-    public void deleteUserJobPreferences(String userId) {
-        userJobPreferencesMapper.deleteUserJobPreferences(userId);
+    public void deleteUserRecruitmentPreferences(String userId) {
+        userRecruitmentPreferencesMapper.deleteUserRecruitmentPreferences(userId);
     }
 
-    public int insertUserJobPreferences(String userId, String recruitmentTag) {
-        return userJobPreferencesMapper.insertUserJobPreferences(userId, recruitmentTag);
+    public int insertUserRecruitmentPreferences(String userId, String recruitmentTag) {
+        return userRecruitmentPreferencesMapper.insertUserRecruitmentPreferences(userId, recruitmentTag);
     }
 }

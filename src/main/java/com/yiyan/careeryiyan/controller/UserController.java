@@ -152,8 +152,8 @@ public class UserController {
         }
         res.put("enterpriseUser", enterprise);
 
-        List<UserRecruitmentPreferences> userJobPreferencesList = userService.getUserRecruitmentPreferences(id);
-        res.put("userRecruitmentPreference", userJobPreferencesList);
+        List<UserRecruitmentPreferences> userRecruitmentPreferencesList = userService.getUserRecruitmentPreferences(id);
+        res.put("userRecruitmentPreference", userRecruitmentPreferencesList);
         return ResponseEntity.ok(res);
     }
 
@@ -168,11 +168,11 @@ public class UserController {
             throw new BaseException("修改失败");
 
         // 修改rc表
-        userService.deleteUserJobPreferences(id);
+        userService.deleteUserRecruitmentPreferences(id);
         String rcTag = "";
         List<String> rcTagList = modifyInfoRequest.getRcTag();
         for(int i = 0; i < rcTagList.size(); i++){
-            res = userService.insertUserJobPreferences(id, rcTagList.get(i));
+            res = userService.insertUserRecruitmentPreferences(id, rcTagList.get(i));
             if(res == 0)
                 throw new BaseException("新增失败");
         }

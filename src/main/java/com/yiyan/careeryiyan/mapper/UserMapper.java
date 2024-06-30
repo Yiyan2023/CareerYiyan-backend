@@ -53,6 +53,4 @@ public interface UserMapper {
     @Update("UPDATE user SET user_cv_url=#{CV, jdbcType=VARCHAR}  WHERE user_id = #{id}")
     int updateCV(String CV,String id);
 
-    @Select("SELECT * FROM user_recruitment_preferences WHERE user_id=#{userId}")
-    List<UserRecruitmentPreferences> getUserRecruitmentPreferences(String userId);
 }
