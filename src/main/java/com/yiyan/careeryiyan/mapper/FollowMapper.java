@@ -29,7 +29,7 @@ public interface FollowMapper {
 
     @Select("SELECT u.user_id AS userId, u.user_name AS userName, u.user_nickname AS userNickname, " +
             "u.user_avatar_url AS userAvatarUrl, u.user_gender AS userGender, u.user_email AS userEmail, " +
-            "u.user_reg_at AS userRegAt " +
+            "DATE_FORMAT(u.user_reg_at, '%Y-%m-%d %H:%i:%s') AS userRegAt " +
             "FROM user u " +
             "INNER JOIN follow_user fu ON u.user_id = fu.follow_user_id " +
             "WHERE fu.user_id = #{userId} AND fu.is_delete = 0")
@@ -40,7 +40,7 @@ public interface FollowMapper {
             "e.ep_addr AS epAddr, " +
             "e.ep_desc AS epDesc, " +
             "e.ep_type AS epType, " +
-            "e.ep_create_at AS epCreateAt, " +
+            "DATE_FORMAT(e.ep_create_at, '%Y-%m-%d %H:%i:%s') AS epCreateAt , " +
             "e.ep_avatar_url AS epAvatarUrl " +
             "FROM enterprise e " +
             "INNER JOIN follow_enterprise fe ON e.ep_id = fe.ep_id " +
@@ -49,7 +49,7 @@ public interface FollowMapper {
 
     @Select("SELECT u.user_id AS userId, u.user_name AS userName, u.user_nickname AS userNickname, " +
             "u.user_avatar_url AS userAvatarUrl, u.user_gender AS userGender, u.user_email AS userEmail, " +
-            "u.user_reg_at AS userRegAt "  +
+            "DATE_FORMAT(u.user_reg_at, '%Y-%m-%d %H:%i:%s') AS userRegAt"  +
             "FROM user u INNER JOIN follow_user fu ON u.user_id = fu.user_id WHERE fu.follow_user_id = #{userId} AND fu.is_delete = 0")
     List<Map<String, Object>> getUserFollowers(@Param("userId") String userId);
 
@@ -59,7 +59,7 @@ public interface FollowMapper {
             "u.user_avatar_url AS userAvatarUrl, " +
             "u.user_gender AS userGender, " +
             "u.user_email AS userEmail, " +
-            "u.user_reg_at AS userRegAt " +
+            "DATE_FORMAT(u.user_reg_at, '%Y-%m-%d %H:%i:%s') AS userRegAt " +
             "FROM user u " +
             "INNER JOIN follow_enterprise fe ON u.user_id = fe.user_id " +
             "WHERE fe.ep_id = #{epId} AND fe.is_delete = 0")
