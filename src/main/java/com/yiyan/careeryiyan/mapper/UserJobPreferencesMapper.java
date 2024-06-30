@@ -7,12 +7,12 @@ import java.util.List;
 @Mapper
 public interface UserJobPreferencesMapper {
 
-    @Select("SELECT recruitmentTag FROM UserJobPreferences WHERE user_id = #{userId}")
+    @Select("SELECT rc_tag FROM user_recruitment_preferences WHERE user_id = #{userId} AND is_delete = 0")
     List<String> getUserJobPreferencesByUserId(int userId);
 
-    @Insert("INSERT INTO UserJobPreferences(user_id, recruitmentTag) VALUES(#{userId}, #{recruitmentTag})")
+    @Insert("INSERT INTO user_recruitment_preferences(user_id, rc_tag) VALUES(#{userId}, #{recruitmentTag})")
     @Options(useGeneratedKeys = true, keyProperty = "id")
-    void insertUserJobPreferences(String userId, String recruitmentTag);
-    @Delete("DELETE FROM UserJobPreferences WHERE user_id = #{userId}")
+    int insertUserJobPreferences(String userId, String recruitmentTag);
+    @Delete("DELETE FROM user_recruitment_preferences WHERE user_id = #{userId}")
     void deleteUserJobPreferences(String userId);
 }

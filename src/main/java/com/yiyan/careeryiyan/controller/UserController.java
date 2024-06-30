@@ -2,22 +2,33 @@ package com.yiyan.careeryiyan.controller;
 
 import com.yiyan.careeryiyan.config.OSSConfig;
 import com.yiyan.careeryiyan.exception.BaseException;
+import com.yiyan.careeryiyan.mapper.PostMapper;
 import com.yiyan.careeryiyan.model.domain.Enterprise;
 import com.yiyan.careeryiyan.model.domain.EnterpriseUser;
+import com.yiyan.careeryiyan.model.domain.Post;
+import com.yiyan.careeryiyan.mapper.PostMapper;
+import com.yiyan.careeryiyan.model.domain.Comment;
+import com.yiyan.careeryiyan.model.domain.Post;
 import com.yiyan.careeryiyan.model.domain.User;
+import com.yiyan.careeryiyan.model.request.*;
+import com.yiyan.careeryiyan.model.request.AddPostRequest;
 import com.yiyan.careeryiyan.model.request.*;
 import com.yiyan.careeryiyan.model.response.StringResponse;
 import com.yiyan.careeryiyan.model.response.UserInfoResponse;
 import com.yiyan.careeryiyan.model.response.UserSaltResponse;
 import com.yiyan.careeryiyan.service.EnterpriseService;
+import com.yiyan.careeryiyan.service.PostService;
 import com.yiyan.careeryiyan.model.request.LoginRequest;
 import com.yiyan.careeryiyan.model.request.RegisterRequest;
 import com.yiyan.careeryiyan.model.request.StringRequest;
 
+import com.yiyan.careeryiyan.service.PostService;
 import com.yiyan.careeryiyan.service.UserService;
 import com.yiyan.careeryiyan.utils.JwtUtil;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
+import org.apache.ibatis.annotations.Delete;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +36,13 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.util.List;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Collectors;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/user")
@@ -38,8 +55,6 @@ public class UserController {
     @Resource
     EnterpriseService enterpriseService;
 
-    //db refactor at 2024年6月29日00点19分
-    //simple test pass 2024年6月29日00点26分
     @PostMapping("/register")
     public ResponseEntity<StringResponse> register(@RequestBody RegisterRequest registerRequest,
             HttpServletRequest httpServletRequest) {
@@ -130,15 +145,20 @@ public class UserController {
             enterprise.put("isDelete", null);
             enterprise.put("epName", null);
         } else {
-            enterprise.put("epUserId", enterpriseUser.getUserId());
-            enterprise.put("epId",enterpriseUser.getUserId());
-            enterprise.put("epUserAuth", enterpriseUser);
-            enterprise.put("epUserTitle", null);
-            enterprise.put("epUserCreateAt", null);
-            enterprise.put("isDelete", null);
-            enterprise.put("epName", null);
+            enterprise.put("epUserId", enterpriseUser.getEpUserId());
+            enterprise.put("epId",enterpriseUser.getEpId());
+            enterprise.put("epUserAuth", enterpriseUser.getEpUserAuth());
+            enterprise.put("epUserTitle", enterpriseUser.getEpUserTitle());
+            enterprise.put("epUserCreateAt", enterpriseUser.getEpUserCreateAt());
+            enterprise.put("isDelete", enterpriseUser.getIsDelete());
+            Enterprise enterprise1 = enterpriseService.getEnterpriseById(enterpriseUser.getEpId());
+            enterprise.put("epName", enterprise1.getEpName());
         }
-        return ResponseEntity.ok(userInfoResponse);
+        res.put("enterpriseUser", enterprise);
+
+        List<UserJobPreferences> userJobPreferencesList = userService.getUserJobPreferences(id);
+        res.put("userRecruitmentPreference", userJobPreferencesList);
+        return ResponseEntity.ok(res);
     }
 
     @PostMapping("/verifyInfo")
@@ -153,17 +173,17 @@ public class UserController {
             throw new BaseException("修改失败");
 
         // 修改rc表
+        userService.deleteUserJobPreferences(id);
         String rcTag = "";
         List<String> rcTagList = modifyInfoRequest.getRcTag();
         for(int i = 0; i < rcTagList.size(); i++){
-            if(i > 0){
-                rcTag = rcTag + "-";
-            }
-            rcTag = rcTag + rcTagList.get(i);
+            res = userService.insertUserJobPreferences(id, rcTagList.get(i));
+            if(res == 0)
+                throw new BaseException("新增失败");
         }
-        res =
 
-        return ResponseEntity.ok(new StringResponse("修改成功"));
+
+        return ResponseEntity.ok(new StringResponse("更新成功"));
     }
 
     @PostMapping("/uploadAvatar")

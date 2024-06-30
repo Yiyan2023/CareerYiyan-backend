@@ -1,6 +1,7 @@
 package com.yiyan.careeryiyan.service;
 
 import com.yiyan.careeryiyan.exception.BaseException;
+import com.yiyan.careeryiyan.mapper.UserJobPreferencesMapper;
 import com.yiyan.careeryiyan.mapper.UserMapper;
 import com.yiyan.careeryiyan.model.domain.User;
 import com.yiyan.careeryiyan.model.domain.UserRecruitmentPreferences;
@@ -18,6 +19,8 @@ public class UserService {
 
     @Resource
     UserMapper userMapper;
+    @Resource
+    UserJobPreferencesMapper userJobPreferencesMapper;
 
     public static String saltEncryption(String password, String salt) {
         password = password + salt;
@@ -100,5 +103,13 @@ public class UserService {
 
     public List<UserRecruitmentPreferences> getUserRecruitmentPreferences(String userId) {
         return userMapper.getUserRecruitmentPreferences(userId);
+    }
+
+    public void deleteUserJobPreferences(String userId) {
+        userJobPreferencesMapper.deleteUserJobPreferences(userId);
+    }
+
+    public int insertUserJobPreferences(String userId, String recruitmentTag) {
+        return userJobPreferencesMapper.insertUserJobPreferences(userId, recruitmentTag);
     }
 }

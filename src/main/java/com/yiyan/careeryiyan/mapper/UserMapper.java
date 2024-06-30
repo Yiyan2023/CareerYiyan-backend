@@ -2,7 +2,7 @@ package com.yiyan.careeryiyan.mapper;
 
 
 import com.yiyan.careeryiyan.model.domain.User;
-import com.yiyan.careeryiyan.model.domain.UserRecruitmentPreferences;
+import com.yiyan.careeryiyan.model.domain.UserJobPreferences;
 import com.yiyan.careeryiyan.model.request.ModifyInfoRequest;
 import org.apache.ibatis.annotations.*;
 
