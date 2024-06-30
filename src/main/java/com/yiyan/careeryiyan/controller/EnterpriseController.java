@@ -425,11 +425,15 @@ public class EnterpriseController {
 
 
     @PostMapping("quitEnterprise")
-    public ResponseEntity quitEnterprise(HttpServletRequest httpServletRequest){
+    public ResponseEntity quitEnterprise(@RequestBody Map<String,String> requestBody,HttpServletRequest httpServletRequest){
         User user = (User) httpServletRequest.getAttribute("user");
+        String epId = requestBody.get("epId");
         EnterpriseUser enterpriseUser = enterpriseService.getEnterpriseUserByUserId(user.getUserId());
         if(enterpriseUser == null){
             throw new BaseException("你不在任何企业中");
+        }
+        if(!Objects.equals(enterpriseUser.getEpId(),epId)){
+            throw new BaseException("你不在此企业中");
         }
         //管理员不能退出企业
         if(enterpriseUser.getEpUserAuth() == 0){
