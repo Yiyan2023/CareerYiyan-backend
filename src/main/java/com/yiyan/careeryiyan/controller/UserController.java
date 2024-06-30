@@ -3,13 +3,9 @@ package com.yiyan.careeryiyan.controller;
 import com.yiyan.careeryiyan.config.OSSConfig;
 import com.yiyan.careeryiyan.exception.BaseException;
 import com.yiyan.careeryiyan.mapper.PostMapper;
-import com.yiyan.careeryiyan.model.domain.Enterprise;
-import com.yiyan.careeryiyan.model.domain.EnterpriseUser;
-import com.yiyan.careeryiyan.model.domain.Post;
+import com.yiyan.careeryiyan.model.domain.*;
 import com.yiyan.careeryiyan.mapper.PostMapper;
-import com.yiyan.careeryiyan.model.domain.Comment;
 import com.yiyan.careeryiyan.model.domain.Post;
-import com.yiyan.careeryiyan.model.domain.User;
 import com.yiyan.careeryiyan.model.request.*;
 import com.yiyan.careeryiyan.model.request.AddPostRequest;
 import com.yiyan.careeryiyan.model.request.*;
@@ -151,12 +147,12 @@ public class UserController {
             enterprise.put("epUserTitle", enterpriseUser.getEpUserTitle());
             enterprise.put("epUserCreateAt", enterpriseUser.getEpUserCreateAt());
             enterprise.put("isDelete", enterpriseUser.getIsDelete());
-            Enterprise enterprise1 = enterpriseService.getEnterpriseById(enterpriseUser.getEpId());
+            Enterprise enterprise1 = enterpriseService.getEnterpriseByEpId(enterpriseUser.getEpId());
             enterprise.put("epName", enterprise1.getEpName());
         }
         res.put("enterpriseUser", enterprise);
 
-        List<UserJobPreferences> userJobPreferencesList = userService.getUserJobPreferences(id);
+        List<UserRecruitmentPreferences> userJobPreferencesList = userService.getUserRecruitmentPreferences(id);
         res.put("userRecruitmentPreference", userJobPreferencesList);
         return ResponseEntity.ok(res);
     }
@@ -164,10 +160,9 @@ public class UserController {
     @PostMapping("/verifyInfo")
     public ResponseEntity<StringResponse> modifyInfo(@RequestBody ModifyInfoRequest modifyInfoRequest, HttpServletRequest httpServletRequest){
         User user = (User) httpServletRequest.getAttribute("user");
-        String id = user.getUserId();
+        String id = modifyInfoRequest.getUser().getUserId();
 
         // 修改user表
-        modifyInfoRequest.getUser().setUserId(id);
         int res = userService.updateUserInfo(modifyInfoRequest.getUser());
         if (res == 0)
             throw new BaseException("修改失败");
@@ -201,7 +196,7 @@ public class UserController {
         }
         Map<String, String> res = new HashMap<>();
         String userAvatarUrl = ossConfig.upload(file, "avatar", name);
-        if (res != null) {
+        if (userAvatarUrl != null) {
             int res2 = userService.updateAvatar(userAvatarUrl, id);
             if (res2 == 0)
                 throw new BaseException("用户头像后台修改失败");

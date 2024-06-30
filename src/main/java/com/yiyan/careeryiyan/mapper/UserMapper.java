@@ -2,7 +2,7 @@ package com.yiyan.careeryiyan.mapper;
 
 
 import com.yiyan.careeryiyan.model.domain.User;
-import com.yiyan.careeryiyan.model.domain.UserJobPreferences;
+import com.yiyan.careeryiyan.model.domain.UserRecruitmentPreferences;
 import com.yiyan.careeryiyan.model.request.ModifyInfoRequest;
 import org.apache.ibatis.annotations.*;
 
@@ -40,11 +40,11 @@ public interface UserMapper {
             "user_email = #{userEmail}, " +
             "user_gender = #{userGender}, " +
             "user_github_url = #{userGithubUrl}, " +
-            "user_interests = #{userInterests}, " +
-            "user_nickname = #{usernickname}, " +
+            "user_interest = #{userInterest}, " +
+            "user_nickname = #{userNickname}, " +
             "user_name = #{userName} " +
-            "WHERE user_id = #{id}")
-    int modifyUser(ModifyInfoRequest request);
+            "WHERE user_id = #{userId}")
+    int modifyUser(User user);
 
 
     @Update("UPDATE user SET user_avatar_url=#{avatarUrl, jdbcType=VARCHAR}  WHERE user_id = #{id}")
