@@ -50,6 +50,6 @@ public interface ApplyMapper {
     int increaseAcceptCountAndChangeStatus(String applyId, int status);
 
     @Update("update apply\n" +
-            "set is_delete=1;")
+            "set is_delete=1 where apply_id=#{applyId};")
     int deleteApply(String applyId);
 }
