@@ -51,4 +51,8 @@ public class EnterpriseService {
     public int  addUserToEnterprise(String userId, String epId) {
         return enterpriseUserMapper.addUserToEnterprise(userId, epId);
     }
+
+    public int transferAdmin(String oldEpUserId, String newEpUserId) {
+        return enterpriseUserMapper.transferAdmin(oldEpUserId, newEpUserId);
+    }
 }
