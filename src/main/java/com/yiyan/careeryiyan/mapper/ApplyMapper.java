@@ -48,4 +48,8 @@ public interface ApplyMapper {
             + "SET rc.rc_accept_count = rc.rc_accept_count + 1, a.apply_status = #{status} "
             + "WHERE a.apply_id = #{applyId}")
     int increaseAcceptCountAndChangeStatus(String applyId, int status);
+
+    @Update("update apply\n" +
+            "set is_delete=1;")
+    int deleteApply(String applyId);
 }

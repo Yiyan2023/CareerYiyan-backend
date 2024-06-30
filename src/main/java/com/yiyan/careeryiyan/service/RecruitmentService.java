@@ -98,4 +98,8 @@ public class RecruitmentService {
     public Map<String, Object> getRecruitmentInfo(String recruitmentId) {
         return recruitmentMapper.getRecruitmentInfo(recruitmentId);
     }
+
+    public int cancelApply(String applyId) {
+        return applyMapper.deleteApply(applyId);
+    }
 }

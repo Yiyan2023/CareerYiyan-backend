@@ -422,6 +422,27 @@ public class EnterpriseController {
         }
         throw new BaseException("转让失败");
     }
+
+    //用户取消投递简历
+    @PostMapping("/cancelApply")
+    public ResponseEntity cancelApply(@RequestBody Map<String,String> requestBody,HttpServletRequest httpServletRequest){
+        User user = (User) httpServletRequest.getAttribute("user");
+        String applyId = requestBody.get("applyId");
+        Apply apply = recruitmentService.getApplyById(applyId);
+        if(apply == null){
+            throw new BaseException("申请不存在");
+        }
+        if(!Objects.equals(apply.getUserId(),user.getUserId())){
+            throw new BaseException("你不是申请人");
+        }
+        if(apply.getApplyStatus()!=0){
+            throw new BaseException("该投递已被处理，不可取消");
+        }
+        if(recruitmentService.cancelApply(applyId)>0){
+            return ResponseEntity.ok(new StringResponse("取消成功"));
+        }
+        throw new BaseException("取消失败");
+    }
 }
 
 
