@@ -205,10 +205,15 @@ public class  PostService {
         return res;
     }
 
-    public List<Map<String, Object>> getEnterprisePost(String epId){
-        //M:企业是否存在
-        return postMapper.getEnterprisesPosts(epId);
+//    public List<Map<String, Object>> getEnterprisePost(String epId){
+//        //M:企业是否存在
+//        return postMapper.getEnterprisesPosts(epId);
+//    }
+
+    public List<String> getEnterprisePosts(String epId){
+        return postMapper.getEnterprisePosts(epId);
     }
+
     public List<Map<String,Object>> getUsersPost(String userId){//关注的用户动态
         List<Map<String,Object>> res=postMapper.getFollowUserPost(userId);
         for(Map<String, Object> post:res){
@@ -221,6 +226,14 @@ public class  PostService {
 
         return  postMapper.getFollowedEnterprisesPosts(userId);
 
+    }
+
+    public Map<String, Object> getPostInfoMapById(String postId){
+        Map<String, Object> postMap = postMapper.getPostMapById(postId);
+        String userId = String.valueOf((Integer) postMap.get("userId"));
+        Map<String, Object> userInfoMap = userMapper.getUserInfoById(userId);
+        postMap.putAll(userInfoMap);
+        return postMap;
     }
 
 }

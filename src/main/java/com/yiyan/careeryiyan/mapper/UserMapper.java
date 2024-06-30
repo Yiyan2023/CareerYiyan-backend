@@ -7,6 +7,7 @@ import com.yiyan.careeryiyan.model.request.ModifyInfoRequest;
 import org.apache.ibatis.annotations.*;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface UserMapper {
@@ -52,5 +53,15 @@ public interface UserMapper {
 
     @Update("UPDATE user SET user_cv_url=#{CV, jdbcType=VARCHAR}  WHERE user_id = #{id}")
     int updateCV(String CV,String id);
+
+    @Select("SELECT u.user_name AS userName, " +
+            "u.user_nickname AS userNickname, " +
+            "u.user_gender AS userGender, " +
+            "u.user_avatar_url AS userAvatarUrl, " +
+            "u.user_influence AS userInfluence " +
+            "FROM user u " +
+            "WHERE user_id = #{userId}")
+    Map<String, Object> getUserInfoById(String userId);
+
 
 }
