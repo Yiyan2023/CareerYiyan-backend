@@ -13,4 +13,11 @@ public class Chat {
         System.out.println("user1: "+ chatUserId1 + ", user2: "+chatUserId2+", userId: "+userId);
         return chatUserId1.equals(userId) || chatUserId2.equals(userId);
     }
+    public String getAnotherUserId(String userId) {
+        if (chatUserId1.equals(userId)) {
+            return chatUserId2;
+        } else {
+            return chatUserId1;
+        }
+    }
 }

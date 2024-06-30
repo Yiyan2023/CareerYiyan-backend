@@ -1,7 +1,9 @@
 package com.yiyan.careeryiyan.mapper;
 
 import com.yiyan.careeryiyan.model.domain.Message;
+import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
@@ -17,4 +19,20 @@ public interface MessageMapper {
 
     @Select("SELECT * from message where msg_id=#{msgReplyMsgId}")
     Message getMessageByMessageId(String msgReplyMsgId);
+
+    @Select("SELECT * from message m " +
+            "where m.msg_chat_id=#{chat_Id}" +
+            "order by m.msg_create_at desc limit 1")
+    Message getLastMessageInChat(String chatId);
+
+    @Select("SELECT count(*) from message m " +
+            "where m.msg_chat_id=#{chatId} and m.msg_is_read=0 and m.msg_send_user_id!=#{userId}")
+    int getUnreadCount(String chatId, String userId);
+
+    @Insert("INSERT INTO message(msg_id, msg_chat_id, msg_send_user_id, msg_content, msg_create_at, msg_reply_msg_id, " +
+            "msg_create_date, msg_create_time, msg_is_system, msg_is_read) " +
+            "VALUES(#{msgId}, #{msgChatId}, #{msgSendUserId}, #{msgContent}, #{msgCreateAt}, #{msgReplyMsgId}, " +
+            "#{msgCreateDate}, #{msgCreateTime}, #{msgIsSystem}, #{msgIsRead})")
+    @Options(useGeneratedKeys = true, keyProperty = "msgId")
+    int addMessage(Message message);
 }

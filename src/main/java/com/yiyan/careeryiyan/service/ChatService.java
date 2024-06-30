@@ -19,7 +19,7 @@ public class ChatService {
     private ChatMapper chatMapper;
     @Resource
     private MessageMapper messageMapper;
-    @Autowired
+    @Resource
     private MessageFileMapper messageFileMapper;
 
     public Chat getChatByChatId(String chatId) {
@@ -36,5 +36,24 @@ public class ChatService {
 
     public List<MessageFile> getMessageFileListByMsgId(String msgId) {
         return messageFileMapper.getMessageFileListByMsgId(msgId);
+    }
+
+    public List<Chat> getChatListByUserId(String userId) {
+        return chatMapper.getChatListByUserId(userId);
+    }
+
+    public Message getLastMessageInChat(String chatId) {
+        return messageMapper.getLastMessageInChat(chatId);
+    }
+    public int getUnreadCount(String chatId, String userId) {
+        return messageMapper.getUnreadCount(chatId, userId);
+    }
+
+    public int addMessage(Message message) {
+        return messageMapper.addMessage(message);
+    }
+
+    public int addMessageFile(MessageFile massageFile) {
+        return messageFileMapper.addMessageFile(massageFile);
     }
 }

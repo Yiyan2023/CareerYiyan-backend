@@ -1,12 +1,15 @@
 package com.yiyan.careeryiyan.service;
 
 import com.yiyan.careeryiyan.exception.BaseException;
+import com.yiyan.careeryiyan.mapper.UserOnlineMapper;
 import com.yiyan.careeryiyan.mapper.UserRecruitmentPreferencesMapper;
 import com.yiyan.careeryiyan.mapper.UserMapper;
 import com.yiyan.careeryiyan.model.domain.User;
+import com.yiyan.careeryiyan.model.domain.UserOnline;
 import com.yiyan.careeryiyan.model.domain.UserRecruitmentPreferences;
 import jakarta.annotation.Resource;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -20,6 +23,8 @@ public class UserService {
     UserMapper userMapper;
     @Resource
     UserRecruitmentPreferencesMapper userRecruitmentPreferencesMapper;
+    @Autowired
+    private UserOnlineMapper userOnlineMapper;
 
     public static String saltEncryption(String password, String salt) {
         password = password + salt;
@@ -110,5 +115,9 @@ public class UserService {
 
     public int insertUserRecruitmentPreferences(String userId, String recruitmentTag) {
         return userRecruitmentPreferencesMapper.insertUserRecruitmentPreferences(userId, recruitmentTag);
+    }
+
+    public UserOnline getUserOnline(String userId) {
+        return userOnlineMapper.getUserOnlineByUserId(userId);
     }
 }

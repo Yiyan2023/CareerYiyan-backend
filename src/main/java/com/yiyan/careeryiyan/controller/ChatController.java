@@ -1,11 +1,10 @@
 package com.yiyan.careeryiyan.controller;
 
+import com.yiyan.careeryiyan.model.request.SendRequest;
 import com.yiyan.careeryiyan.exception.BaseException;
-import com.yiyan.careeryiyan.model.domain.Chat;
-import com.yiyan.careeryiyan.model.domain.Message;
-import com.yiyan.careeryiyan.model.domain.MessageFile;
-import com.yiyan.careeryiyan.model.domain.User;
+import com.yiyan.careeryiyan.model.domain.*;
 import com.yiyan.careeryiyan.model.request.FetchMessagesRequest;
+import com.yiyan.careeryiyan.model.response.StringResponse;
 import com.yiyan.careeryiyan.service.ChatService;
 import com.yiyan.careeryiyan.service.MyWebSocket;
 import com.yiyan.careeryiyan.service.UserService;
@@ -17,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 @RestController
@@ -73,5 +73,41 @@ public class ChatController {
         rsp.put("noMoreMsg",noMoreMsg);
         rsp.put("messages",messages);
         return ResponseEntity.ok(rsp);
+    }
+
+    @PostMapping("/getAllChat")
+    public ResponseEntity getAllChat(HttpServletRequest request){
+        User user = (User)request.getAttribute("user");
+        List<Chat> chatList = chatService.getChatListByUserId(user.getUserId());
+        List<Map> chats = new ArrayList<>();
+        for(Chat chat:chatList){
+            Map<String,Object> map = new HashMap<>();
+            map.put("chat",chat);
+            map.put("lastMessage",chatService.getLastMessageInChat(chat.getChatId()));
+            int unreadCount = chatService.getUnreadCount(chat.getChatId(),user.getUserId());
+            map.put("unreadCount", unreadCount);
+            UserOnline userOnline = userService.getUserOnline(chat.getAnotherUserId(user.getUserId()));
+            if(userOnline == null){
+                userOnline = new UserOnline();
+                userOnline.setUserOnlineStatus("offline");
+            }
+            map.put("userStatus",userOnline);
+            //map.put("members",dbAccessor.getTeamMembersById(chat.getTeamId()));
+            chats.add(map);
+        }
+        return ResponseEntity.ok(chats);
+    }
+    @PostMapping("/send")
+    public ResponseEntity send(@RequestBody SendRequest sendRequest, HttpServletRequest request){
+        User user = (User)request.getAttribute("user");
+        Message message = sendRequest.getMessage();
+        List<MessageFile> messageFiles = sendRequest.getFiles();
+        message.setMsgCreateAt(LocalDateTime.now());
+        chatService.addMessage(message);
+        for(MessageFile massageFile:messageFiles){
+            massageFile.setMsgFileMsgId(message.getMsgId());
+            chatService.addMessageFile(massageFile);
+        }
+        return ResponseEntity.ok(new StringResponse(message.getMsgId()));
     }
 }
