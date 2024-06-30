@@ -55,4 +55,8 @@ public class EnterpriseService {
     public int transferAdmin(String oldEpUserId, String newEpUserId) {
         return enterpriseUserMapper.transferAdmin(oldEpUserId, newEpUserId);
     }
+
+    public int quitEnterprise(String epUserId) {
+        return enterpriseUserMapper.deleteEpUser(epUserId);
+    }
 }

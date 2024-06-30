@@ -42,4 +42,7 @@ public interface EnterpriseUserMapper {
 
     int transferAdmin(String oldEpUserId,  String newEpUserId);
 
+    //软删除
+    @Update("update enterprise_user set is_delete = 1 where ep_user_id = #{epUserId}")
+    int deleteEpUser(String epUserId);
 }

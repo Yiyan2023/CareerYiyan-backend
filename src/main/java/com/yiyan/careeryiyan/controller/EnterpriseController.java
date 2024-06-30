@@ -423,6 +423,24 @@ public class EnterpriseController {
         throw new BaseException("转让失败");
     }
 
+
+    @PostMapping("quitEnterprise")
+    public ResponseEntity quitEnterprise(HttpServletRequest httpServletRequest){
+        User user = (User) httpServletRequest.getAttribute("user");
+        EnterpriseUser enterpriseUser = enterpriseService.getEnterpriseUserByUserId(user.getUserId());
+        if(enterpriseUser == null){
+            throw new BaseException("你不在任何企业中");
+        }
+        //管理员不能退出企业
+        if(enterpriseUser.getEpUserAuth() == 0){
+            throw new BaseException("管理员不能退出企业");
+        }
+        if(enterpriseService.quitEnterprise(enterpriseUser.getEpUserId())>0){
+            return ResponseEntity.ok(new StringResponse("退出成功"));
+        }
+        throw new BaseException("退出失败");
+    }
+
     //用户取消投递简历
     @PostMapping("/cancelApply")
     public ResponseEntity cancelApply(@RequestBody Map<String,String> requestBody,HttpServletRequest httpServletRequest){
