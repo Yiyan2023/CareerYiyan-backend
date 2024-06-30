@@ -7,6 +7,7 @@ import com.yiyan.careeryiyan.model.domain.Post;
 import com.yiyan.careeryiyan.model.domain.User;
 import com.yiyan.careeryiyan.model.request.AddCommentRequest;
 import com.yiyan.careeryiyan.model.request.AddPostRequest;
+import com.yiyan.careeryiyan.model.request.ShowEnterprisePostRequest;
 import com.yiyan.careeryiyan.model.response.StringResponse;
 import com.yiyan.careeryiyan.service.PostService;
 import com.yiyan.careeryiyan.service.UserService;
@@ -16,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -118,9 +120,16 @@ public class PostController {
     }
 
     //企业动态 展示
-    @GetMapping("/enterprise")
-    public ResponseEntity<List<Map<String,Object>>>getEnterprisePost(@RequestParam int epId,HttpServletRequest httpServletRequest){
-        return ResponseEntity.ok(postService.getEnterprisePost(String.valueOf(epId)));
+    @PostMapping("/enterprise")
+    public ResponseEntity<List<Map<String,Object>>>getEnterprisePost(@RequestBody ShowEnterprisePostRequest showEnterprisePostRequest){
+        String epId = showEnterprisePostRequest.getEpId();
+        List<Map<String,Object>> mapList = new ArrayList<>();
+        List<String> postIdList = postService.getEnterprisePosts(epId);
+        for(String postId: postIdList){
+            Map<String, Object> postMap = postService.getPostInfoMapById(postId);
+            mapList.add(postMap);
+        }
+        return ResponseEntity.ok(mapList);
     }
 
     //关注的用户动态和企业动态

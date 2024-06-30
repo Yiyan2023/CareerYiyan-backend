@@ -22,6 +22,17 @@ public interface PostMapper {
     @Select("SELECT * FROM post WHERE post_id = #{postId} AND is_delete = 0")
     Post getPostById(String postId);
 
+    @Select("SELECT p.post_id AS postId, " +
+            "p.post_title AS postTitle, " +
+            "p.post_content AS postContent, " +
+            "DATE_FORMAT(p.post_create_at, '%Y-%m-%d %H:%i:%s') AS postCreateAt, " +
+            "p.user_id AS userId, " +
+            "p.post_photo_urls AS postPhotoUrls, " +
+            "p.post_parent_id AS postParentId " +
+            "FROM post p " +
+            "WHERE post_id = #{postId}")
+    Map<String, Object> getPostMapById(String postId);
+
     @Select("SELECT * FROM post WHERE user_id = #{userId} AND is_delete = 0")
     List<Post> getPostByUser(String userId);
 
@@ -74,8 +85,12 @@ public interface PostMapper {
 
 
 
-    @Select("CALL get_enterprise_posts(#{epId})")
-    List<Map<String, Object>> getEnterprisesPosts(@Param("epId")  String epId);
+//    @Select("CALL get_enterprise_posts(#{epId})")
+//    List<Map<String, Object>> getEnterprisesPosts(@Param("epId")  String epId);
+
+    @Select("SELECT post_id FROM enterprise_post WHERE ep_id = #{epId} " +
+            "AND is_delete = 0")
+    List<String> getEnterprisePosts(String epId);
 
 
     @Select("SELECT p.post_id AS postId, " +
