@@ -1,5 +1,6 @@
 package com.yiyan.careeryiyan.controller;
 
+import com.yiyan.careeryiyan.config.OSSConfig;
 import com.yiyan.careeryiyan.exception.BaseException;
 import com.yiyan.careeryiyan.model.domain.*;
 import com.yiyan.careeryiyan.model.request.*;
@@ -11,8 +12,11 @@ import com.yiyan.careeryiyan.utils.MapUtil;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -25,6 +29,8 @@ public class EnterpriseController {
     private RecruitmentService recruitmentService;
     @Resource
     private UserService userService;
+    @Resource
+    OSSConfig ossConfig;
 
     //refactor completed 2024年6月28日22点47分
     //simple test passed 2024年6月29日01点46分
@@ -460,4 +466,44 @@ public class EnterpriseController {
         throw new BaseException("取消失败");
 
     }
+
+    @PostMapping("/uploadAvatar")
+    public ResponseEntity uploadAvatar(@RequestParam("epId") String epId, @RequestParam("avatar") MultipartFile avatar, HttpServletRequest httpServletRequest) throws IOException {
+        User user = (User) httpServletRequest.getAttribute("user");
+        EnterpriseUser enterpriseUser = enterpriseService.getEnterpriseUserByUserId(user.getUserId());
+        if(enterpriseUser == null || !Objects.equals(enterpriseUser.getEpId(),epId)){
+            throw new BaseException("你不是此企业的管理员");
+        }
+        if (ObjectUtils.isEmpty(avatar) || avatar.getSize() <= 0) {
+            throw new BaseException("File is empty");
+        }
+        if (!avatar.getContentType().equals("image/jpeg") && !avatar.getContentType().equals("image/png")) {
+            throw new BaseException("File must be a jpg/png");
+        }
+        String name = "ep"+enterpriseUser.getEpId()+".jpg";
+        String url=ossConfig.upload(avatar, "avatar", name);
+        if(url == null){
+            throw new BaseException("上传失败");
+        }
+        if(enterpriseService.updateAvatar(epId,url)>0){
+            return ResponseEntity.ok(Map.of("epAvatarUrl",url));
+        }
+        throw new BaseException("上传失败");
+    }
+
+
+
+    @PostMapping("/editEnterpriseInfo")
+    public ResponseEntity editEnterpriseInfo(@RequestBody EditEnterpriseRequest editEnterpriseRequest,HttpServletRequest httpServletRequest){
+        User user = (User) httpServletRequest.getAttribute("user");
+        EnterpriseUser enterpriseUser = enterpriseService.getEnterpriseUserByUserId(user.getUserId());
+        if(enterpriseUser == null || enterpriseUser.getEpUserAuth() != 0){
+            throw new BaseException("你不是此企业的管理员");
+        }
+        if(enterpriseService.editEnterprise(editEnterpriseRequest)>0){
+            return ResponseEntity.ok(new StringResponse("修改成功"));
+        }
+        throw new BaseException("修改失败");
+    }
+
 }

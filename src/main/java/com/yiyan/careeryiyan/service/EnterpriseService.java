@@ -5,6 +5,7 @@ import com.yiyan.careeryiyan.mapper.EnterpriseUserMapper;
 import com.yiyan.careeryiyan.model.domain.Enterprise;
 import com.yiyan.careeryiyan.model.domain.EnterpriseUser;
 //import com.yiyan.careeryiyan.model.response.EmployeeListResponse;
+import com.yiyan.careeryiyan.model.request.EditEnterpriseRequest;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
@@ -35,6 +36,7 @@ public class EnterpriseService {
     public Enterprise getEnterpriseByEpId(String epId) {
         return enterpriseMapper.getEnterpriseByEpId(epId);
     }
+
     public List<Map<String, Object>> getEmployeeListByEnterpriseId(String enterpriseId) {
         return enterpriseUserMapper.getEmployeeListByEnterpriseId(enterpriseId);
     }
@@ -48,7 +50,7 @@ public class EnterpriseService {
         return enterpriseMapper.getEnterpriseByName(enterpriseName);
     }
 
-    public int  addUserToEnterprise(String userId, String epId) {
+    public int addUserToEnterprise(String userId, String epId) {
         return enterpriseUserMapper.addUserToEnterprise(userId, epId);
     }
 
@@ -58,5 +60,13 @@ public class EnterpriseService {
 
     public int quitEnterprise(String epUserId) {
         return enterpriseUserMapper.deleteEpUser(epUserId);
+    }
+
+    public int updateAvatar(String epId, String epAvatarUrl) {
+        return enterpriseMapper.updateAvatar(epId, epAvatarUrl);
+    }
+
+    public int editEnterprise(EditEnterpriseRequest editEnterpriseRequest) {
+        return enterpriseMapper.editEnterprise(editEnterpriseRequest);
     }
 }

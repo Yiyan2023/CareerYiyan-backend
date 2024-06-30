@@ -1,10 +1,8 @@
 package com.yiyan.careeryiyan.mapper;
 
 import com.yiyan.careeryiyan.model.domain.Enterprise;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Options;
-import org.apache.ibatis.annotations.Select;
+import com.yiyan.careeryiyan.model.request.EditEnterpriseRequest;
+import org.apache.ibatis.annotations.*;
 
 @Mapper
 public interface EnterpriseMapper {
@@ -22,4 +20,11 @@ public interface EnterpriseMapper {
 
     @Select("SELECT * from enterprise where ep_name = #{epName}")
     Enterprise getEnterpriseByName(String enterpriseName);
+
+    @Update("update enterprise set ep_avatar_url=#{epAvatarUrl} where ep_id=#{epId};")
+    int updateAvatar(String epId, String epAvatarUrl);
+
+    @Update("update enterprise set ep_name=#{epName}, ep_addr=#{epAddr}, " +
+            "ep_desc=#{epDesc}, ep_type=#{epType} where ep_id=#{epId};")
+    int editEnterprise(EditEnterpriseRequest editEnterpriseRequest);
 }
