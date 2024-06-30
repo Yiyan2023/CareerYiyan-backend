@@ -2,43 +2,42 @@ package com.yiyan.careeryiyan.controller;
 
 import com.yiyan.careeryiyan.config.OSSConfig;
 import com.yiyan.careeryiyan.exception.BaseException;
-import com.yiyan.careeryiyan.mapper.PostMapper;
-import com.yiyan.careeryiyan.model.domain.*;
-import com.yiyan.careeryiyan.mapper.PostMapper;
-import com.yiyan.careeryiyan.model.domain.Post;
-import com.yiyan.careeryiyan.model.request.*;
-import com.yiyan.careeryiyan.model.request.AddPostRequest;
-import com.yiyan.careeryiyan.model.request.*;
+import com.yiyan.careeryiyan.model.domain.Enterprise;
+import com.yiyan.careeryiyan.model.domain.EnterpriseUser;
+import com.yiyan.careeryiyan.model.domain.User;
+import com.yiyan.careeryiyan.model.domain.UserRecruitmentPreferences;
+import com.yiyan.careeryiyan.model.request.LoginRequest;
+import com.yiyan.careeryiyan.model.request.ModifyInfoRequest;
+import com.yiyan.careeryiyan.model.request.RegisterRequest;
+import com.yiyan.careeryiyan.model.request.UserIdRequest;
 import com.yiyan.careeryiyan.model.response.StringResponse;
 import com.yiyan.careeryiyan.model.response.UserInfoResponse;
 import com.yiyan.careeryiyan.model.response.UserSaltResponse;
 import com.yiyan.careeryiyan.service.EnterpriseService;
-import com.yiyan.careeryiyan.service.PostService;
-import com.yiyan.careeryiyan.model.request.LoginRequest;
-import com.yiyan.careeryiyan.model.request.RegisterRequest;
-import com.yiyan.careeryiyan.model.request.StringRequest;
-
-import com.yiyan.careeryiyan.service.PostService;
 import com.yiyan.careeryiyan.service.UserService;
 import com.yiyan.careeryiyan.utils.JwtUtil;
+import com.yiyan.careeryiyan.utils.OkHttpUtil;
+import com.zhipu.oapi.ClientV4;
+import com.zhipu.oapi.Constants;
+import com.zhipu.oapi.service.v4.model.ChatCompletionRequest;
+import com.zhipu.oapi.service.v4.model.ChatMessage;
+import com.zhipu.oapi.service.v4.model.ChatMessageRole;
+import com.zhipu.oapi.service.v4.model.ModelApiResponse;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
-import org.apache.ibatis.annotations.Delete;
-import org.springframework.http.HttpStatus;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.text.PDFTextStripper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.util.List;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Collectors;
-import java.util.Objects;
+import java.net.URLDecoder;
+import java.util.*;
 
 @RestController
 @RequestMapping("/user")
@@ -228,6 +227,48 @@ public class UserController {
     }
 
 
+    /**
+     * 1.查询用户个人的简历，并下载
+     * 2.将下载后的简历（保证为pdf格式）转换为纯文本
+     * 3.使用提示词调用大模型给出纯文本简历的优化建议
+     * 4.返回优化建议
+     */
+    @PostMapping("/optimiseCV")
+    public ResponseEntity optimiseCV(HttpServletRequest httpServletRequest) throws IOException {
+        // 1.查询用户个人的简历，并下载
+        User user = (User) httpServletRequest.getAttribute("user");
+        String cvUrl = user.getUserCvUrl();
+        if (cvUrl == null) {
+            throw new BaseException("用户简历不存在");
+        }
+        byte[] pdfBytes = OkHttpUtil.doGetByte(cvUrl);
+        String uuid = UUID.randomUUID().toString();
+        String pdfName = uuid + ".pdf";
+        try (FileOutputStream fos = new FileOutputStream(pdfName)) {
+            fos.write(pdfBytes);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        String inputFile = URLDecoder.decode(pdfName, "UTF-8");
+        PDDocument pdDocument = PDDocument.load(new File(inputFile));
+        PDFTextStripper pdfTextStripper = new PDFTextStripper();
+        //读取pdf中所有的文件
+        String fullText = pdfTextStripper.getText(pdDocument);
+        ClientV4 client = new ClientV4.Builder("985ac74cd45c230774dee358e285b308.gacAKPdr6oEKUpW4").build();
+        List<ChatMessage> messages = new ArrayList<>();
+        ChatMessage chatMessage = new ChatMessage(ChatMessageRole.USER.value(), "我是一名求职者，请你从专业角度帮我优化简历，优化意见请用纯文本给出(不要用markdown格式),我的简历如下：\n" + fullText);
+        messages.add(chatMessage);
+        ChatCompletionRequest chatCompletionRequest = ChatCompletionRequest.builder()
+                .model(Constants.ModelChatGLM4)
+                .stream(Boolean.FALSE)
+                .invokeMethod(Constants.invokeMethod)
+                .messages(messages)
+                .build();
+        ModelApiResponse invokeModelApiResp = client.invokeModelApi(chatCompletionRequest);
+        return ResponseEntity.ok(Map.of("res", invokeModelApiResp.getData().getChoices().get(0).getMessage().getContent()));
+
+    }
 
 
 }
