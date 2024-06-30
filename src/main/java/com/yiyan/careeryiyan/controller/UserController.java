@@ -2,22 +2,29 @@ package com.yiyan.careeryiyan.controller;
 
 import com.yiyan.careeryiyan.config.OSSConfig;
 import com.yiyan.careeryiyan.exception.BaseException;
-import com.yiyan.careeryiyan.model.domain.Enterprise;
-import com.yiyan.careeryiyan.model.domain.EnterpriseUser;
-import com.yiyan.careeryiyan.model.domain.User;
+import com.yiyan.careeryiyan.mapper.PostMapper;
+import com.yiyan.careeryiyan.model.domain.*;
+import com.yiyan.careeryiyan.mapper.PostMapper;
+import com.yiyan.careeryiyan.model.domain.Post;
+import com.yiyan.careeryiyan.model.request.*;
+import com.yiyan.careeryiyan.model.request.AddPostRequest;
 import com.yiyan.careeryiyan.model.request.*;
 import com.yiyan.careeryiyan.model.response.StringResponse;
 import com.yiyan.careeryiyan.model.response.UserInfoResponse;
 import com.yiyan.careeryiyan.model.response.UserSaltResponse;
 import com.yiyan.careeryiyan.service.EnterpriseService;
+import com.yiyan.careeryiyan.service.PostService;
 import com.yiyan.careeryiyan.model.request.LoginRequest;
 import com.yiyan.careeryiyan.model.request.RegisterRequest;
 import com.yiyan.careeryiyan.model.request.StringRequest;
 
+import com.yiyan.careeryiyan.service.PostService;
 import com.yiyan.careeryiyan.service.UserService;
 import com.yiyan.careeryiyan.utils.JwtUtil;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
+import org.apache.ibatis.annotations.Delete;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +32,13 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.util.List;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Collectors;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/user")
@@ -38,8 +51,6 @@ public class UserController {
     @Resource
     EnterpriseService enterpriseService;
 
-    //db refactor at 2024年6月29日00点19分
-    //simple test pass 2024年6月29日00点26分
     @PostMapping("/register")
     public ResponseEntity<StringResponse> register(@RequestBody RegisterRequest registerRequest,
             HttpServletRequest httpServletRequest) {
@@ -81,11 +92,11 @@ public class UserController {
 
 
     @PostMapping("/uploadCV")
-    public ResponseEntity<StringResponse> uploadCV(@RequestParam("file") MultipartFile file,
+    public ResponseEntity<Map<String, String>> uploadCV(@RequestParam("file") MultipartFile file,
             HttpServletRequest httpServletRequest) throws IOException {
         User user = (User) httpServletRequest.getAttribute("user");
         String id = user.getUserId();
-        String name = user.getUserNickname() + "_CV.pdf";
+        String name = user.getUserName() + "_CV.pdf";
 
         if (ObjectUtils.isEmpty(file) || file.getSize() <= 0) {
             throw new BaseException("File is empty");
@@ -93,12 +104,14 @@ public class UserController {
         if (!file.getContentType().equals("application/pdf")) {
             throw new BaseException("File must be a PDF");
         }
-        String res = ossConfig.upload(file, "CV", name);
-        if (res != null) {
-            int res2 = userService.updateCV(res, id);
+        Map<String, String> res = new HashMap<>();
+        String userCvUrl = ossConfig.upload(file, "CV", name);
+        if (userCvUrl != null) {
+            int res2 = userService.updateCV(userCvUrl, id);
             if (res2 == 0)
                 throw new BaseException("用户头像后台修改失败");
-            return ResponseEntity.ok(new StringResponse(res));
+            res.put("userCvUrl", userCvUrl);
+            return ResponseEntity.ok(res);
         } else {
             throw new BaseException("简历上传失败");
         }
@@ -106,56 +119,70 @@ public class UserController {
     }
 
     @PostMapping("/getInfo")
-    public ResponseEntity<UserInfoResponse> showInfo(@RequestBody StringRequest stringRequest){
-        String id = stringRequest.getValue();
+    public ResponseEntity<Map<String, Object>> showInfo(@RequestBody UserIdRequest userIdRequest){
+        String id = userIdRequest.getUserId();
 
-//        System.out.println(id);
-//        System.out.println(stringRequest);
-
+        Map<String, Object> res = new HashMap<>();
         User userShow = userService.getUserInfo(id);
-
-//        System.out.println(userShow);
         if (userShow == null){
             throw new BaseException("用户不存在");
         }
-        UserInfoResponse userInfoResponse = convertToUserInfo(userShow);
+        res.put("user", userShow);
+
         EnterpriseUser enterpriseUser = enterpriseService.getEnterpriseUserByUserId(id);
-        if(enterpriseUser != null){
-            String enterpriseId = enterpriseUser.getEpId();
-            Enterprise enterprise = enterpriseService.getEnterpriseByEpId(enterpriseId);
-            userInfoResponse.setEnterpriseId(enterpriseId);
-            userInfoResponse.setEnterpriseName(enterprise.getEpName());
+        Map<String, Object> enterprise = new HashMap<>();
+
+        if(enterpriseUser == null){
+            enterprise.put("epUserId", null);
+            enterprise.put("epId",null);
+            enterprise.put("epUserAuth", null);
+            enterprise.put("epUserTitle", null);
+            enterprise.put("epUserCreateAt", null);
+            enterprise.put("isDelete", null);
+            enterprise.put("epName", null);
+        } else {
+            enterprise.put("epUserId", enterpriseUser.getEpUserId());
+            enterprise.put("epId",enterpriseUser.getEpId());
+            enterprise.put("epUserAuth", enterpriseUser.getEpUserAuth());
+            enterprise.put("epUserTitle", enterpriseUser.getEpUserTitle());
+            enterprise.put("epUserCreateAt", enterpriseUser.getEpUserCreateAt());
+            enterprise.put("isDelete", enterpriseUser.getIsDelete());
+            Enterprise enterprise1 = enterpriseService.getEnterpriseByEpId(enterpriseUser.getEpId());
+            enterprise.put("epName", enterprise1.getEpName());
         }
-        return ResponseEntity.ok(userInfoResponse);
+        res.put("enterpriseUser", enterprise);
+
+        List<UserRecruitmentPreferences> userRecruitmentPreferencesList = userService.getUserRecruitmentPreferences(id);
+        res.put("userRecruitmentPreference", userRecruitmentPreferencesList);
+        return ResponseEntity.ok(res);
     }
 
     @PostMapping("/verifyInfo")
-    public ResponseEntity<UserInfoResponse> modifyInfo(@RequestBody ModifyInfoRequest modifyInfoRequest, HttpServletRequest httpServletRequest){
+    public ResponseEntity<StringResponse> modifyInfo(@RequestBody ModifyInfoRequest modifyInfoRequest, HttpServletRequest httpServletRequest){
         User user = (User) httpServletRequest.getAttribute("user");
-        String id = user.getUserId();
+        String id = modifyInfoRequest.getUser().getUserId();
 
-        modifyInfoRequest.setId(id);
-        int res = userService.updateUserInfo(modifyInfoRequest);
+        // 修改user表
+        int res = userService.updateUserInfo(modifyInfoRequest.getUser());
         if (res == 0)
             throw new BaseException("修改失败");
 
-        User userShow = userService.getUserInfo(id);
-        if (userShow == null){
-            throw new BaseException("用户不存在");
+        // 修改rc表
+        userService.deleteUserRecruitmentPreferences(id);
+        String rcTag = "";
+        List<String> rcTagList = modifyInfoRequest.getRcTag();
+        for(int i = 0; i < rcTagList.size(); i++){
+            res = userService.insertUserRecruitmentPreferences(id, rcTagList.get(i));
+            if(res == 0)
+                throw new BaseException("新增失败");
         }
 
-        UserInfoResponse userInfoResponse = convertToUserInfo(userShow);
-        EnterpriseUser enterpriseUser = enterpriseService.getEnterpriseUserByUserId(id);
-        String enterpriseId = enterpriseUser.getEpId();
-        Enterprise enterprise = enterpriseService.getEnterpriseByEpId(enterpriseId);
-        userInfoResponse.setEnterpriseId(enterpriseId);
-        userInfoResponse.setEnterpriseName(enterprise.getEpName());
 
-        return ResponseEntity.ok(userInfoResponse);
+        return ResponseEntity.ok(new StringResponse("更新成功"));
     }
 
     @PostMapping("/uploadAvatar")
-    public ResponseEntity<StringResponse> uploadAvatar(@RequestParam("file") MultipartFile file,
+    public ResponseEntity<Map<String, String>> uploadAvatar(@RequestParam("file") MultipartFile file,
                                                        HttpServletRequest httpServletRequest) throws IOException {
         User user = (User) httpServletRequest.getAttribute("user");
         String id = user.getUserId();
@@ -167,12 +194,14 @@ public class UserController {
         if (!file.getContentType().equals("image/jpeg") && !file.getContentType().equals("image/png")) {
             throw new BaseException("File must be a jpg/png");
         }
-        String res = ossConfig.upload(file, "avatar", name);
-        if (res != null) {
-            int res2 = userService.updateAvatar(res, id);
+        Map<String, String> res = new HashMap<>();
+        String userAvatarUrl = ossConfig.upload(file, "avatar", name);
+        if (userAvatarUrl != null) {
+            int res2 = userService.updateAvatar(userAvatarUrl, id);
             if (res2 == 0)
                 throw new BaseException("用户头像后台修改失败");
-            return ResponseEntity.ok(new StringResponse(res));
+            res.put("userAvatarUrl", userAvatarUrl);
+            return ResponseEntity.ok(res);
         } else {
             throw new BaseException("简历上传失败");
         }
