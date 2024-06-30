@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class UserService {
@@ -115,6 +116,10 @@ public class UserService {
 
     public int insertUserRecruitmentPreferences(String userId, String recruitmentTag) {
         return userRecruitmentPreferencesMapper.insertUserRecruitmentPreferences(userId, recruitmentTag);
+    }
+
+    public Map<String, Object> getUserInfoById(String userId){
+        return userMapper.getUserInfoById(userId);
     }
 
     public UserOnline getUserOnline(String userId) {

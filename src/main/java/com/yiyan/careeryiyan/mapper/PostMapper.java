@@ -111,4 +111,17 @@ public interface PostMapper {
     @Select("CALL get_followed_enterprises_posts(#{userId})")
     List<Map<String, Object>> getFollowedEnterprisesPosts(@Param("userId")  String userId);
 
+    @Select("SELECT p.post_id AS postId, " +
+            "p.post_title AS postTitle, " +
+            "p.post_content AS postContent, " +
+            "DATE_FORMAT(p.post_create_at, '%Y-%m-%d %H:%i:%s') AS postCreateAt, " +
+            "p.user_id AS userId, " +
+            "p.post_photo_urls AS postPhotoUrls, " +
+            "p.post_parent_id AS postParentId " +
+            "FROM post p " +
+            "JOIN enterprise_user eu ON p.user_id = eu.user_id " +
+            "JOIN follow_enterprise fe ON fe.ep_id = eu.ep_id " +
+            "WHERE fe.user_id = #{userId} AND fe.is_delete = 0 AND p.is_delete = 0 AND eu.is_delete = 0")
+    List<Map<String, Object>> getFollowEnterprisePost(@Param("userId") String userId);
+
 }

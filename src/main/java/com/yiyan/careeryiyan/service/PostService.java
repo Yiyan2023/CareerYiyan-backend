@@ -215,25 +215,22 @@ public class  PostService {
     }
 
     public List<Map<String,Object>> getUsersPost(String userId){//关注的用户动态
-        List<Map<String,Object>> res=postMapper.getFollowUserPost(userId);
-        for(Map<String, Object> post:res){
-            User user=userMapper.getUserById(String.valueOf(post.get("userId")));
-            post.put("author",user.toDict());
-        }
+        List<Map<String,Object>> res = postMapper.getFollowUserPost(userId);
         return res;
     }
-    public List<Map<String,Object>> geEnterprisePost(String userId){
-
-        return  postMapper.getFollowedEnterprisesPosts(userId);
-
+    public List<Map<String,Object>> getEnterprisePost(String userId){
+        List<Map<String, Object>> res = postMapper.getFollowEnterprisePost(userId);
+        return res;
     }
 
     public Map<String, Object> getPostInfoMapById(String postId){
         Map<String, Object> postMap = postMapper.getPostMapById(postId);
-        String userId = String.valueOf((Integer) postMap.get("userId"));
-        Map<String, Object> userInfoMap = userMapper.getUserInfoById(userId);
-        postMap.putAll(userInfoMap);
+
         return postMap;
+    }
+
+    public LikePost likePostById(String userId, String postId){
+        return postMapper.getLikePost(userId, postId);
     }
 
 }

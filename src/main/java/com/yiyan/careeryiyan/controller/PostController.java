@@ -1,14 +1,14 @@
 package com.yiyan.careeryiyan.controller;
 
 import com.yiyan.careeryiyan.exception.BaseException;
+import com.yiyan.careeryiyan.mapper.EnterpriseUserMapper;
 import com.yiyan.careeryiyan.mapper.PostMapper;
-import com.yiyan.careeryiyan.model.domain.Comment;
-import com.yiyan.careeryiyan.model.domain.Post;
-import com.yiyan.careeryiyan.model.domain.User;
+import com.yiyan.careeryiyan.model.domain.*;
 import com.yiyan.careeryiyan.model.request.AddCommentRequest;
 import com.yiyan.careeryiyan.model.request.AddPostRequest;
 import com.yiyan.careeryiyan.model.request.ShowEnterprisePostRequest;
 import com.yiyan.careeryiyan.model.response.StringResponse;
+import com.yiyan.careeryiyan.service.EnterpriseService;
 import com.yiyan.careeryiyan.service.PostService;
 import com.yiyan.careeryiyan.service.UserService;
 import jakarta.annotation.Resource;
@@ -34,6 +34,10 @@ public class PostController {
     PostService postService;
     @Resource
     UserService userService;
+    @Resource
+    PostMapper postMapper;
+    @Resource
+    EnterpriseService enterpriseService;
 
     @PostMapping("/add")
     public ResponseEntity<Map<String, Object>> addPost(@RequestBody AddPostRequest req,
@@ -124,13 +128,108 @@ public class PostController {
         List<Map<String,Object>> mapList = new ArrayList<>();
         List<String> postIdList = postService.getEnterprisePosts(epId);
         for(String postId: postIdList){
-            Map<String, Object> postMap = postService.getPostInfoMapById(postId);
-            mapList.add(postMap);
+            // post
+            Map<String, Object> post = postService.getPostInfoMapById(postId);
+
+            //author
+            String userId = String.valueOf(post.get("userId"));
+            Map<String, Object> userInfoMap = userService.getUserInfoById(userId);
+            post.put("author",userInfoMap);
+
+            // isParent  &&  parent
+            postParent(post);
+
+            // isLike
+            postLike(post, userId);
+
+
+            mapList.add(post);
         }
         return ResponseEntity.ok(mapList);
     }
 
     //关注的用户动态和企业动态
+    @PostMapping("/following")
+    public ResponseEntity<List<Map<String,Object>>> getFollowingPosts(@RequestBody Map<String, String> typeRequest, HttpServletRequest httpServletRequest){
+        User user = (User) httpServletRequest.getAttribute("user");
+        if (user == null) {
+            throw new BaseException("用户不存在");
+        }
+        List<Map<String,Object>> mapList = new ArrayList<>();
+        String type = typeRequest.get("type");
+        if(type.equals("user")){
+            System.out.println("here");
+            mapList = postService.getUsersPost(user.getUserId());
+
+        } else {
+            mapList = postService.getEnterprisePost(user.getUserId());
+//            System.out.println(mapList);
+        }
+
+        for(Map<String, Object> post: mapList){
+            // isParent  &&  parent
+            postParent(post);
+
+            // author
+            String userId = String.valueOf(post.get("userId"));
+            Map<String, Object> userMap = userService.getUserInfoById(userId);
+            post.put("author",userMap);
+
+            // enterprise
+            postEnterprise(post, userId);
+
+            // isLiked
+            postLike(post, userId);
+        }
+
+        return ResponseEntity.ok(mapList);
+
+    }
+
+    private void postParent(Map<String, Object> post){
+        // isParent  &&  parent
+        if(post.get("postParentId") == null){
+            post.put("isParent", true);
+            post.put("parent", null);
+        } else {
+            post.put("isParent", false);
+            String parentId = String.valueOf(post.get("postParentId")) ;
+            Map<String, Object> postMap = postService.getPostInfoMapById(parentId);
+            if(postMap.isEmpty()){
+                post.put("parent", null);
+            } else {
+                User user1 = userService.getUserInfo(String.valueOf(postMap.get("userId")) );
+                Map<String, Object> parentMap = new HashMap<>();
+                parentMap.put("parentUserId", user1.getUserId());
+                parentMap.put("parentUserName", user1.getUserName());
+                parentMap.put("parentUserNickname", user1.getUserNickname());
+                parentMap.put("parentUserAvatarUrl", user1.getUserAvatarUrl());
+                parentMap.put("parentUserEmail", user1.getUserEmail());
+                parentMap.put("parentPostCreatedAt", postMap.get("postCreateAt"));
+                post.put("parent", parentMap);
+            }
+        }
+    }
+
+    private void postEnterprise(Map<String, Object> post, String userId){
+        EnterpriseUser enterpriseUser = enterpriseService.getEnterpriseUserByUserId(userId);
+        if(enterpriseUser == null){
+            post.put("enterprise", null);
+        } else {
+            Enterprise enterpriseMap = enterpriseService.getEnterpriseByEpId(enterpriseUser.getEpId());
+            post.put("enterprise",enterpriseMap);
+        }
+    }
+
+    private void postLike(Map<String, Object> post, String userId){
+        LikePost likePost = postService.likePostById(userId, String.valueOf(post.get("postId")) );
+        if(likePost == null){
+            post.put("isLiked", false);
+        } else {
+            post.put("isLiked", true);
+        }
+    }
+
     @GetMapping("/following/users")
     public ResponseEntity<List<Map<String,Object>>>getUsersPost(HttpServletRequest httpServletRequest){
         User user = (User) httpServletRequest.getAttribute("user");
@@ -147,7 +246,7 @@ public class PostController {
         if (user == null) {
             throw new BaseException("用户不存在");
         }
-        return ResponseEntity.ok(postService.geEnterprisePost(user.getUserId()));
+        return ResponseEntity.ok(postService.getEnterprisePost(user.getUserId()));
     }
     //管理员 管理企业动态
 

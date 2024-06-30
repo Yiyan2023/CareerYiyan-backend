@@ -56,9 +56,9 @@ public interface UserMapper {
 
     @Select("SELECT u.user_name AS userName, " +
             "u.user_nickname AS userNickname, " +
-            "u.user_gender AS userGender, " +
+            "u.user_id AS userId, " +
             "u.user_avatar_url AS userAvatarUrl, " +
-            "u.user_influence AS userInfluence " +
+            "u.user_email AS userEmail " +
             "FROM user u " +
             "WHERE user_id = #{userId}")
     Map<String, Object> getUserInfoById(String userId);
