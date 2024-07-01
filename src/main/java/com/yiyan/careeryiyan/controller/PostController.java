@@ -6,6 +6,8 @@ import com.yiyan.careeryiyan.model.domain.*;
 import com.yiyan.careeryiyan.model.request.*;
 import com.yiyan.careeryiyan.model.response.StringResponse;
 import com.yiyan.careeryiyan.service.*;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +18,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static com.yiyan.careeryiyan.utils.JwtUtil.SECRET_KEY;
 
 @RestController
 @RequestMapping("/posts")
@@ -79,14 +83,14 @@ public class PostController {
     }
     @PostMapping("/like")
     public ResponseEntity<StringResponse> likePost(@RequestBody Map<String,String> map, HttpServletRequest httpServletRequest) {
-        String id=map.get("postId");
+        String postId=map.get("postId");
         boolean status= Boolean.parseBoolean(map.get("status"));
         User user = (User) httpServletRequest.getAttribute("user");
         if (user == null)
             throw new BaseException("用户不存在");
-        boolean res = postService.likePost(String.valueOf(id),user,status);
+        boolean res = postService.likePost(String.valueOf(postId),user,status);
         if(res){
-            Map<String, Object> post = postService.getPostInfoMapById(id);
+            Map<String, Object> post = postService.getPostInfoMapById(postId);
             String userId = String.valueOf(post.get("userId"));
             if(status){
                 userService.updateInfluence(2, userId);
@@ -98,7 +102,7 @@ public class PostController {
         String response = res ? "点赞成功" : "点赞失败";
         if (res && status){
             //点赞成功
-            addNoticeService.addLikePostNotice(id);
+            addNoticeService.addLikePostNotice(postId);
         }
         return ResponseEntity.ok(new StringResponse(response));
     }
@@ -107,7 +111,7 @@ public class PostController {
     /*
     转发动态
      */
-    @PostMapping("repost")
+    @PostMapping("/repost")
     public ResponseEntity<Map<String, Object>> repost(@RequestBody Map<String,String> map,
                                                       HttpServletRequest httpServletRequest) {
         String id=map.get("postId");
@@ -133,31 +137,44 @@ public class PostController {
     @PostMapping("/user")//个人动态
     public ResponseEntity<Map<String, Object>> getUser(@RequestBody Map<String, String> userIdRequest, HttpServletRequest httpServletRequest) {
 //        String id=map.get("id");
-        String userId = userIdRequest.get("userId");
-        User user=userService.getUserInfo(userId);
-        if(user == null){
-            throw new BaseException("用户不存在");
+        String targetUserId = userIdRequest.get("userId");
+        String token = httpServletRequest.getHeader("token");
+        User user = null;
+        User targetUser = userService.getUserById(targetUserId);
+        if(token == null) {
+            ;
+        }else {
+            Claims claims = Jwts.parser()
+                    .setSigningKey(SECRET_KEY)
+                    .parseClaimsJws(token)
+                    .getBody();
+            String id = claims.getSubject();
+            user = userService.getUserById(id);
+            if (user == null) {
+                throw new BaseException("用户不存在");
+            }
         }
-        List<Post> postList = postService.getPostsByUser(user);
+        List<Post> postList = postService.getPostsByUser(targetUser);
 
         Map<String, Object> res = new HashMap<>();
         List<Map<String,Object>> mapList = new ArrayList<>();
         for(Post postOrigin: postList){
             // post
-            Map<String, Object> post = postService.getPostInfoMapById(postOrigin.getPostId());
+            Map<String, Object> postMap = postService.getPostInfoMapById(postOrigin.getPostId());
 
             // isParent  &&  parent
-            postParent(post);
+            postParent(postMap);
 
             // isLike
-            postLike(post, userId);
+            if(user != null)
+                setPostIsLikeToMap(postMap, user.getUserId());
 
-            mapList.add(post);
+            mapList.add(postMap);
         }
 
         //author
-        Map<String, Object> userInfoMap = userService.getUserInfoById(userId);
-        EnterpriseUser enterpriseUser = enterpriseService.getEnterpriseUserByUserId(userId);
+        Map<String, Object> userInfoMap = userService.getUserInfoById(targetUserId);
+        EnterpriseUser enterpriseUser = enterpriseService.getEnterpriseUserByUserId(targetUserId);
         if(enterpriseUser!=null){
             userInfoMap.put("epId",enterpriseUser.getEpId());
             String epName = enterpriseService.getEnterpriseByEpId(enterpriseUser.getEpId()).getEpName();
@@ -204,7 +221,7 @@ public class PostController {
             postParent(post);
 
             // isLike
-            postLike(post, userId);
+            setPostIsLikeToMap(post, userId);
 
             mapList.add(post);
         }
@@ -242,7 +259,7 @@ public class PostController {
             postEnterprise(post, userId);
 
             // isLiked
-            postLike(post, userId);
+            setPostIsLikeToMap(post, userId);
         }
 
         return ResponseEntity.ok(mapList);
@@ -292,7 +309,7 @@ public class PostController {
         }
     }
 
-    private void postLike(Map<String, Object> post, String userId){
+    private void setPostIsLikeToMap(Map<String, Object> post, String userId){
         LikePost likePost = postService.likePostById(userId, String.valueOf(post.get("postId")) );
         if(likePost == null){
             post.put("isLiked", false);
