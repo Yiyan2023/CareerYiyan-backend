@@ -56,6 +56,12 @@ public class ChatController {
             throw new BaseException("聊天不存在或你不在此聊天中");
         }
         List<Message> messageListByChatId= chatService.getMessageListByChatId(chatId,msgPage, numMsgInPage );
+        UserOnline userOnline = userService.getUserOnlineByUserId((user.getUserId()));
+        if(userOnline!=null)
+        {
+            userOnline.setUserOnlineChatId(chatId);
+            userService.updateUserOnline(userOnline);
+        }
         List<Map> messages = new ArrayList<>();
         for(Message message:messageListByChatId){
 

@@ -157,4 +157,12 @@ public class UserService {
     public int updateEpUserTitle(String epUserTitle, String userId){
         return enterpriseUserMapper.updateEpUserTitle(epUserTitle, userId);
     }
+
+    public void addUserOnline(UserOnline userOnline) {
+        userOnlineMapper.addUserOnline(userOnline);
+    }
+
+    public void updateUserOnline(UserOnline userOnline) {
+        userOnlineMapper.updateUserOnline(userOnline);
+    }
 }
