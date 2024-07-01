@@ -35,7 +35,7 @@ public class  PostService {
 
     public Post addPost(String content,String photos, User user)  {
         Post post=new Post(content, user.getUserId(),photos,null,null);
-        userMapper.updateInfluence(postMapper.getLikePostCount(user.getUserId())*2+ postMapper.getLikeCommentCount(user.getUserId()), user.getUserId());
+//        userMapper.updateInfluence(postMapper.getLikePostCount(user.getUserId())*2+ postMapper.getLikeCommentCount(user.getUserId()), user.getUserId());
         int res=postMapper.insertPost(post);
         return post;
     }
@@ -43,6 +43,7 @@ public class  PostService {
     
     public boolean delPost(String id, User user) {
         Post post=postMapper.getPostById(id);
+        System.out.println(id);
         if(post==null)
             return false;
         if(post.getUserId()==null){
@@ -90,7 +91,7 @@ public class  PostService {
             postMapper.insertLikePost(like);
             System.out.println("点赞");
         }
-        else if(!status&&like!=null){
+        else if((!status)&&like!=null){
             postMapper.deleteLikePost(like.getLikePostId());
         }
         else
@@ -172,11 +173,12 @@ public class  PostService {
     public Map<String, Object> repost(String postId,User user,String title){
         Map<String, Object>res=new HashMap<String, Object>();
         Post post=postMapper.getPostById(postId);
+        Map<String, Object> postMap = postMapper.getPostMapById(postId);
         if(post ==null){
             System.out.println("帖子Id: "+postId+" is null");
             return null;
         }
-        if(post.getPostParentId()!= null){
+        if(postMap.get("postParentId")!= null){
             System.out.println("有父帖 "+post.getPostParentId());
             post=postMapper.getPostById(String.valueOf(post.getPostParentId()));
         }
@@ -191,7 +193,7 @@ public class  PostService {
         newPost.setPostParentId(post.getPostId());
         newPost.setPostTitle(title);
         postMapper.insertPost(post);
-        userMapper.updateInfluence(postMapper.getLikePostCount(user.getUserId())*2+ postMapper.getLikeCommentCount(user.getUserId()), user.getUserId());
+//        userMapper.updateInfluence(postMapper.getLikePostCount(user.getUserId())*2+ postMapper.getLikeCommentCount(user.getUserId()), user.getUserId());
         res.put("posts",post.toDict());
         res.put("author",user.toDict());
         res.put("origin",origin.toDict());

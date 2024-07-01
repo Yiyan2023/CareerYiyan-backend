@@ -18,7 +18,7 @@ public interface FollowMapper {
 
     @Select("SELECT * FROM follow_enterprise where user_id =#{userId} and ep_id =#{targetUserId} ")
     FollowEnterprise getFollowEp(@Param("userId") String userId, @Param("targetUserId") String targetUserId);
-    @Update("UPDATE follow_user SET is_delete = #{isDelete} WHERE user_id = #{userId} AND follow_user_id = #{targetUserId}")
+    @Update("UPDATE follow_user SET is_delete = #{isDelete} WHERE user_id = #{userId} AND following_user_id = #{targetUserId}")
     int updateFollowUser(@Param("userId") String userId, @Param("targetUserId") String targetUserId, @Param("isDelete") boolean isDelete);
 
     @Insert("INSERT INTO follow_enterprise (user_id, ep_id) VALUES (#{userId}, #{epId})")

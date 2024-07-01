@@ -49,4 +49,21 @@ public interface EnterpriseUserMapper {
     @Select("SELECT COUNT(*) from enterprise_user WHERE " +
             "user_id=#{userId} AND ep_id=#{epId} AND ep_user_auth=0")
     int isAdmin(String userId, String epId);
+
+
+    @Select("SELECT CASE WHEN EXISTS (" +
+            "SELECT 1 FROM (" +
+            "  SELECT u.user_id " +
+            "  FROM user u " +
+            "  JOIN enterprise_user eu ON u.user_id = eu.user_id " +
+            "  WHERE eu.ep_id = #{epId} " +
+            "  ORDER BY u.user_influence DESC " +
+            "  LIMIT #{limit}" +
+            ") AS top_users " +
+            "WHERE top_users.user_id = #{userId}" +
+            ") THEN 1 ELSE 0 END AS isInTop")
+    int isUserInTopInfluential(@Param("epId") String epId, @Param("userId") String userId, @Param("limit") int limit);
+
+    @Select("SELECT COUNT(*) FROM enterprise_user WHERE ep_id=#{epId} AND is_delete=0")
+    int totalEmployee(String epId);
 }

@@ -6,6 +6,7 @@ import com.yiyan.careeryiyan.model.domain.EnterpriseUser;
 import com.yiyan.careeryiyan.model.domain.User;
 import com.yiyan.careeryiyan.model.response.StringResponse;
 import com.yiyan.careeryiyan.service.FollowService;
+import com.yiyan.careeryiyan.service.UserService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +23,8 @@ public class FollowController {
 
     @Resource
     EnterpriseUserMapper enterpriseUserMapper;
+    @Resource
+    UserService userService;
 
     @PostMapping("/user")
     public ResponseEntity<StringResponse> followUser(@RequestBody Map<String, String> map, HttpServletRequest httpServletRequest) {
@@ -36,6 +39,13 @@ public class FollowController {
             throw new BaseException("不能关注自己");
         int res = followService.followUser(user.getUserId(), userId);
         String response = (res == -1) ? "用户不存在" : (res == 0) ? "关注用户成功" : "取消关注用户成功";
+
+        if(res == 0){
+            userService.updateInfluence(5, userId);
+        } else if (res == 1){
+            userService.updateInfluence(-5, userId);
+        }
+
         return ResponseEntity.ok(new StringResponse(response));
     }
 
