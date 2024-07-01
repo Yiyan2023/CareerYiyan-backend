@@ -76,4 +76,8 @@ public class ChatService {
     public void setChatLastUnread(String chatId, String userId) {
         chatMapper.setChatLastUnread(chatId, userId);
     }
+
+    public int getTotalUnreadCount(String userId) {
+        return messageMapper.getTotalUnreadCount(userId);
+    }
 }

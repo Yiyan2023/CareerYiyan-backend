@@ -27,6 +27,7 @@ public class MyWebSocket {
     private static WebSocketDbAccessor dbAccessor;
     private static ChatService chatService;
     private static UserService userService;
+    private static NoticeService noticeService;
 
     @Autowired
     public void setDbAccessor(WebSocketDbAccessor dbAccessor, ChatService chatService, UserService userService) {
@@ -229,7 +230,6 @@ public class MyWebSocket {
         if (receiverOnline == null || Objects.equals(receiverOnline.getUserOnlineStatus(), "offline")) {
             message.setMsgIsRead(0);
         } else {
-
             if (receiverOnline.getUserOnlineChatId() != null && receiverOnline.getUserOnlineChatId().equals(chatId)) {
                 message.setMsgIsRead(1);
             } else {
@@ -251,6 +251,8 @@ public class MyWebSocket {
                     MessageToFrontend msg = new MessageToFrontend<>(rspMap, 1);
                     String json = objectMapper.writeValueAsString(msg);
                     toSession.getAsyncRemote().sendText(json);
+
+                    sendNotice(receiver.getUserId());
                 }
                 catch (Exception e){
                     throw new BaseException("发送失败");
@@ -259,299 +261,52 @@ public class MyWebSocket {
                 message.setMsgIsRead(0);
             }
         }
-
-//        Room room = dbAccessor.getRoomByRoomId(Integer.parseInt(chatId));
-//        if (room.getType() != 1) isRead = true;
-
-        //RoomDetail roomDetail = new RoomDetail(room);
-//        if(room.getType()==1) {
-//            roomDetail.setRoomName(sender.getName());
-//            roomDetail.setAvatar(sender.getProfilePhotoUrl());
-//            System.out.println(sender.getId());
-//            System.out.println("私聊，roomName:"+roomDetail.getRoomName()+" avatar:"+roomDetail.getAvatar());
-//        }
-//        roomDetail.setLastMessage(message);
-//        for (RoomUser userSummary : roomMembers) {
-//            User user = dbAccessor.getUserById(userSummary.getUserId());
-//            UserInRoom userInRoom = new UserInRoom(user, dbAccessor.getIdentityInRoom(room.getId(), user.getId()));
-//            roomDetail.getUsers().add(userInRoom);
-//        }
-
-//        for (RoomUser userSummary : roomMembers) {
-//            //不给自己发
-//
-//            String receiverId = String.valueOf(userSummary.getUserId());
-//            if (receiverId.equals(String.valueOf(sender.getId()))) continue;
-//            //得到接收者的频道号
-//            String receiverChannelId = getUser2sessionId().get(receiverId);
-//            boolean flag = false;
-//            //System.out.println("receiverId:" + receiverId + " receiverChannelId:" + receiverChannelId);
-//            //不管在不在聊天室，都设置成可见
-//            dbAccessor.setRoomDisplay(Integer.parseInt(socketMsg.getRoomId()), Integer.parseInt(receiverId));
-//
-//            for (MyWebSocket webSocket : webSocketSet) {
-//                try {
-//                    // System.out.println("webSocket.session.getId():" + webSocket.session.getId());
-//                    ObjectMapper objectMapper = new ObjectMapper();
-//                    String json;
-//                    //接收者在线，但在不在当前团队不一定
-//                    //if(receiverChannelIds.contains(webSocket.session.getId()))
-//                    if (Objects.equals(webSocket.session.getId(), receiverChannelId)) {
-//                        UserOnline receiver = dbAccessor.getUserOnlineById(receiverId);
-//
-//                        System.out.print("receiverId:" + receiverId + " currentTeam:" + receiver.getCurrentTeamId());
-//                        System.out.println(" senderId:" + socketMsg.getSenderId() + " currentRoom:" + chatId);
-//                        //接收者不与发送者选择同一团队，即使在线也不给他发
-//                        if (receiver.getCurrentTeamId() != room.getTeamId()) {
-//                            System.out.println("----此接收者在线但不在同一团队，不给他发");
-//                            break;
-//                        }
-//
-//                        //此时一定在同一团队
-//                        flag = true;
-//
-//                        if (Objects.equals(receiver.getCurrentRoomId(), socketMsg.getRoomId())) {
-//                            //在当前聊天室中
-//                            message.addSender(sender);
-//                            MessageToFrontend<MessageDetail> messageToFrontend = new MessageToFrontend<>(message, 1);
-//                            json = objectMapper.writeValueAsString(messageToFrontend);
-//                            System.out.println("发出去的json：" + json);
-//                            webSocket.session.getAsyncRemote().sendText(json);
-//                            isRead = true;
-//                        } else {
-//                            //用户不在当前聊天室中，//应该发送一个roomDetail
-//
-//                            roomDetail.getUsers().sort(RoomDetail.userComparator);
-//                            //增加未读消息数
-//                            dbAccessor.addUnreadCountInRoom(room.getId(), receiver.getId());
-//                            int unreadCount = dbAccessor.getUnreadMsgCountInRoom(room.getId(), receiver.getId());
-//                            roomDetail.setUnreadCount(String.valueOf(unreadCount));
-//                            try {
-//                                MessageToFrontend<RoomDetail> messageToFrontend = new MessageToFrontend<>(roomDetail, 2);
-//                                json = objectMapper.writeValueAsString(messageToFrontend);
-//                                webSocket.session.getAsyncRemote().sendText(json);
-//                                System.out.println("发出去的json：" + json);
-//                            } catch (JsonProcessingException e) {
-//                                throw new RuntimeException(e);
-//                            }
-//                        }
-//                        break;//给这个人发送完毕，退出循环，再看下一个人
-//                    }
-//                } catch (Exception e) {
-//                    System.out.println(e.getMessage());
-//                }
-//            }
-//            if (!flag) {
-//                //用户不在线或未选择发送者的团队，增加未读消息数
-//                dbAccessor.addUnreadCountInRoom(room.getId(), userSummary.getUserId());
-//            }
-//        }
-//        return isRead;
     }
 
-    public void sendNotice(Notice notice) {
+    public void sendNotice(String userId) {
+        ObjectMapper objectMapper= new ObjectMapper();
+        Map<String, Object> rspMap = new HashMap<>();
+        String channel = getUser2sessionId().get(userId);
+        Session toSession = getMap().get(channel);
+//        type = 2 推送新的未读通知数量
+//
+//        0：系统通知：纯文本通知
+//        1：点赞我的：跳转到所属动态，评论点赞也跳到动态，post_id
+//        2：评论我的：跳转到所属动态,post_id
+//        3：招聘通知：推送新岗位（跳转到企业的招聘列表），招聘情况（跳转到已申请列表），ep_id
+//        4：动态通知
+//        5：未读私信总数
+        if (toSession != null && toSession.isOpen()) {
+            try {
+                int num0 = 0, num1 = 0, num2 = 0, num3 = 0, num4 = 0, num5 = 0;
+                List<Notice> allNotice = noticeService.getNotices(userId);
+                for(Notice n: allNotice){
+                    if(Objects.equals(n.getNoticeType(), "0")) num0++;
+                    if(Objects.equals(n.getNoticeType(), "1")) num1++;
+                    if(Objects.equals(n.getNoticeType(), "2")) num2++;
+                    if(Objects.equals(n.getNoticeType(), "3")) num3++;
+                    if(Objects.equals(n.getNoticeType(), "4")) num4++;
+                }
+                num5 = chatService.getTotalUnreadCount(userId);
 
+                rspMap.put("num0", num0);
+                rspMap.put("num1", num1);
+                rspMap.put("num2", num2);
+                rspMap.put("num3", num3);
+                rspMap.put("num4", num4);
+                rspMap.put("num5", num5);
+                MessageToFrontend msg = new MessageToFrontend<>(rspMap, 2);
+                String json = objectMapper.writeValueAsString(msg);
+                toSession.getAsyncRemote().sendText(json);
+            }
+            catch (Exception e){
+                throw new BaseException("推送通知数量失败");
+            }
+        }
     }
-//    public void sendChatNoticeToUser(SocketMsgChat socketMsgChat) {
-//        int senderId = socketMsgChat.getSenderId();
-//        int receiverId = socketMsgChat.getReceiverId();
-//        int roomId = socketMsgChat.getRoomId();
-//        int messageId = socketMsgChat.getMessageId();
-//
-//        List<String> receiverChannelIds = getUser2sessionIds().get(String.valueOf(receiverId));
-//
-//        UserOnline sender = dbAccessor.getUserOnlineById(String.valueOf(senderId));
-//        UserOnline receiver = dbAccessor.getUserOnlineById(String.valueOf(receiverId));
-//        ObjectMapper objectMapper = new ObjectMapper();
-//        System.out.println("sendNoticeToUserId:" + receiverId);
-//        //接收者在线且与发送者选择同一团队
-//        for (MyWebSocket webSocket : webSocketSet) {
-//            if (receiverChannelIds == null) {
-//                //用户不在线
-//                break;
-//            }
-//            if (receiverChannelIds.contains(webSocket.session.getId()) && webSocket.session.isOpen()) {
-//                Session toSession = webSocket.session;
-//                if (receiver != null && toSession != null
-//                        && toSession.isOpen()
-//                        && receiver.getCurrentTeamId() == sender.getCurrentTeamId()) {
-//                    ChatAtNoticeDetail chatAtNoticeDetail = getChatAtNoticeDetail(senderId, roomId, messageId, sender);
-//                    try {
-//                        MessageToFrontend<ChatAtNoticeDetail> messageToFrontend = new MessageToFrontend<>(chatAtNoticeDetail, 4);
-//                        String json = objectMapper.writeValueAsString(messageToFrontend);
-//                        toSession.getAsyncRemote().sendText(json);
-//                        System.out.println("发出去的json：" + json);
-//
-//                        int teamId = sender.getCurrentTeamId();
-//                        int unreadChatNoticeCount = dbAccessor.getUnreadChatNoticeCount(teamId, receiverId);
-//                        int unreadFileNoticeCount = dbAccessor.getUnreadFileNoticeCount(teamId, receiverId);
-//                        MessageToFrontend<Integer> messageToFrontend2 = new MessageToFrontend<>(unreadChatNoticeCount + unreadFileNoticeCount + 1, 6);
-//                        json = objectMapper.writeValueAsString(messageToFrontend2);
-//                        webSocket.session.getAsyncRemote().sendText(json);
-//                        System.out.println("发出去的json：" + json);
-//
-//                    } catch (Exception e) {
-//                        System.out.println(e.getMessage());
-//                    }
-//                }
-//            }
-//        }
-//        //不管在不在线和在不在团队，都给他通知存下来
-//        ChatNoticeHistory chatNoticeHistory = new ChatNoticeHistory();
-//
-//        chatNoticeHistory.setRoomId(roomId);
-//        chatNoticeHistory.setChatId(messageId);
-//        chatNoticeHistory.setTeamId(sender.getCurrentTeamId());
-//        chatNoticeHistory.setUserId(receiverId);
-//        Room room = dbAccessor.getRoomByRoomId(roomId);
-//        if(room.getType()==1)chatNoticeHistory.setChatName(sender.getName());
-//        else
-//            chatNoticeHistory.setChatName(room.getName());
-//
-//        dbAccessor.addChatNoticeHistory(chatNoticeHistory);
-//
-//    }
 
-//    private ChatAtNoticeDetail getChatAtNoticeDetail(int senderId, int roomId, int messageId, UserOnline sender) {
-//        System.out.println("被艾特者在线且与艾特者处于同一团队");
-//        ChatAtNoticeDetail chatAtNoticeDetail = new ChatAtNoticeDetail();
-//        chatAtNoticeDetail.setUserId(String.valueOf(senderId));
-//        chatAtNoticeDetail.setUsername(sender.getName());
-//        chatAtNoticeDetail.setAvatar(sender.getProfilePhotoUrl());
-//
-//        ChatHistory chatHistory = dbAccessor.getChatHistoryById(messageId);
-//        chatAtNoticeDetail.setContent(chatHistory.getContent());
-//
-//        Room room = dbAccessor.getRoomByRoomId(roomId);
-//        chatAtNoticeDetail.setRoomId(String.valueOf(roomId));
-//        if (room.getType() == 1) chatAtNoticeDetail.setRoomName(sender.getName());
-//        else
-//            chatAtNoticeDetail.setRoomName(room.getName());
-//        return chatAtNoticeDetail;
-//    }
-
-//    public void sendChatNoticeToRoom(SocketMsgChat socketMsgChat) {
-//        int senderId = socketMsgChat.getSenderId();
-//
-//        int roomId = socketMsgChat.getRoomId();
-//        int messageId = socketMsgChat.getMessageId();
-//
-//        UserOnline sender = dbAccessor.getUserOnlineById(String.valueOf(senderId));
-//        int teamId = sender.getCurrentTeamId();
-//
-//        List<RoomUser> roomMembers = dbAccessor.getRoomMembersById(roomId);
-//        if (roomMembers != null)
-//            for (RoomUser user : roomMembers) {
-//                System.out.println("roomMember's id:" + user.getUserId());
-//            }
-//        try {
-//            ObjectMapper objectMapper = new ObjectMapper();
-//            String json;
-//            if (roomMembers != null) {
-//                for (RoomUser user : roomMembers) {
-//                    String receiverId = String.valueOf(user.getUserId());
-//                    if (receiverId.equals(String.valueOf(socketMsgChat.getSenderId()))) continue;
-//                    String receiverChannelId = getUser2sessionId().get(receiverId);
-//                    List<String> receiverChannelIds = getUser2sessionIds().get(receiverId);
-//
-//                    for (MyWebSocket webSocket : webSocketSet) {
-//                        if (receiverChannelIds == null) {
-//                            //用户不在线
-//                            break;
-//                        }
-//                        //接收者在线，但在不在当前团队不一定
-//                        if (receiverChannelIds.contains(webSocket.session.getId()) && webSocket.session.isOpen()) {
-//                            System.out.print("receiverId:" + receiverId + " receiverChannelId:" + receiverChannelId);
-//                            UserOnline receiver = dbAccessor.getUserOnlineById(receiverId);
-//                            System.out.print(" currentTeam:" + receiver.getCurrentTeamId());
-//                            System.out.println("  senderId:" + socketMsgChat.getSenderId() + " currentTeam:" + teamId);
-//                            //接收者不与发送者选择同一团队，即使在线也不给他发
-//                            if (receiver.getCurrentTeamId() != teamId) {
-//                                break;
-//                            }
-//                            //此时一定在同一团队
-//                            ChatAtNoticeDetail chatAtNoticeDetail = getChatAtNoticeDetail(senderId, roomId, messageId, sender);
-//                            try {
-//                                MessageToFrontend<ChatAtNoticeDetail> messageToFrontend = new MessageToFrontend<>(chatAtNoticeDetail, 4);
-//                                json = objectMapper.writeValueAsString(messageToFrontend);
-//                                webSocket.session.getAsyncRemote().sendText(json);
-//                                System.out.println("发出去的json：" + json);
-//
-//                                int unreadChatNoticeCount = dbAccessor.getUnreadChatNoticeCount(teamId, Integer.parseInt(receiverId));
-//                                int unreadFileNoticeCount = dbAccessor.getUnreadFileNoticeCount(teamId, Integer.parseInt(receiverId));
-//                                MessageToFrontend<Integer> messageToFrontend2 = new MessageToFrontend<>(unreadChatNoticeCount + unreadFileNoticeCount + 1, 6);
-//                                json = objectMapper.writeValueAsString(messageToFrontend2);
-//                                webSocket.session.getAsyncRemote().sendText(json);
-//                                System.out.println("发出去的json：" + json);
-//                            } catch (Exception e) {
-//                                System.out.println(e.getMessage());
-//                            }
-//
-//                        }
-//                    }
-//
-//                    //不管在不在线在不在同一团队，都给他通知存下来
-//                    ChatNoticeHistory chatNoticeHistory = new ChatNoticeHistory();
-//
-//                    chatNoticeHistory.setChatId(messageId);
-//                    chatNoticeHistory.setTeamId(teamId);
-//                    chatNoticeHistory.setRoomId(roomId);
-//                    chatNoticeHistory.setUserId(Integer.parseInt(receiverId));
-//                    Room room = dbAccessor.getRoomByRoomId(roomId);
-//                    if(room.getType()==1)chatNoticeHistory.setChatName(sender.getName());
-//                    else
-//                        chatNoticeHistory.setChatName(room.getName());
-//
-//                    dbAccessor.addChatNoticeHistory(chatNoticeHistory);
-//                }
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//    }
-
-
-//    public void tellMeHowManyUnreadNotice(int userId){
-//        List<String> receiverChannelIds = getUser2sessionIds().get(String.valueOf(userId));
-//        if(receiverChannelIds==null)return;
-//        UserOnline receiver = dbAccessor.getUserOnlineById(String.valueOf(userId));
-//        if(receiver==null)return;
-//        int teamId = receiver.getCurrentTeamId();
-//        int unreadChatNoticeCount = dbAccessor.getUnreadChatNoticeCount(teamId, userId);
-//        int unreadFileNoticeCount = dbAccessor.getUnreadFileNoticeCount(teamId, userId);
-//        ObjectMapper objectMapper = new ObjectMapper();
-//        try {
-//            MessageToFrontend<Integer> messageToFrontend = new MessageToFrontend<>(unreadChatNoticeCount + unreadFileNoticeCount, 6);
-//            String json = objectMapper.writeValueAsString(messageToFrontend);
-//            for (MyWebSocket webSocket : webSocketSet) {
-//                if (receiverChannelIds.contains(webSocket.session.getId()) && webSocket.session.isOpen()) {
-//                    webSocket.session.getAsyncRemote().sendText(json);
-//                    System.out.println("发出去的json：" + json);
-//                }
-//            }
-//        } catch (JsonProcessingException e) {
-//            throw new RuntimeException(e);
-//        }
-//
-//    }
-//
-//    public void tellUserIRead(int roomId, int receiverId) {
-//        MessageToFrontend<String> messageToFrontend = new MessageToFrontend<>("P" + roomId, 7);
-//        UserOnline receiver = dbAccessor.getUserOnlineById(String.valueOf(receiverId));
-//        if (receiver == null) return;
-//        String receiverChannelId = getUser2sessionId().get(String.valueOf(receiverId));
-//        if (receiverChannelId == null) return;
-//        Session toSession = getMap().get(receiverChannelId);
-//        if (toSession == null || !toSession.isOpen()) return;
-//        ObjectMapper objectMapper = new ObjectMapper();
-//        try {
-//            String json = objectMapper.writeValueAsString(messageToFrontend);
-//            toSession.getAsyncRemote().sendText(json);
-//            System.out.println("发出去的json：" + json);
-//        } catch (JsonProcessingException e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
-
-
+    @Autowired
+    public void setNoticeService(NoticeService noticeService) {
+        this.noticeService = noticeService;
+    }
 }

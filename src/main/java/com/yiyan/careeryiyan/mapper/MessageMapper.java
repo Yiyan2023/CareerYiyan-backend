@@ -35,4 +35,9 @@ public interface MessageMapper {
             "#{msgCreateDate}, #{msgCreateTime}, #{msgIsSystem}, #{msgIsRead})")
     @Options(useGeneratedKeys = true, keyProperty = "msgId")
     int addMessage(Message message);
+
+    @Select("SELECT count(*) from message m ,chat c " +
+            "where m.msg_chat_id= c.chat_id and (c.chat_user_id_1 = #{userId} or c.chat_user_id_2 = #{userId}) " +
+            "and m.msg_is_read=0 and m.msg_send_user_id!=#{userId} ")
+    int getTotalUnreadCount(String userId);
 }

@@ -9,8 +9,7 @@ import java.util.List;
 
 @Service
 public class NoticeService {
-    @Resource
-    MyWebSocket myWebSocket;
+
     @Resource
     private NoticeMapper noticeMapper;
 
@@ -19,7 +18,7 @@ public class NoticeService {
     }
     public void insertNotice(Notice notice) {
         noticeMapper.insertNotice(notice);
-        myWebSocket.sendNotice(notice);
+        //myWebSocket.sendNotice(notice);
     }
 
     public void markAsRead(String userId,List<String> noticeIds) {
