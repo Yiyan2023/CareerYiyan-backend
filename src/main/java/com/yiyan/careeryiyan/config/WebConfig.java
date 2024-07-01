@@ -29,7 +29,8 @@ public class WebConfig implements WebMvcConfigurer {
                         "/folder/**",
                         "/enterprise/**",
                         "/file/**",
-                        "/chat/**"
+                        "/chat/**",
+                        "/recommend/**"
                         )
                 .excludePathPatterns(
                         "/user/register",
@@ -42,7 +43,8 @@ public class WebConfig implements WebMvcConfigurer {
                         "/enterprise/getInfo" ,
                         "/enterprise/getRecruitmentList",
                         "/enterprise/getRecruitmentInfo",
-                        "/enterprise/getAdmin"
+                        "/enterprise/getAdmin",
+                        "/recommend/getHot*"
                         );
     }
 
