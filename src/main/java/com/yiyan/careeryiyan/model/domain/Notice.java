@@ -8,13 +8,13 @@ import java.time.LocalDateTime;
 @Data
 public class Notice {
     private String avatarUrl;
-    private String userId;
+    private int userId;
     private LocalDateTime noticeCreateAt;
-    private String epId;
+    private int epId;
     @JsonProperty("isRead")
     private boolean isRead;
     private String noticeContent;
-    private String noticeId;
+    private int noticeId;
     private String noticeType;
-    private String postId;
+    private int postId;
 }

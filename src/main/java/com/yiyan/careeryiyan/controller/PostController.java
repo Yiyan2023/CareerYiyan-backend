@@ -141,6 +141,7 @@ public class PostController {
         String token = httpServletRequest.getHeader("token");
         User user = null;
         User targetUser = userService.getUserById(targetUserId);
+        System.out.println("我要查看userid = "+ targetUserId+"的人的动态");
         if(token == null) {
             ;
         }else {

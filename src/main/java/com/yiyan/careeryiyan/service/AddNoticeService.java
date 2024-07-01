@@ -28,13 +28,13 @@ public class AddNoticeService {
 
     private void insertNotice(Notice notice) {
         noticeMapper.insertNotice(notice);
-        myWebSocket.sendNotice(notice.getUserId());
+        myWebSocket.sendNotice(String.valueOf(notice.getUserId()));
     }
 
     private void insertNotice(List<Notice> noticeList) {
         for (Notice notice : noticeList) {
             noticeMapper.insertNotice(notice);
-            myWebSocket.sendNotice(notice.getUserId());
+            myWebSocket.sendNotice(String.valueOf(notice.getUserId()));
         }
     }
 
@@ -47,11 +47,11 @@ public class AddNoticeService {
         User user = userMapper.getUserById(likePost.getUserId());
 
         Notice notice = new Notice();
-        notice.setUserId(post.getUserId());
+        notice.setUserId(Integer.parseInt(post.getUserId()));
         notice.setNoticeType("1");
         notice.setNoticeContent(String.format("%s 点赞了您的动态: %s", user.getUserName(), post.getPostTitle()));
         notice.setAvatarUrl(user.getUserAvatarUrl());
-        notice.setPostId(post.getPostId());
+        notice.setPostId(Integer.parseInt(post.getPostId()));
 
         insertNotice(notice);
     }
@@ -63,11 +63,11 @@ public class AddNoticeService {
         User user = userMapper.getUserById(comment.getUserId());
 
         Notice notice = new Notice();
-        notice.setUserId(comment.getUserId());
+        notice.setUserId(Integer.parseInt(comment.getUserId()));
         notice.setNoticeType("1");
         notice.setNoticeContent(String.format("%s 点赞了您的评论: %s", user.getUserName(), comment.getCommentContent()));
         notice.setAvatarUrl(user.getUserAvatarUrl());
-        notice.setPostId(post.getPostId());
+        notice.setPostId(Integer.parseInt(post.getPostId()));
 
         insertNotice(notice);
     }
@@ -79,12 +79,12 @@ public class AddNoticeService {
         User user = userMapper.getUserById(comment.getUserId());
 
         Notice notice = new Notice();
-        notice.setUserId(post.getUserId());
+        notice.setUserId(Integer.parseInt(post.getUserId()));
         notice.setNoticeType("2");
         notice.setAvatarUrl(user.getUserAvatarUrl());
         notice.setNoticeContent(String.format("%s 评论了您的动态: %s", user.getUserName(), post.getPostTitle()));
 
-        notice.setPostId(post.getPostId());
+        notice.setPostId(Integer.parseInt(post.getPostId()));
         insertNotice(notice);
 
     }
@@ -95,12 +95,12 @@ public class AddNoticeService {
         Enterprise enterprise = enterpriseMapper.getEnterpriseByEpId(recruitment.getEpId());
 
         Notice notice = new Notice();
-        notice.setUserId(apply.getUserId());
+        notice.setUserId(Integer.parseInt(apply.getUserId()));
         notice.setNoticeType("3");
         notice.setAvatarUrl(enterprise.getEpAvatarUrl());
         String hrRes = apply.getApplyStatus() == 1 ? "通过" : "拒绝";
         notice.setNoticeContent(String.format(" %s %s您对 %s的申请", enterprise.getEpName(), hrRes, recruitment.getRcName()));
-        notice.setEpId(recruitment.getEpId());
+        notice.setEpId(Integer.parseInt(recruitment.getEpId()));
         insertNotice(notice);
 
     }
@@ -113,12 +113,12 @@ public class AddNoticeService {
         List<Notice> noticeList = new ArrayList<>();
         for (User user : userList) {
             Notice notice = new Notice();
-            notice.setUserId(user.getUserId());
+            notice.setUserId(Integer.parseInt(user.getUserId()));
             notice.setNoticeType("3");
             notice.setAvatarUrl(enterprise.getEpAvatarUrl());
             notice.setNoticeContent(String.format("%s 发布了 %s相关的新岗位%s ", enterprise.getEpName(),
                     recruitment.getRcTag(), recruitment.getRcName()));
-            notice.setEpId(recruitment.getEpId());
+            notice.setEpId(Integer.parseInt(recruitment.getEpId()));
         }
         insertNotice(noticeList);
     }
@@ -128,7 +128,7 @@ public class AddNoticeService {
         //查询企业管理员
         User admin = enterpriseMapper.getEnterpriseAdmin(epId);
         Notice notice = new Notice();
-        notice.setUserId(admin.getUserId());
+        notice.setUserId(Integer.parseInt(admin.getUserId()));
         notice.setNoticeType("0");
         notice.setAvatarUrl(admin.getUserAvatarUrl());
         notice.setNoticeContent(String.format("%s 退出了您的企业", userName));
@@ -140,7 +140,7 @@ public class AddNoticeService {
         Enterprise enterprise = enterpriseMapper.getEnterpriseByEpId(epId);
 
         Notice notice = new Notice();
-        notice.setUserId(adminId);
+        notice.setUserId(Integer.parseInt(adminId));
         notice.setNoticeType("0");
         notice.setAvatarUrl(epId);
         notice.setNoticeContent(String.format("您成为了 %s 的新管理员", enterprise.getEpName()));
