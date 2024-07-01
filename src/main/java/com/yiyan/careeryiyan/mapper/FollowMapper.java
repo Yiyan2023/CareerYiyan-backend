@@ -35,13 +35,7 @@ public interface FollowMapper {
             "WHERE fu.user_id = #{userId} AND fu.is_delete = 0")
     List<Map<String, Object>> getFollowingUsers(@Param("userId") String userId);
 
-    @Select("SELECT e.ep_name AS epName, " +
-            "e.ep_id AS epId, " +
-            "e.ep_addr AS epAddr, " +
-            "e.ep_desc AS epDesc, " +
-            "e.ep_type AS epType, " +
-            "DATE_FORMAT(e.ep_create_at, '%Y-%m-%d %H:%i:%s') AS epCreateAt , " +
-            "e.ep_avatar_url AS epAvatarUrl " +
+    @Select("select e.*,e.ep_id as ep_id " +
             "FROM enterprise e " +
             "INNER JOIN follow_enterprise fe ON e.ep_id = fe.ep_id " +
             "WHERE fe.user_id = #{userId} AND fe.is_delete = 0")
