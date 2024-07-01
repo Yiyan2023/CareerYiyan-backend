@@ -7,6 +7,7 @@ import com.yiyan.careeryiyan.model.domain.Enterprise;
 import com.yiyan.careeryiyan.model.domain.FollowEnterprise;
 import com.yiyan.careeryiyan.model.domain.FollowUser;
 import com.yiyan.careeryiyan.model.domain.User;
+import com.yiyan.careeryiyan.utils.MapUtil;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
@@ -73,7 +74,7 @@ public class FollowService {
     public Map<String, Object> getFollowingEnterprises(String userId) {
         List<Map<String, Object>> followingEnterprises = followMapper.getFollowingEnterprises(userId);
         Map<String, Object> result = new HashMap<>();
-        result.put("followingEnterprises", followingEnterprises);
+        result.put("followingEnterprises", MapUtil.convertKeysToCamelCase(followingEnterprises));
         result.put("count", followingEnterprises.size());
         return result;
     }
