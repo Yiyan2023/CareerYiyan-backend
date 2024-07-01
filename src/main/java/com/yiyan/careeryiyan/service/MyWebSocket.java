@@ -1,6 +1,5 @@
 package com.yiyan.careeryiyan.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yiyan.careeryiyan.exception.BaseException;
 import com.yiyan.careeryiyan.model.MessageToFrontend;
@@ -11,6 +10,7 @@ import jakarta.websocket.server.ServerEndpoint;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -80,15 +80,15 @@ public class MyWebSocket {
      * 连接建立成功调用的方法
      */
     @OnOpen
-    public void onOpen(Session session, @PathParam("nickname") String nickname) {
+    public void onOpen(Session session, @PathParam("nickname") String userId) {
         this.session = session;
-        if (nickname.startsWith("chat")) {
-            System.out.println(nickname + "试图建立聊天连接");
-            nickname = nickname.substring(4);
+        if (userId.startsWith("chat")) {
+            System.out.println(userId + "试图建立聊天连接");
+            userId = userId.substring(4);
 
-            if (getUser2sessionId().containsKey(nickname)) {
+            if (getUser2sessionId().containsKey(userId)) {
                 for (MyWebSocket myWebSocket : webSocketSet) {
-                    if (Objects.equals(myWebSocket.session.getId(), getUser2sessionId().get(nickname))) {
+                    if (Objects.equals(myWebSocket.session.getId(), getUser2sessionId().get(userId))) {
                         try {
                             if (myWebSocket.session.isOpen()) {
                                 System.out.println("聊天连接已存在，禁止再次连接！");
@@ -109,42 +109,50 @@ public class MyWebSocket {
             //删除原来的连接,建立新连接
             System.out.println("聊天连接建立成功");
 
-            getUser2sessionId().remove(nickname);
-            getUser2sessionId().put(nickname, session.getId());
+            getUser2sessionId().remove(userId);
+            getUser2sessionId().put(userId, session.getId());
 
-            System.out.print("有新连接加入:" + nickname + ",当前在线人数为" + webSocketSet.size());
+            System.out.print("有新连接加入:" + userId + ",当前在线人数为" + webSocketSet.size());
             for (String key : getUser2sessionId().keySet()) {
                 //System.out.println("nickname:"+key+"的频道:"+ getUser2sessionId().get(key));
                 System.out.print("\n--nickname:" + key + "的频道:");
                 if (getUser2sessionId().get(key) != null) System.out.print(" " + getUser2sessionId().get(key));
-                if (getUser2sessionIds().get(key) == null) continue;
-                for (String channelId : getUser2sessionIds().get(key)) {
-                    System.out.print(" " + channelId);
+                UserOnline userOnline = userService.getUserOnlineByUserId(userId);
+                if(userOnline == null){
+                    userOnline = new UserOnline();
+                    userOnline.setUserOnlineUserId(userId);
+                    userOnline.setUserOnlineStatus("online");
+                    userOnline.setUserOnlineLastChangeAt(LocalDateTime.now());
+                    userService.addUserOnline(userOnline);
                 }
-                System.out.println();
+                else{
+                    userOnline.setUserOnlineStatus("online");
+                    userOnline.setUserOnlineLastChangeAt(LocalDateTime.now());
+                    userService.updateUserOnline(userOnline);
+                }
             }
             System.out.println("\n建立的连接总数:" + webSocketSet.size());
             return;
         }
-        webSocketSet.add(this);     //加入set中
-        getMap().put(session.getId(), session);
-
-        getUser2sessionIds().computeIfAbsent(nickname, k -> new ArrayList<>());
-        getUser2sessionIds().get(nickname).add(session.getId());
-
-        webSocketSet.add(this);     //加入set中
-        System.out.print("有新连接加入:" + nickname + ",当前在线人数为" + webSocketSet.size());
-        for (String key : getUser2sessionId().keySet()) {
-            //System.out.println("nickname:"+key+"的频道:"+ getUser2sessionId().get(key));
-            System.out.print("\n--nickname:" + key + "的频道:");
-            if (getUser2sessionId().get(key) != null) System.out.print(" " + getUser2sessionId().get(key));
-            if (getUser2sessionIds().get(key) == null) continue;
-            for (String channelId : getUser2sessionIds().get(key)) {
-                System.out.print(" " + channelId);
-            }
-            System.out.println();
-        }
-        System.out.println("\n建立的连接总数:" + webSocketSet.size());
+//        webSocketSet.add(this);     //加入set中
+//        getMap().put(session.getId(), session);
+//
+//        getUser2sessionIds().computeIfAbsent(userId, k -> new ArrayList<>());
+//        getUser2sessionIds().get(userId).add(session.getId());
+//
+//        webSocketSet.add(this);     //加入set中
+//        System.out.print("有新连接加入:" + userId + ",当前在线人数为" + webSocketSet.size());
+//        for (String key : getUser2sessionId().keySet()) {
+//            //System.out.println("nickname:"+key+"的频道:"+ getUser2sessionId().get(key));
+//            System.out.print("\n--nickname:" + key + "的频道:");
+//            if (getUser2sessionId().get(key) != null) System.out.print(" " + getUser2sessionId().get(key));
+//            if (getUser2sessionIds().get(key) == null) continue;
+//            for (String channelId : getUser2sessionIds().get(key)) {
+//                System.out.print(" " + channelId);
+//            }
+//            System.out.println();
+//        }
+//        System.out.println("\n建立的连接总数:" + webSocketSet.size());
 
     }
 
@@ -154,14 +162,23 @@ public class MyWebSocket {
     @OnClose
     public void onClose() {
         webSocketSet.remove(this);  //从set中删除
+
         for (String key : getUser2sessionId().keySet()) {
             if (Objects.equals(getUser2sessionId().get(key), session.getId())) {
-                getUser2sessionId().remove(key);
+                System.out.println("key-"+key);
+                UserOnline userOnline = userService.getUserOnlineByUserId(key);
+                System.out.println("userId:" + key + " 断开连接！");
+                if(userOnline != null) {
+                    userOnline.setUserOnlineLastChangeAt(LocalDateTime.now());
+                    userOnline.setUserOnlineStatus("offline");
+                    userService.updateUserOnline(userOnline);
+                }
                 if (getUser2sessionIds().get(key) != null)
                     getUser2sessionIds().get(key).remove(session.getId());
                 break;
             }
         }
+
         System.out.println("有一连接关闭！当前在线人数为" + webSocketSet.size());
     }
 
