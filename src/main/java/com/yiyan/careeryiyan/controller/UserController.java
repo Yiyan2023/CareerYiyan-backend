@@ -2,6 +2,7 @@ package com.yiyan.careeryiyan.controller;
 
 import com.yiyan.careeryiyan.config.OSSConfig;
 import com.yiyan.careeryiyan.exception.BaseException;
+import com.yiyan.careeryiyan.mapper.EnterpriseUserMapper;
 import com.yiyan.careeryiyan.model.domain.Enterprise;
 import com.yiyan.careeryiyan.model.domain.EnterpriseUser;
 import com.yiyan.careeryiyan.model.domain.User;
@@ -49,6 +50,8 @@ public class UserController {
     OSSConfig ossConfig;
     @Resource
     EnterpriseService enterpriseService;
+    @Resource
+    EnterpriseUserMapper enterpriseUserMapper;
 
     @PostMapping("/register")
     public ResponseEntity<StringResponse> register(@RequestBody RegisterRequest registerRequest,
@@ -266,6 +269,20 @@ public class UserController {
         ModelApiResponse invokeModelApiResp = client.invokeModelApi(chatCompletionRequest);
         return ResponseEntity.ok(Map.of("res", invokeModelApiResp.getData().getChoices().get(0).getMessage().getContent()));
 
+    }
+
+    @PostMapping("/getAdminUserId")
+    public ResponseEntity<Map<String, String>> getAdminId(@RequestBody Map<String, String> map) {
+        String userId = map.get("userId");
+        if (userId == null) {
+            throw new BaseException("无效的用户Id");
+        }
+        EnterpriseUser eu =enterpriseUserMapper.getEnterpriseUserByUserId(userId);
+        if (eu == null) {
+            return ResponseEntity.ok(Map.of("adminUserId", "-1"));
+        }
+        String adminId = enterpriseUserMapper.getEnterpriseAdminByEnterpriseId(eu.getEpId()).getUserId();
+        return ResponseEntity.ok(Map.of("adminUserId", adminId));
     }
 
 

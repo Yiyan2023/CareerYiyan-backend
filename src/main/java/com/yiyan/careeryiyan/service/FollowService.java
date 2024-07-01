@@ -96,6 +96,6 @@ public class FollowService {
 
     public boolean checkFollow(String userId, String targetuserId) {
         FollowUser followUser = followMapper.getFollowUser(userId, targetuserId);
-        return followUser != null;
+        return followUser != null && !followUser.getIsDelete();
     }
 }
