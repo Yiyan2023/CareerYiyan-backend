@@ -85,6 +85,16 @@ public class FollowController {
         return ResponseEntity.ok(new StringResponse(response));
     }
 
+    @PostMapping("/checkEp")
+    public ResponseEntity<Map<String, Object>> checkFollowEnterprise(@RequestBody Map<String, String> map, HttpServletRequest httpServletRequest) {
+        User user = (User) httpServletRequest.getAttribute("user");
+        if (user == null)
+            throw new BaseException("用户不存在");
+        String epId = map.get("epId");
+
+        return ResponseEntity.ok(Map.of("isFollow",followService.checkFollowEnterprise(user.getUserId(), epId)));
+    }
+
     @GetMapping("/following/users")
     public ResponseEntity<Map<String, Object>> getFollowingUsers(HttpServletRequest httpServletRequest) {
         User user = (User) httpServletRequest.getAttribute("user");
