@@ -35,4 +35,8 @@ public class RecommendService {
     public List<Map<String, Object>> getRecommendUsers(List<String> userRcTags) {
         return recommandMapper.getRecommendUsers(userRcTags);
     }
+
+    public List<Map<String, Object>> getRecommendEnterprises(List<String> userRcTags) {
+        return recommandMapper.getRecommendEnterprises(userRcTags);
+    }
 }

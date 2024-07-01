@@ -104,5 +104,33 @@ public interface RecommandMapper {
     })
     List<Map<String, Object>> getRecommendRecruitments(@Param("userRcTags") List<String> userRcTags);
 
+    //查询rc_tag在userRcTags中的user记录
+
+
+    @Select({
+            "<script>",
+            "select u.*, e.*, e.ep_id as ep_id, u.user_id as user_id",
+            "from (select * from user_recruitment_preferences where rc_tag in ",
+            "<foreach item='tag' collection='userRcTags' open='(' separator=',' close=')'>",
+            "#{tag}",
+            "</foreach>",
+            ") urp",
+            "join user u on urp.user_id = u.user_id",
+            "join enterprise_user eu on u.user_id = eu.user_id",
+            "join enterprise e on eu.ep_id = e.ep_id",
+            "limit 20",
+            "</script>"
+    })
     List<Map<String, Object>> getRecommendUsers(List<String> userRcTags);
+
+    @Select("SELECT DISTINCT e.*, e.ep_id AS ep_id\n" +
+            "FROM enterprise e\n" +
+            "LEFT JOIN recruitment r ON e.ep_id = r.ep_id\n" +
+            "WHERE r.rc_tag IN (\n" +
+            "    SELECT urp.rc_tag\n" +
+            "    FROM user_recruitment_preferences urp\n" +
+            "    WHERE urp.user_id = 1\n" +
+            ")\n" +
+            "LIMIT 20;")
+    List<Map<String, Object>> getRecommendEnterprises(List<String> userRcTags);
 }

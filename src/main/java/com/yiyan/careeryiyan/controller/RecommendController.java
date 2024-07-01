@@ -68,4 +68,16 @@ public class RecommendController {
         return ResponseEntity.ok(MapUtil.convertKeysToCamelCase(recommendService.getRecommendUsers(userRcTags)));
     }
 
+    @GetMapping("/getEnterpriseList")
+    public ResponseEntity getEnterpriseList(HttpServletRequest httpServletRequest) {
+        //查看用户意向岗位
+        User user = (User) httpServletRequest.getAttribute("user");
+        List<String> userRcTags= userService.getUserRcTags(user.getUserId());
+        if(userRcTags.size()==0){
+            return ResponseEntity.ok(MapUtil.convertKeysToCamelCase(recommendService.getHotEnterpriseList()));
+        }
+        return ResponseEntity.ok(MapUtil.convertKeysToCamelCase(recommendService.getRecommendEnterprises(userRcTags)));
+
+    }
+
 }
