@@ -46,7 +46,7 @@ public class ChatController {
 
     @PostMapping("/fetch")
     public ResponseEntity fetchMessage(@RequestBody FetchMessagesRequest fetchMessagesRequest,
-                                                 HttpServletRequest request){
+                                       HttpServletRequest request){
         User user = (User)request.getAttribute("user");
         String chatId = fetchMessagesRequest.getChatId();
         int msgPage = fetchMessagesRequest.getMsgPage();
@@ -82,6 +82,10 @@ public class ChatController {
         List<Chat> chatList = chatService.getChatListByUserId(user.getUserId());
         List<Map> chats = new ArrayList<>();
         for(Chat chat:chatList){
+            if((Objects.equals(user.getUserId(), chat.getChatUserId1()) && chat.getChatUser1IsDelete()==1)
+                    || (Objects.equals(user.getUserId(), chat.getChatUserId2()) && chat.getChatUser2IsDelete()==1)){
+                continue;
+            }
             Map<String,Object> map = new HashMap<>();
             User anotherUser = userService.getUserInfo(chat.getAnotherUserId(user.getUserId()));
             map.put("user",anotherUser);
@@ -148,6 +152,7 @@ public class ChatController {
         return ResponseEntity.ok(new StringResponse("删除成功"));
     }
 
+
     @PostMapping("/pin")
     public ResponseEntity pinChat(@RequestBody Map<String, Object> rq, HttpServletRequest request){
         User user = (User) request.getAttribute("user");
@@ -168,7 +173,7 @@ public class ChatController {
         if(chat==null||!chat.checkUserInChat(user.getUserId())){
             throw new BaseException("聊天不存在或你不在此聊天中");
         }
-        chatService.setChatLastUnread(chatId,user.getUserId());
+        chatService.setChatLastUnread(chatId, chat.getAnotherUserId(user.getUserId()));
         return ResponseEntity.ok(new StringResponse("未读成功"));
     }
 }
