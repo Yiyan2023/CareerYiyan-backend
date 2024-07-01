@@ -126,10 +126,11 @@ public class PostController {
         //author
         Map<String, Object> userInfoMap = userService.getUserInfoById(userId);
         EnterpriseUser enterpriseUser = enterpriseService.getEnterpriseUserByUserId(userId);
-        userInfoMap.put("epId",enterpriseUser.getEpId());
-        String epName = enterpriseService.getEnterpriseByEpId(enterpriseUser.getEpId()).getEpName();
-        userInfoMap.put("epName",epName);
-
+        if(enterpriseUser!=null){
+            userInfoMap.put("epId",enterpriseUser.getEpId());
+            String epName = enterpriseService.getEnterpriseByEpId(enterpriseUser.getEpId()).getEpName();
+            userInfoMap.put("epName",epName);
+        }
         res.put("author",userInfoMap);
         res.put("posts", mapList);
 
