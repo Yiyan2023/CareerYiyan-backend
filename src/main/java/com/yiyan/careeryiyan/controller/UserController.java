@@ -173,7 +173,10 @@ public class UserController {
                 throw new BaseException("新增失败");
         }
 
-
+        EnterpriseUser enterpriseUser = enterpriseService.getEnterpriseUserByUserId(id);
+        if(enterpriseUser != null){
+            userService.updateEpUserTitle(modifyInfoRequest.getEpUserTitle(), id);
+        }
         return ResponseEntity.ok(new StringResponse("更新成功"));
     }
 
