@@ -93,4 +93,9 @@ public class FollowService {
         result.put("count", followers.size());
         return result;
     }
+
+    public boolean checkFollow(String userId, String targetuserId) {
+        FollowUser followUser = followMapper.getFollowUser(userId, targetuserId);
+        return followUser != null && !followUser.getIsDelete();
+    }
 }

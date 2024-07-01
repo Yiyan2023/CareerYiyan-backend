@@ -2,7 +2,10 @@ package com.yiyan.careeryiyan.controller;
 
 import com.yiyan.careeryiyan.exception.BaseException;
 import com.yiyan.careeryiyan.mapper.EnterpriseUserMapper;
+import com.yiyan.careeryiyan.mapper.FollowMapper;
+import com.yiyan.careeryiyan.model.domain.Enterprise;
 import com.yiyan.careeryiyan.model.domain.EnterpriseUser;
+import com.yiyan.careeryiyan.model.domain.FollowUser;
 import com.yiyan.careeryiyan.model.domain.User;
 import com.yiyan.careeryiyan.model.response.StringResponse;
 import com.yiyan.careeryiyan.service.FollowService;
@@ -25,28 +28,47 @@ public class FollowController {
     EnterpriseUserMapper enterpriseUserMapper;
     @Resource
     UserService userService;
+    @Resource
+    private FollowMapper followMapper;
 
     @PostMapping("/user")
     public ResponseEntity<StringResponse> followUser(@RequestBody Map<String, String> map, HttpServletRequest httpServletRequest) {
         User user = (User) httpServletRequest.getAttribute("user");
-        if (user == null)
-            throw new BaseException("用户不存在");
-        String userId = map.get("userId");
-        if (userId == null || userId.isEmpty()) {
-            throw new BaseException("无效的用户Id");
+        String targetId = map.get("userId");
+        FollowUser followUser = followMapper.getFollowUser(user.getUserId(), targetId);
+        if (followUser != null && !followUser.getIsDelete()){
+            return ResponseEntity.ok(new StringResponse("已关注"));
+        }else{
+            int res = 0;
+            if (followUser!=null){
+                res =followMapper.updateFollowUser(user.getUserId(), targetId, false);
+            }else{
+                res = followMapper.insertFollowUser(user.getUserId(), targetId);
+            }
+            if (res >0){
+                userService.updateInfluence(5, targetId);
+                return ResponseEntity.ok(new StringResponse("关注成功"));
+            }
         }
-        if(userId.equals(user.getUserId()))
-            throw new BaseException("不能关注自己");
-        int res = followService.followUser(user.getUserId(), userId);
-        String response = (res == -1) ? "用户不存在" : (res == 0) ? "关注用户成功" : "取消关注用户成功";
 
-        if(res == 0){
-            userService.updateInfluence(5, userId);
-        } else if (res == 1){
-            userService.updateInfluence(-5, userId);
+        throw new BaseException("关注失败");
+    }
+
+    @PostMapping("/undo")
+    public ResponseEntity<StringResponse> undoFollow(@RequestBody Map<String, String> map, HttpServletRequest httpServletRequest) {
+        User user = (User) httpServletRequest.getAttribute("user");
+        String targetId = map.get("userId");
+        boolean isFollow = followService.checkFollow(user.getUserId(),targetId);
+        if (!isFollow) {
+            return ResponseEntity.ok(new StringResponse("你还未关注该用户"));
+        }else{
+            int res = followMapper.updateFollowUser(user.getUserId(), targetId, true);
+            if (res >0){
+                userService.updateInfluence(-5, targetId);
+                return ResponseEntity.ok(new StringResponse("取消关注成功"));
+            }
         }
-
-        return ResponseEntity.ok(new StringResponse(response));
+        throw new BaseException("取消关注失败");
     }
 
     @PostMapping("/enterprise")
@@ -103,4 +125,18 @@ public class FollowController {
         }
         return ResponseEntity.ok(result);
     }
+
+    //检查是否关注用户
+    @PostMapping("/check")
+    public ResponseEntity<Map<String, Object>> checkFollow(@RequestBody Map<String, String> map, HttpServletRequest httpServletRequest) {
+        User user = (User) httpServletRequest.getAttribute("user");
+        if (user == null){
+            throw new BaseException("用户不存在");
+        }
+        String targetUserId = map.get("userId");
+
+        return ResponseEntity.ok(Map.of("isFollow",followService.checkFollow(user.getUserId(), targetUserId)));
+    }
+
+
 }
