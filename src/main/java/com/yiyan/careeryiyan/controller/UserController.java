@@ -204,24 +204,18 @@ public class UserController {
 
     }
 
+    @PostMapping("/delete")
+    public ResponseEntity<StringResponse> deleteUser(HttpServletRequest httpServletRequest){
+        User user = (User) httpServletRequest.getAttribute("user");
+        String id = user.getUserId();
 
-    private UserInfoResponse convertToUserInfo(User user) {
-        if (user == null) {
-            return null;
-        }
-        UserInfoResponse userInfo = new UserInfoResponse();
-        for (Field userField : User.class.getDeclaredFields()) {
-            try {
-                userField.setAccessible(true);
-                Field userInfoField = UserInfoResponse.class.getDeclaredField(userField.getName());
-                userInfoField.setAccessible(true);
-                userInfoField.set(userInfo, userField.get(user));
-            } catch (NoSuchFieldException | IllegalAccessException e) {
-                // 忽略字段不存在或无法访问的异常
-            }
-        }
-        return userInfo;
+        int res = userService.deleteUser(id);
+        if(res == 0)
+            throw new BaseException("注销失败");
+        return ResponseEntity.ok(new StringResponse("注销成功"));
     }
+
+
 
 
     /**
