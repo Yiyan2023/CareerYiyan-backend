@@ -113,7 +113,7 @@ public class ChatController {
         }
         myWebSocket.send2Chat(message, messageFiles);
         Map<String,Object> map = new HashMap<>();
-        map.put("chatId", message.getMsgChatId());
+        map.put("msgId", message.getMsgId());
         map.put("msgIsRead",message.getMsgIsRead());
         return ResponseEntity.ok(map);
     }
