@@ -58,6 +58,6 @@ public interface FollowMapper {
             "WHERE fe.ep_id = #{epId} AND fe.is_delete = 0")
     List<Map<String, Object>> getEnterpriseFollowers(@Param("epId") String epId);
 
-
-
+    @Select("SELECT * FROM follow_enterprise WHERE user_id = #{userId} AND ep_id = #{epId}")
+    FollowEnterprise getFollowEnterprise(String userId, String epId);
 }
