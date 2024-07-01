@@ -15,6 +15,6 @@ public class Notice {
     private boolean isRead;
     private String noticeContent;
     private int noticeId;
-    private String noticeType;
+    private int noticeType;
     private int postId;
 }
