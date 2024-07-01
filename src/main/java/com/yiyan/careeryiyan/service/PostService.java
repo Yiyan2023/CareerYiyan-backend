@@ -2,10 +2,7 @@ package com.yiyan.careeryiyan.service;
 
 import com.yiyan.careeryiyan.config.OSSConfig;
 import com.yiyan.careeryiyan.exception.BaseException;
-import com.yiyan.careeryiyan.mapper.EnterpriseMapper;
-import com.yiyan.careeryiyan.mapper.EnterpriseUserMapper;
-import com.yiyan.careeryiyan.mapper.PostMapper;
-import com.yiyan.careeryiyan.mapper.UserMapper;
+import com.yiyan.careeryiyan.mapper.*;
 import com.yiyan.careeryiyan.model.domain.*;
 import com.yiyan.careeryiyan.model.request.AddCommentRequest;
 import com.yiyan.careeryiyan.model.request.AddPostRequest;
@@ -33,6 +30,8 @@ public class  PostService {
     EnterpriseUserMapper enterpriseUserMapper;
     @Resource
     EnterpriseMapper enterpriseMapper;
+    @Resource
+    EnterprisePostMapper enterprisePostMapper;
 
     public Post addPost(String content,String photos, User user)  {
         Post post=new Post(content, user.getUserId(),photos,null,null);
@@ -205,7 +204,7 @@ public class  PostService {
 //    }
 
     public List<String> getEnterprisePosts(String epId){
-        return postMapper.getEnterprisePosts(epId);
+        return enterprisePostMapper.getEnterprisePosts(epId);
     }
 
     public List<Map<String,Object>> getUsersPost(String userId){//关注的用户动态
@@ -227,4 +226,16 @@ public class  PostService {
         return postMapper.getLikePost(userId, postId);
     }
 
+
+    public int insertEnterprisePost(EnterprisePost enterprisePost){
+        return enterprisePostMapper.insertEnterprisePost(enterprisePost);
+    }
+
+    public EnterprisePost getEnterprisePostByEpPost(String epId, String postId){
+        return enterprisePostMapper.findEnterprisePost(epId, postId);
+    }
+
+    public int updateEnterprisePost(String epPostId, int isDelete){
+        return enterprisePostMapper.updateEnterprisePost(epPostId, isDelete);
+    }
 }

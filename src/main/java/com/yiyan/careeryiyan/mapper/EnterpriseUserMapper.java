@@ -45,4 +45,8 @@ public interface EnterpriseUserMapper {
     //软删除
     @Update("update enterprise_user set is_delete = 1 where ep_user_id = #{epUserId}")
     int deleteEpUser(String epUserId);
+
+    @Select("SELECT COUNT(*) from enterprise_user WHERE " +
+            "user_id=#{userId} AND ep_id=#{epId} AND ep_user_auth=0")
+    int isAdmin(String userId, String epId);
 }

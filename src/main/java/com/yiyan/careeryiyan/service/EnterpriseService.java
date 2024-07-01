@@ -3,6 +3,7 @@ package com.yiyan.careeryiyan.service;
 import com.yiyan.careeryiyan.mapper.EnterpriseMapper;
 import com.yiyan.careeryiyan.mapper.EnterpriseUserMapper;
 import com.yiyan.careeryiyan.model.domain.Enterprise;
+import com.yiyan.careeryiyan.model.domain.EnterprisePost;
 import com.yiyan.careeryiyan.model.domain.EnterpriseUser;
 //import com.yiyan.careeryiyan.model.response.EmployeeListResponse;
 import com.yiyan.careeryiyan.model.request.EditEnterpriseRequest;
@@ -68,5 +69,9 @@ public class EnterpriseService {
 
     public int editEnterprise(EditEnterpriseRequest editEnterpriseRequest) {
         return enterpriseMapper.editEnterprise(editEnterpriseRequest);
+    }
+
+    public int isAdmin(String userId, String epId){
+        return enterpriseUserMapper.isAdmin(userId, epId);
     }
 }
