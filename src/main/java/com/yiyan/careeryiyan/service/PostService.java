@@ -75,27 +75,27 @@ public class  PostService {
         return postDict;
     }
     
-    public boolean likePost(String id, User user,boolean status) {
+    public boolean likePost(String id, User user,boolean iWillLike) {
         Post post=postMapper.getPostById(id);
         if(post==null){
-
             System.out.println(id);
             return false;
             //
         }
-        System.out.println(1);
+        System.out.println(1);//?
         LikePost like=postMapper.getLikePost(user.getUserId(),id);
         //点赞
-        if(status && like==null){
+        if(iWillLike && like == null){
             like=new LikePost(user.getUserId(),id);
             postMapper.insertLikePost(like);
             System.out.println("点赞");
         }
-        else if((!status)&&like!=null){
-            postMapper.deleteLikePost(like.getLikePostId());
+        else {  if ((!iWillLike) && like != null) {
+                postMapper.deleteLikePost(like.getLikePostId());
+            } else {
+                return false;
+            }
         }
-        else
-            return  false;
         return true;
     }
 

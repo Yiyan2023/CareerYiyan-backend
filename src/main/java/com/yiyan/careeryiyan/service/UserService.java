@@ -150,4 +150,7 @@ public class UserService {
     public int deleteUser(String userId){
         return userMapper.deleteUser(userId);
     }
+    public User getUserById(String id) {
+        return userMapper.getUserById(id);
+    }
 }
