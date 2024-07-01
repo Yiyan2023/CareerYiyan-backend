@@ -373,9 +373,9 @@ public class PostController {
         return ResponseEntity.ok(new StringResponse(response));
     }
     @GetMapping("/comments")
-    public ResponseEntity<List<Map<String, Object>>> getAllComment(@RequestParam int id,HttpServletRequest httpServletRequest){
+    public ResponseEntity<List<Map<String, Object>>> getAllComment(@RequestParam int postId,HttpServletRequest httpServletRequest){
 //        String id=map.get("id");
-        return ResponseEntity.ok(postService.getAllComments(String.valueOf(id)));
+        return ResponseEntity.ok(postService.getAllComments(String.valueOf(postId)));
     }
     @PostMapping("/comments/like")
     public ResponseEntity<StringResponse> likeComment(@RequestBody Map<String,String> map, HttpServletRequest httpServletRequest) {
