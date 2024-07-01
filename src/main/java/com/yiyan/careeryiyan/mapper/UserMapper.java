@@ -68,5 +68,20 @@ public interface UserMapper {
     @Update("UPDATE user SET user_influence=(user_influence + #{influence}) WHERE user_id=#{userId}")
     void updateInfluence(int influence,String userId);
 
+    @Update("UPDATE user SET is_delete = 1, " +
+            "user_name = '用户已注销'," +
+            "user_nickname = '用户已注销'," +
+            "user_reg_at = null," +
+            "user_email = 'null'," +
+            "user_edu = null," +
+            "user_interest = null," +
+            "user_cv_url = null," +
+            "user_addr = null," +
+            "user_github_url = null," +
+            "user_blog_url = null," +
+            "user_influence = 0," +
+            "user_avatar_url = 'https://career-yiyan.oss-cn-beijing.aliyuncs.com/avatar/logged_out_avatar.png' " +
+            "WHERE user_id=#{userId}")
+    int deleteUser(String userId);
 
 }

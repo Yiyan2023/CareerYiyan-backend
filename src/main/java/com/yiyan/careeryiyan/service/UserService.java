@@ -147,4 +147,7 @@ public class UserService {
         userMapper.updateInfluence(influence, userId);
     }
 
+    public int deleteUser(String userId){
+        return userMapper.deleteUser(userId);
+    }
 }
