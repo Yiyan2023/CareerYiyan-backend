@@ -129,7 +129,7 @@ public class EnterpriseController {
         if (recruitmentList == null) {
             return ResponseEntity.ok(new ArrayList<>());
         }
-        return ResponseEntity.ok(recruitmentList);
+        return ResponseEntity.ok(MapUtil.convertKeysToCamelCase(recruitmentList));
     }
 
     //refactor completed 2024年6月28日22点47分

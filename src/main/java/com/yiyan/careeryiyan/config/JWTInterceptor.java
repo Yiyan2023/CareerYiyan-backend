@@ -1,5 +1,6 @@
 package com.yiyan.careeryiyan.config;
 
+import com.yiyan.careeryiyan.exception.BaseException;
 import com.yiyan.careeryiyan.mapper.UserMapper;
 import com.yiyan.careeryiyan.model.domain.User;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -28,8 +29,8 @@ public class JWTInterceptor implements HandlerInterceptor {
         String token = request.getHeader("token");
         response.setContentType("application/json;charset=utf-8");
         if (token == null) {
-            response.getWriter().write(new ObjectMapper().writeValueAsString(ResponseEntity.status(401)));
-            return false;
+//            response.getWriter().write(new ObjectMapper().writeValueAsString(ResponseEntity.status(401)));
+            throw new BaseException("一个未被排除的无token请求");
         } else if (token.equals("111")) {
             System.out.println("万能token");
             String id = "1";
