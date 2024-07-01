@@ -30,7 +30,7 @@ public interface PostMapper {
             "p.post_photo_urls AS postPhotoUrls, " +
             "p.post_parent_id AS postParentId " +
             "FROM post p " +
-            "WHERE post_id = #{postId}")
+            "WHERE post_id = #{postId} AND is_delete=0")
     Map<String, Object> getPostMapById(String postId);
 
     @Select("SELECT * FROM post WHERE user_id = #{userId} AND is_delete = 0")
@@ -105,7 +105,7 @@ public interface PostMapper {
             "    SELECT following_user_id " +
             "    FROM follow_user " +
             "    WHERE user_id = #{userId}" +
-            ")")
+            ") AND p.is_delete=0")
     List<Map<String, Object>> getFollowUserPost(@Param("userId") String userId);
 
     @Select("CALL get_followed_enterprises_posts(#{userId})")
