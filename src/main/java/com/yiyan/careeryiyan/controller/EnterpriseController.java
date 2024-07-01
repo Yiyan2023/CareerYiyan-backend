@@ -155,7 +155,7 @@ public class EnterpriseController {
             }
         }
         map.put("auth",auth);
-        return ResponseEntity.ok(map);
+        return ResponseEntity.ok(MapUtil.convertKeysToCamelCase(map));
     }
 
     //refactor completed 2024年6月28日22点47分
