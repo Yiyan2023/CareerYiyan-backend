@@ -120,9 +120,10 @@ public class UserController {
     @PostMapping("/getInfo")
     public ResponseEntity<Map<String, Object>> showInfo(HttpServletRequest httpServletRequest){
         User user = (User) httpServletRequest.getAttribute("user");
+        if(user == null)
+            throw new BaseException("用户不存在");
         Map<String, Object> res = new HashMap<>();
         res.put("user", user);
-
         EnterpriseUser enterpriseUser = enterpriseService.getEnterpriseUserByUserId(user.getUserId());
         Map<String, Object> enterprise = new HashMap<>();
 
