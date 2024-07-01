@@ -87,7 +87,7 @@ public class ChatController {
             map.put("lastMessage",chatService.getLastMessageInChat(chat.getChatId()));
             int unreadCount = chatService.getUnreadCount(chat.getChatId(),user.getUserId());
             map.put("unreadCount", unreadCount);
-            UserOnline userOnline = userService.getUserOnline(chat.getAnotherUserId(user.getUserId()));
+            UserOnline userOnline = userService.getUserOnlineByUserId(chat.getAnotherUserId(user.getUserId()));
             if(userOnline == null){
                 userOnline = new UserOnline();
                 userOnline.setUserOnlineStatus("offline");
@@ -109,7 +109,11 @@ public class ChatController {
             massageFile.setMsgFileMsgId(message.getMsgId());
             chatService.addMessageFile(massageFile);
         }
-        return ResponseEntity.ok(new StringResponse(message.getMsgId()));
+        myWebSocket.send2Chat(message, messageFiles);
+        Map<String,Object> map = new HashMap<>();
+        map.put("chatId", message.getMsgChatId());
+        map.put("msgIsRead",message.getMsgIsRead());
+        return ResponseEntity.ok(map);
     }
     @PostMapping("/create")
     public ResponseEntity createChat(@RequestBody CreateChatRequest createChatRequest, HttpServletRequest request){
