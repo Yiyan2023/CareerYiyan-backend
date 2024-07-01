@@ -118,17 +118,12 @@ public class UserController {
     }
 
     @PostMapping("/getInfo")
-    public ResponseEntity<Map<String, Object>> showInfo(@RequestBody UserIdRequest userIdRequest){
-        String id = userIdRequest.getUserId();
-
+    public ResponseEntity<Map<String, Object>> showInfo(HttpServletRequest httpServletRequest){
+        User user = (User) httpServletRequest.getAttribute("user");
         Map<String, Object> res = new HashMap<>();
-        User userShow = userService.getUserInfo(id);
-        if (userShow == null){
-            throw new BaseException("用户不存在");
-        }
-        res.put("user", userShow);
+        res.put("user", user);
 
-        EnterpriseUser enterpriseUser = enterpriseService.getEnterpriseUserByUserId(id);
+        EnterpriseUser enterpriseUser = enterpriseService.getEnterpriseUserByUserId(user.getUserId());
         Map<String, Object> enterprise = new HashMap<>();
 
         if(enterpriseUser == null){
@@ -151,7 +146,7 @@ public class UserController {
         }
         res.put("enterpriseUser", enterprise);
 
-        List<UserRecruitmentPreferences> userRecruitmentPreferencesList = userService.getUserRecruitmentPreferences(id);
+        List<UserRecruitmentPreferences> userRecruitmentPreferencesList = userService.getUserRecruitmentPreferences(user.getUserId());
         res.put("userRecruitmentPreference", userRecruitmentPreferencesList);
         return ResponseEntity.ok(res);
     }
