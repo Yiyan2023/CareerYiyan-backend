@@ -139,7 +139,7 @@ public class EnterpriseController {
         String rcId = getRecruitmentInfoRequest.getRcId();
         String userId = getRecruitmentInfoRequest.getUserId();
         Recruitment recruitment = recruitmentService.getRecruitmentById(rcId);
-        Map<String,Object> map = recruitmentService.getRecruitmentInfo(rcId);
+        Map<String,Object> map = MapUtil.convertKeysToCamelCase(recruitmentService.getRecruitmentInfo(rcId));
         if (map == null) {
             throw new BaseException("岗位不存在");
         }
