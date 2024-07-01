@@ -32,4 +32,15 @@ public interface ChatMapper {
             "UPDATE chat SET chat_user_2_is_delete = #{isDelete} " +
             "WHERE chat_id = #{chatId} and chat_user_id_2 = #{userId}")
     int setChatIsDelete(String chatId, String userId, int isDelete);
+
+    @Update("UPDATE chat SET chat_user_1_is_pin = #{isPin} " +
+            "WHERE chat_id = #{chatId} and chat_user_id_1 = #{userId};" +
+            "UPDATE chat SET chat_user_2_is_pin = #{isPin} " +
+            "WHERE chat_id = #{chatId} and chat_user_id_2 = #{userId}")
+    void pinChat(String chatId, String userId, int isPin);
+
+    @Update("update message m set m.msg_is_read = 0\n" +
+            "where m.msg_chat_id = #{chatId} and m.msg_send_user_id!= #{userId}\n" +
+            "order by m.msg_id DESC limit 1")
+    void setChatLastUnread(String chatId, String userId);
 }

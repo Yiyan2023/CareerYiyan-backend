@@ -68,4 +68,12 @@ public class ChatService {
     public int setChatIsDelete(String chatId, String userId, int isDelete) {
         return chatMapper.setChatIsDelete(chatId, userId, isDelete);
     }
+
+    public void pinChat(String chatId, String userId, int isPin) {
+        chatMapper.pinChat(chatId, userId, isPin);
+    }
+
+    public void setChatLastUnread(String chatId, String userId) {
+        chatMapper.setChatLastUnread(chatId, userId);
+    }
 }

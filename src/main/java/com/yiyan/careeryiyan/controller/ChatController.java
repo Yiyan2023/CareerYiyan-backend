@@ -145,4 +145,28 @@ public class ChatController {
         chatService.setChatIsDelete(chatId,user.getUserId(),1);
         return ResponseEntity.ok(new StringResponse("删除成功"));
     }
+
+    @PostMapping("/pin")
+    public ResponseEntity pinChat(@RequestBody Map<String, Object> rq, HttpServletRequest request){
+        User user = (User) request.getAttribute("user");
+        String chatId = (String)rq.get("chatId");
+        int isPin = (int)rq.get("isPin");
+        Chat chat = chatService.getChatByChatId(chatId);
+        if(chat==null||!chat.checkUserInChat(user.getUserId())){
+            throw new BaseException("聊天不存在或你不在此聊天中");
+        }
+        chatService.pinChat(chatId,user.getUserId(), isPin);
+        return ResponseEntity.ok(new StringResponse("置顶成功"));
+    }
+    @PostMapping("/setUnread")
+    public ResponseEntity unreadChat(@RequestBody Map<String, String> map, HttpServletRequest request){
+        User user = (User) request.getAttribute("user");
+        String chatId = map.get("chatId");
+        Chat chat = chatService.getChatByChatId(chatId);
+        if(chat==null||!chat.checkUserInChat(user.getUserId())){
+            throw new BaseException("聊天不存在或你不在此聊天中");
+        }
+        chatService.setChatLastUnread(chatId,user.getUserId());
+        return ResponseEntity.ok(new StringResponse("未读成功"));
+    }
 }
