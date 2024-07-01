@@ -2,6 +2,8 @@ package com.yiyan.careeryiyan.service;
 
 import com.yiyan.careeryiyan.config.OSSConfig;
 import com.yiyan.careeryiyan.exception.BaseException;
+import com.yiyan.careeryiyan.mapper.EnterpriseMapper;
+import com.yiyan.careeryiyan.mapper.EnterpriseUserMapper;
 import com.yiyan.careeryiyan.mapper.PostMapper;
 import com.yiyan.careeryiyan.mapper.UserMapper;
 import com.yiyan.careeryiyan.model.domain.*;
@@ -9,6 +11,7 @@ import com.yiyan.careeryiyan.model.request.AddCommentRequest;
 import com.yiyan.careeryiyan.model.request.AddPostRequest;
 
 import jakarta.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,7 +29,11 @@ public class  PostService {
     UserMapper userMapper;
     @Resource
     OSSConfig ossConfig;
-    
+    @Resource
+    EnterpriseUserMapper enterpriseUserMapper;
+    @Resource
+    EnterpriseMapper enterpriseMapper;
+
     public Post addPost(String content,String photos, User user)  {
         Post post=new Post(content, user.getUserId(),photos,null,null);
         userMapper.updateInfluence(postMapper.getLikePostCount(user.getUserId())*2+ postMapper.getLikeCommentCount(user.getUserId()), user.getUserId());
@@ -50,22 +57,9 @@ public class  PostService {
     }
 
     
-    public Map<String,Object> getPostsByUser(User user) {
+    public List<Post> getPostsByUser(User user) {
         List<Post> postlist=postMapper.getPostByUser(user.getUserId());
-        List<Map<String,Object>>posts=new ArrayList<Map<String,Object>>();
-        Map<String,Object>res=new HashMap<String,Object>();
-        for(Post post : postlist){
-            Map<String,Object>postDict=post.toDict();
-            if(post.getPostParentId()!=1){
-                Post parent = postMapper.getPostById(String.valueOf(post.getPostParentId()));
-                User origin=userMapper.getUserById(parent.getUserId());
-                postDict.put("origin",origin.toDict());
-            }
-            posts.add(postDict);
-        }
-        res.put("posts",posts);
-        res.put("author",user.toDict());
-        return res;
+        return postlist;
     }
 
     public Map<String, Object> getPost(String id, User user) {
@@ -73,7 +67,7 @@ public class  PostService {
         User author=userMapper.getUserById(post.getUserId());
         Map<String, Object> postDict = post.toDict();
         postDict.put("author", author.toDict());
-        if(post.getPostParentId()!=1){
+        if(post.getPostParentId() != null){
             Post parent = postMapper.getPostById(String.valueOf(post.getPostParentId()));
             User origin=userMapper.getUserById(parent.getUserId());
             postDict.put("origin", origin.toDict());
@@ -183,7 +177,7 @@ public class  PostService {
             System.out.println("帖子Id: "+postId+" is null");
             return null;
         }
-        if(post.getPostParentId()!=1){
+        if(post.getPostParentId()!= null){
             System.out.println("有父帖 "+post.getPostParentId());
             post=postMapper.getPostById(String.valueOf(post.getPostParentId()));
         }
@@ -195,7 +189,7 @@ public class  PostService {
         Post newPost=post;
         newPost.setPostCreateAt(new Date());
         newPost.setUserId(user.getUserId());
-        newPost.setPostParentId(Integer.parseInt(post.getPostId()));
+        newPost.setPostParentId(post.getPostId());
         newPost.setPostTitle(title);
         postMapper.insertPost(post);
         userMapper.updateInfluence(postMapper.getLikePostCount(user.getUserId())*2+ postMapper.getLikeCommentCount(user.getUserId()), user.getUserId());

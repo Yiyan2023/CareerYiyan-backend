@@ -17,10 +17,10 @@ public class Post {
     private Date postCreateAt;
     private String userId;
     private  String postPhotoUrls;
-    private Integer postParentId;
+    private String postParentId;
     private boolean isDelete=false;
 
-    public Post(String postContent, String userId, String photos, String postTitle, Integer postParentId) {
+    public Post(String postContent, String userId, String photos, String postTitle, String postParentId) {
         this.postContent = postContent;
         this.postCreateAt = new Date();
         this.userId = userId;
@@ -36,6 +36,8 @@ public class Post {
         map.put("postContent", postContent);
         map.put("postCreatedAt", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(postCreateAt));
         map.put("postPhotoUrls", this.postPhotoUrls);  // 使用 getter 确保 photos 是最新的
+//        map.put("postParentId", this.postParentId);
+        map.put("postTitle", this.postTitle);
         return map;
     }
 }

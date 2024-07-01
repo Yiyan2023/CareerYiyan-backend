@@ -97,18 +97,42 @@ public class PostController {
     }
 
 
-    @GetMapping("/all")//用户动态
-    public ResponseEntity<Map<String, Object>> getUserPost(HttpServletRequest httpServletRequest) {
-        User user = (User) httpServletRequest.getAttribute("user");
-        if(user==null)
-            throw new BaseException("用户不存在");
-        return ResponseEntity.ok(postService.getPostsByUser(user));
-    }
-    @GetMapping("/user")//别人动态
-    public ResponseEntity<Map<String, Object>> getUser(@RequestParam int id,HttpServletRequest httpServletRequest) {
+    @PostMapping("/user")//个人动态
+    public ResponseEntity<Map<String, Object>> getUser(@RequestBody Map<String, String> userIdRequest, HttpServletRequest httpServletRequest) {
 //        String id=map.get("id");
-        User user=userService.getUserInfo(String.valueOf(id));
-        return ResponseEntity.ok(postService.getPostsByUser(user));
+        String userId = userIdRequest.get("userId");
+        User user=userService.getUserInfo(userId);
+        if(user == null){
+            throw new BaseException("用户不存在");
+        }
+        List<Post> postList = postService.getPostsByUser(user);
+
+        Map<String, Object> res = new HashMap<>();
+        List<Map<String,Object>> mapList = new ArrayList<>();
+        for(Post postOrigin: postList){
+            // post
+            Map<String, Object> post = postService.getPostInfoMapById(postOrigin.getPostId());
+
+            // isParent  &&  parent
+            postParent(post);
+
+            // isLike
+            postLike(post, userId);
+
+            mapList.add(post);
+        }
+
+        //author
+        Map<String, Object> userInfoMap = userService.getUserInfoById(userId);
+        EnterpriseUser enterpriseUser = enterpriseService.getEnterpriseUserByUserId(userId);
+        userInfoMap.put("epId",enterpriseUser.getEpId());
+        String epName = enterpriseService.getEnterpriseByEpId(enterpriseUser.getEpId()).getEpName();
+        userInfoMap.put("epName",epName);
+
+        res.put("author",userInfoMap);
+        res.put("posts", mapList);
+
+        return ResponseEntity.ok(res);
     }
     @GetMapping("")//动态详情
     public ResponseEntity<Map<String,Object>> getPost(@RequestParam int id,HttpServletRequest httpServletRequest){
@@ -130,6 +154,9 @@ public class PostController {
         for(String postId: postIdList){
             // post
             Map<String, Object> post = postService.getPostInfoMapById(postId);
+            if(post == null || post.isEmpty()){
+                continue;
+            }
 
             //author
             String userId = String.valueOf(post.get("userId"));
@@ -194,10 +221,11 @@ public class PostController {
             post.put("isParent", true);
             post.put("parent", null);
         } else {
+            System.out.println(post.get("postParentId"));
             post.put("isParent", false);
             String parentId = String.valueOf(post.get("postParentId")) ;
             Map<String, Object> postMap = postService.getPostInfoMapById(parentId);
-            if(postMap.isEmpty()){
+            if(postMap == null || postMap.isEmpty()){
                 post.put("parent", null);
             } else {
                 User user1 = userService.getUserInfo(String.valueOf(postMap.get("userId")) );
