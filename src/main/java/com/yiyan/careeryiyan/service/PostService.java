@@ -69,8 +69,12 @@ public class  PostService {
         postDict.put("author", author.toDict());
         if(post.getPostParentId() != null){
             Post parent = postMapper.getPostById(String.valueOf(post.getPostParentId()));
-            User origin=userMapper.getUserById(parent.getUserId());
-            postDict.put("origin", origin.toDict());
+            if(parent != null){
+                User origin=userMapper.getUserById(parent.getUserId());
+                postDict.put("origin", origin.toDict());
+            } else {
+                postDict.put("origin", null);
+            }
         }
         return postDict;
     }
