@@ -64,7 +64,7 @@ public class FollowService {
     }
 
     public Map<String, Object> getFollowingUsers(String userId) {
-        List<Map<String, Object>> followingUsers = followMapper.getFollowingUsers(userId);
+        List<User> followingUsers = followMapper.getFollowingUsers(userId);
         Map<String, Object> result = new HashMap<>();
         result.put("followingUsers", followingUsers);
         result.put("count", followingUsers.size());

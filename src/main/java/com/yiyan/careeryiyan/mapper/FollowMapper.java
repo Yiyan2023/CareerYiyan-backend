@@ -2,6 +2,7 @@ package com.yiyan.careeryiyan.mapper;
 
 import com.yiyan.careeryiyan.model.domain.FollowEnterprise;
 import com.yiyan.careeryiyan.model.domain.FollowUser;
+import com.yiyan.careeryiyan.model.domain.User;
 import org.apache.ibatis.annotations.*;
 
 import java.util.List;
@@ -27,13 +28,11 @@ public interface FollowMapper {
     @Update("UPDATE follow_enterprise SET is_delete = #{isDelete} WHERE user_id = #{userId} AND ep_id = #{epId}")
     int updateFollowEnterprise(@Param("userId") String userId, @Param("epId") String epId, @Param("isDelete") boolean isDelete);
 
-    @Select("SELECT u.user_id AS userId, u.user_name AS userName, u.user_nickname AS userNickname, " +
-            "u.user_avatar_url AS userAvatarUrl, u.user_gender AS userGender, u.user_email AS userEmail, " +
-            "DATE_FORMAT(u.user_reg_at, '%Y-%m-%d %H:%i:%s') AS userRegAt " +
+    @Select("SELECT  u.*" +
             "FROM user u " +
-            "INNER JOIN follow_user fu ON u.user_id = fu.follow_user_id " +
+            "INNER JOIN follow_user fu ON u.user_id = fu.following_user_id " +
             "WHERE fu.user_id = #{userId} AND fu.is_delete = 0")
-    List<Map<String, Object>> getFollowingUsers(@Param("userId") String userId);
+    List<User> getFollowingUsers(@Param("userId") String userId);
 
     @Select("select e.*,e.ep_id as ep_id " +
             "FROM enterprise e " +
