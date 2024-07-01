@@ -66,4 +66,7 @@ public interface EnterpriseUserMapper {
 
     @Select("SELECT COUNT(*) FROM enterprise_user WHERE ep_id=#{epId} AND is_delete=0")
     int totalEmployee(String epId);
+
+    @Update("UPDATE enterprise_user SET ep_user_title=#{epUserTitle} WHERE user_id=#{userId} AND is_delete=0")
+    int updateEpUserTitle(String epUserTitle, String userId);
 }

@@ -9,4 +9,5 @@ import java.util.List;
 public class ModifyInfoRequest {
     private User user;
     private List<String> rcTag;
+    private String epUserTitle;
 }

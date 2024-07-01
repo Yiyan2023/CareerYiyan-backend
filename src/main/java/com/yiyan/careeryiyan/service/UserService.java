@@ -153,4 +153,8 @@ public class UserService {
     public User getUserById(String id) {
         return userMapper.getUserById(id);
     }
+
+    public int updateEpUserTitle(String epUserTitle, String userId){
+        return enterpriseUserMapper.updateEpUserTitle(epUserTitle, userId);
+    }
 }
