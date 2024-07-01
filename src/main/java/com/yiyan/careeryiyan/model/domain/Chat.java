@@ -7,8 +7,10 @@ public class Chat {
     private String chatId;
     private String chatUserId1;
     private String chatUserId2;
-    private int isDelete;
-    private int chatIsPin;
+    private int chatUser1IsPin;
+    private int chatUser2IsPin;
+    private int chatUser1IsDelete;
+    private int chatUser2IsDelete;
     public boolean checkUserInChat(String userId) {
         System.out.println("user1: "+ chatUserId1 + ", user2: "+chatUserId2+", userId: "+userId);
         return chatUserId1.equals(userId) || chatUserId2.equals(userId);

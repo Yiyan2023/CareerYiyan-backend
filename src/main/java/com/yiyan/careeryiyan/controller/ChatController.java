@@ -83,6 +83,8 @@ public class ChatController {
         List<Map> chats = new ArrayList<>();
         for(Chat chat:chatList){
             Map<String,Object> map = new HashMap<>();
+            User anotherUser = userService.getUserInfo(chat.getAnotherUserId(user.getUserId()));
+            map.put("user",anotherUser);
             map.put("chat",chat);
             map.put("lastMessage",chatService.getLastMessageInChat(chat.getChatId()));
             int unreadCount = chatService.getUnreadCount(chat.getChatId(),user.getUserId());
