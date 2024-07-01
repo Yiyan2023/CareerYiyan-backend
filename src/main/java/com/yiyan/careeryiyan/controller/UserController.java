@@ -156,9 +156,10 @@ public class UserController {
     @PostMapping("/verifyInfo")
     public ResponseEntity<StringResponse> modifyInfo(@RequestBody ModifyInfoRequest modifyInfoRequest, HttpServletRequest httpServletRequest){
         User user = (User) httpServletRequest.getAttribute("user");
-        String id = modifyInfoRequest.getUser().getUserId();
+        String id = user.getUserId();
 
         // 修改user表
+        modifyInfoRequest.getUser().setUserId(id);
         int res = userService.updateUserInfo(modifyInfoRequest.getUser());
         if (res == 0)
             throw new BaseException("修改失败");
@@ -167,6 +168,9 @@ public class UserController {
         userService.deleteUserRecruitmentPreferences(id);
         String rcTag = "";
         List<String> rcTagList = modifyInfoRequest.getRcTag();
+        if(rcTagList == null){
+            rcTagList = new ArrayList<>();
+        }
         for(int i = 0; i < rcTagList.size(); i++){
             res = userService.insertUserRecruitmentPreferences(id, rcTagList.get(i));
             if(res == 0)
