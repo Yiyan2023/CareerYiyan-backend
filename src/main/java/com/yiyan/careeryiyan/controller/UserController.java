@@ -62,8 +62,8 @@ public class UserController {
     }
 
     @GetMapping("/salt")
-    public ResponseEntity<UserSaltResponse> getSalt(@RequestParam String email) {
-        String salt = userService.getSaltByEmail(email);
+    public ResponseEntity<UserSaltResponse> getSalt(@RequestParam String userEmail) {
+        String salt = userService.getSaltByEmail(userEmail);
         return ResponseEntity.ok(new UserSaltResponse(salt));
     }
     //db refactor at 2024年6月29日00点19分
