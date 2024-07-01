@@ -48,7 +48,7 @@ public class AddNoticeService {
 
         Notice notice = new Notice();
         notice.setUserId(Integer.parseInt(post.getUserId()));
-        notice.setNoticeType("1");
+        notice.setNoticeType(Integer.parseInt("1"));
         notice.setNoticeContent(String.format("%s 点赞了您的动态: %s", user.getUserName(), post.getPostTitle()));
         notice.setAvatarUrl(user.getUserAvatarUrl());
         notice.setPostId(Integer.parseInt(post.getPostId()));
@@ -64,7 +64,7 @@ public class AddNoticeService {
 
         Notice notice = new Notice();
         notice.setUserId(Integer.parseInt(comment.getUserId()));
-        notice.setNoticeType("1");
+        notice.setNoticeType(Integer.parseInt("1"));
         notice.setNoticeContent(String.format("%s 点赞了您的评论: %s", user.getUserName(), comment.getCommentContent()));
         notice.setAvatarUrl(user.getUserAvatarUrl());
         notice.setPostId(Integer.parseInt(post.getPostId()));
@@ -80,7 +80,7 @@ public class AddNoticeService {
 
         Notice notice = new Notice();
         notice.setUserId(Integer.parseInt(post.getUserId()));
-        notice.setNoticeType("2");
+        notice.setNoticeType(Integer.parseInt("2"));
         notice.setAvatarUrl(user.getUserAvatarUrl());
         notice.setNoticeContent(String.format("%s 评论了您的动态: %s", user.getUserName(), post.getPostTitle()));
 
@@ -96,7 +96,7 @@ public class AddNoticeService {
 
         Notice notice = new Notice();
         notice.setUserId(Integer.parseInt(apply.getUserId()));
-        notice.setNoticeType("3");
+        notice.setNoticeType(Integer.parseInt("3"));
         notice.setAvatarUrl(enterprise.getEpAvatarUrl());
         String hrRes = apply.getApplyStatus() == 1 ? "通过" : "拒绝";
         notice.setNoticeContent(String.format(" %s %s您对 %s的申请", enterprise.getEpName(), hrRes, recruitment.getRcName()));
@@ -114,7 +114,7 @@ public class AddNoticeService {
         for (User user : userList) {
             Notice notice = new Notice();
             notice.setUserId(Integer.parseInt(user.getUserId()));
-            notice.setNoticeType("3");
+            notice.setNoticeType(Integer.parseInt("3"));
             notice.setAvatarUrl(enterprise.getEpAvatarUrl());
             notice.setNoticeContent(String.format("%s 发布了 %s相关的新岗位%s ", enterprise.getEpName(),
                     recruitment.getRcTag(), recruitment.getRcName()));
@@ -129,7 +129,7 @@ public class AddNoticeService {
         User admin = enterpriseMapper.getEnterpriseAdmin(epId);
         Notice notice = new Notice();
         notice.setUserId(Integer.parseInt(admin.getUserId()));
-        notice.setNoticeType("0");
+        notice.setNoticeType(Integer.parseInt("0"));
         notice.setAvatarUrl(admin.getUserAvatarUrl());
         notice.setNoticeContent(String.format("%s 退出了您的企业", userName));
         insertNotice(notice);
@@ -141,7 +141,7 @@ public class AddNoticeService {
 
         Notice notice = new Notice();
         notice.setUserId(Integer.parseInt(adminId));
-        notice.setNoticeType("0");
+        notice.setNoticeType(Integer.parseInt("0"));
         notice.setAvatarUrl(epId);
         notice.setNoticeContent(String.format("您成为了 %s 的新管理员", enterprise.getEpName()));
         insertNotice(notice);
