@@ -393,7 +393,8 @@ public class EnterpriseController {
         String enterpriseId = requestBody.get("epId");
         EnterpriseUser enterpriseUser = enterpriseService.getEnterpriseUserByUserId(user.getUserId());
         if(enterpriseUser == null || !Objects.equals(enterpriseUser.getEpId(),enterpriseId)){
-            throw new BaseException("无权查看企业员工列表");
+
+            return ResponseEntity.ok(new ArrayList<>());
         }
         List<Map<String, Object>> employeeList = enterpriseService.getEmployeeListByEnterpriseId(enterpriseId);
         return ResponseEntity.ok(employeeList);
