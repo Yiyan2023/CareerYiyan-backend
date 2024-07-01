@@ -428,6 +428,7 @@ public class EnterpriseController {
             throw new BaseException("新管理员不在此企业");
         }
         if(enterpriseService.transferAdmin(oldAdmin.getEpUserId(),newAdmin.getEpUserId())>0){
+            addNoticeService.addTransferEnterpriseNotice(newAdmin.getUserId(), epId);
             return ResponseEntity.ok(new StringResponse("转让成功"));
         }
         throw new BaseException("转让失败");
@@ -450,6 +451,7 @@ public class EnterpriseController {
             throw new BaseException("管理员不能退出企业");
         }
         if(enterpriseService.quitEnterprise(enterpriseUser.getEpUserId())>0){
+            addNoticeService.addQuitEnterpriseNotice(user.getUserName(),epId);
             return ResponseEntity.ok(new StringResponse("退出成功"));
         }
         throw new BaseException("退出失败");

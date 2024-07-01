@@ -1,6 +1,7 @@
 package com.yiyan.careeryiyan.mapper;
 
 import com.yiyan.careeryiyan.model.domain.Enterprise;
+import com.yiyan.careeryiyan.model.domain.User;
 import com.yiyan.careeryiyan.model.request.EditEnterpriseRequest;
 import org.apache.ibatis.annotations.*;
 
@@ -27,4 +28,10 @@ public interface EnterpriseMapper {
     @Update("update enterprise set ep_name=#{epName}, ep_addr=#{epAddr}, " +
             "ep_desc=#{epDesc}, ep_type=#{epType} where ep_id=#{epId};")
     int editEnterprise(EditEnterpriseRequest editEnterpriseRequest);
+
+    @Select("select u.*,u.user_id\n" +
+            "from user u join enterprise_user eu on u.user_id = eu.user_id\n" +
+            "where ep_id=#{epId} and ep_user_auth=0\n" +
+            "limit 1;")
+    User getEnterpriseAdmin(String epId);
 }
