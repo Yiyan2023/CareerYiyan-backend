@@ -258,7 +258,7 @@ public class UserController {
         String fullText = pdfTextStripper.getText(pdDocument);
         ClientV4 client = new ClientV4.Builder("985ac74cd45c230774dee358e285b308.gacAKPdr6oEKUpW4").build();
         List<ChatMessage> messages = new ArrayList<>();
-        ChatMessage chatMessage = new ChatMessage(ChatMessageRole.USER.value(), "我是一名求职者，请你从专业角度帮我优化简历，优化意见请用纯文本给出(不要用markdown格式),我的简历如下：\n" + fullText);
+        ChatMessage chatMessage = new ChatMessage(ChatMessageRole.USER.value(), "我是一名求职者，请你从专业角度帮我优化简历，优化意见请用markdown格式给出,我的简历如下：\n" + fullText);
         messages.add(chatMessage);
         ChatCompletionRequest chatCompletionRequest = ChatCompletionRequest.builder()
                 .model(Constants.ModelChatGLM4)
