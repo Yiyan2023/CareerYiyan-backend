@@ -348,6 +348,10 @@ public class MyWebSocket {
 //        }
 //        return isRead;
     }
+
+    public void sendNotice(Notice notice) {
+
+    }
 //    public void sendChatNoticeToUser(SocketMsgChat socketMsgChat) {
 //        int senderId = socketMsgChat.getSenderId();
 //        int receiverId = socketMsgChat.getReceiverId();
