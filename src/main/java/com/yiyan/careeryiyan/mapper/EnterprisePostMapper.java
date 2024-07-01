@@ -9,7 +9,7 @@ import java.util.List;
 public interface EnterprisePostMapper {
 
     @Select("SELECT post_id FROM enterprise_post WHERE ep_id = #{epId} " +
-            "AND is_delete = 0 ORDER BY p.post_id DESC")
+            "AND is_delete = 0 ORDER BY post_id DESC")
     List<String> getEnterprisePosts(String epId);
 
     @Insert("INSERT INTO enterprise_post(post_id,ep_id, is_delete) " +
