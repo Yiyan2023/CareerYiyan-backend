@@ -4,9 +4,7 @@ import com.yiyan.careeryiyan.exception.BaseException;
 import com.yiyan.careeryiyan.mapper.EnterpriseUserMapper;
 import com.yiyan.careeryiyan.mapper.PostMapper;
 import com.yiyan.careeryiyan.model.domain.*;
-import com.yiyan.careeryiyan.model.request.AddCommentRequest;
-import com.yiyan.careeryiyan.model.request.AddPostRequest;
-import com.yiyan.careeryiyan.model.request.ShowEnterprisePostRequest;
+import com.yiyan.careeryiyan.model.request.*;
 import com.yiyan.careeryiyan.model.response.StringResponse;
 import com.yiyan.careeryiyan.service.EnterpriseService;
 import com.yiyan.careeryiyan.service.PostService;
@@ -333,5 +331,69 @@ public class PostController {
         boolean res = postService.likeComment(String.valueOf(id),user,status);
         String response = res ? "评论点赞成功" : "评论点赞失败";
         return ResponseEntity.ok(new StringResponse(response));
+    }
+
+    @PostMapping("/adminAdd")
+    public ResponseEntity<StringResponse> adminAddPost(@RequestBody AddEnterprisePostRequest addEnterprisePostRequest,
+                                                       HttpServletRequest httpServletRequest){
+        User user = (User) httpServletRequest.getAttribute("user");
+        String id = user.getUserId();
+
+        String userId = addEnterprisePostRequest.getUserId();
+        String epId = addEnterprisePostRequest.getEpId();
+        String postId = addEnterprisePostRequest.getPostId();
+
+        if(enterpriseService.isAdmin(id, epId) == 0){
+            throw new BaseException("权限不足");
+        }
+
+        EnterprisePost enterprisePost1 = postService.getEnterprisePostByEpPost(epId, postId);
+        if(enterprisePost1 == null){
+            EnterprisePost enterprisePost = new EnterprisePost();
+            enterprisePost.setEpId(epId);
+            enterprisePost.setPostId(postId);
+            enterprisePost.setIsDelete(0);
+            int res = postService.insertEnterprisePost(enterprisePost);
+
+            if(res == 0)
+                throw new BaseException("添加失败");
+        } else {
+            int isDelete = enterprisePost1.getIsDelete();
+            if(isDelete == 0){
+                throw new BaseException("已经存在");
+            } else {
+                postService.updateEnterprisePost(enterprisePost1.getEpPostId(), 0);
+            }
+        }
+
+        return ResponseEntity.ok(new StringResponse("添加成功"));
+    }
+
+    @PostMapping("/remove")
+    public ResponseEntity<StringResponse> adminRemovePost(@RequestBody DeleteEnterprisePostRequest deleteEnterprisePostRequest,
+                                                          HttpServletRequest httpServletRequest){
+        User user = (User) httpServletRequest.getAttribute("user");
+        String id = user.getUserId();
+
+        String epId = deleteEnterprisePostRequest.getEpId();
+        String postId = deleteEnterprisePostRequest.getPostId();
+
+        if(enterpriseService.isAdmin(id, epId) == 0){
+            throw new BaseException("权限不足");
+        }
+
+        EnterprisePost enterprisePost1 = postService.getEnterprisePostByEpPost(epId, postId);
+        if(enterprisePost1 == null){
+            throw new BaseException("删除失败");
+        } else {
+            int isDelete = enterprisePost1.getIsDelete();
+            if(isDelete == 1){
+                throw new BaseException("已经删除");
+            } else {
+                postService.updateEnterprisePost(enterprisePost1.getEpPostId(), 1);
+            }
+        }
+
+        return ResponseEntity.ok(new StringResponse("删除成功"));
     }
 }

@@ -1,9 +1,6 @@
 package com.yiyan.careeryiyan.mapper;
 
-import com.yiyan.careeryiyan.model.domain.Comment;
-import com.yiyan.careeryiyan.model.domain.LikeComment;
-import com.yiyan.careeryiyan.model.domain.LikePost;
-import com.yiyan.careeryiyan.model.domain.Post;
+import com.yiyan.careeryiyan.model.domain.*;
 import org.apache.ibatis.annotations.*;
 import java.util.List;
 import java.util.Map;
@@ -88,9 +85,6 @@ public interface PostMapper {
 //    @Select("CALL get_enterprise_posts(#{epId})")
 //    List<Map<String, Object>> getEnterprisesPosts(@Param("epId")  String epId);
 
-    @Select("SELECT post_id FROM enterprise_post WHERE ep_id = #{epId} " +
-            "AND is_delete = 0")
-    List<String> getEnterprisePosts(String epId);
 
 
     @Select("SELECT p.post_id AS postId, " +
@@ -105,7 +99,8 @@ public interface PostMapper {
             "    SELECT following_user_id " +
             "    FROM follow_user " +
             "    WHERE user_id = #{userId}" +
-            ") AND p.is_delete=0")
+            ") AND p.is_delete=0 " +
+            "ORDER BY p.post_id DESC")
     List<Map<String, Object>> getFollowUserPost(@Param("userId") String userId);
 
     @Select("CALL get_followed_enterprises_posts(#{userId})")
@@ -121,7 +116,9 @@ public interface PostMapper {
             "FROM post p " +
             "JOIN enterprise_user eu ON p.user_id = eu.user_id " +
             "JOIN follow_enterprise fe ON fe.ep_id = eu.ep_id " +
-            "WHERE fe.user_id = #{userId} AND fe.is_delete = 0 AND p.is_delete = 0 AND eu.is_delete = 0")
+            "WHERE fe.user_id = #{userId} AND fe.is_delete = 0 AND p.is_delete = 0 AND eu.is_delete = 0 " +
+            "ORDER BY p.post_id DESC")
     List<Map<String, Object>> getFollowEnterprisePost(@Param("userId") String userId);
+
 
 }
