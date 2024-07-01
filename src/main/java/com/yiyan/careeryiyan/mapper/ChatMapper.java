@@ -14,7 +14,8 @@ public interface ChatMapper {
     Chat getChatByChatId(String chatId);
 
     @Select("SELECT  * from chat c " +
-            "where c.chat_user_id_1 = #{userId} or c.chat_user_id_1= #{userId}")
+            "where c.chat_user_id_1 = #{userId} and c.chat_user_1_is_delete = 0 " +
+            " or c.chat_user_id_1= #{userId} and c.chat_user_2_is_delete = 0")
     List<Chat> getChatListByUserId(String userId);
 
     @Select("SELECT * from chat " +
@@ -26,6 +27,9 @@ public interface ChatMapper {
     @Options(useGeneratedKeys = true, keyProperty = "chatId")
     int addChat(Chat chat);
 
-    @Update("UPDATE chat SET is_delete = #{isDelete} WHERE chat_id = #{chatId}")
-    int setChatIsDelete(String chatId, int isDelete);
+    @Update("UPDATE chat SET chat_user_1_is_delete = #{isDelete} " +
+            "WHERE chat_id = #{chatId} and chat_user_id_1 = #{userId};" +
+            "UPDATE chat SET chat_user_2_is_delete = #{isDelete} " +
+            "WHERE chat_id = #{chatId} and chat_user_id_2 = #{userId}")
+    int setChatIsDelete(String chatId, String userId, int isDelete);
 }

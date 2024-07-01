@@ -124,7 +124,7 @@ public class ChatController {
         String anotherUserId = createChatRequest.getChatUserId2();
         Chat chat = chatService.getChatByUserIds(user.getUserId(), anotherUserId);
         if(chat!=null){
-            chatService.setChatIsDelete(chat.getChatId(),0);
+            chatService.setChatIsDelete(chat.getChatId(),user.getUserId(),0);
         }
         else{
             chat = new Chat();
@@ -142,7 +142,7 @@ public class ChatController {
         if(chat==null||!chat.checkUserInChat(user.getUserId())){
             throw new BaseException("聊天不存在或你不在此聊天中");
         }
-        chatService.setChatIsDelete(chatId,1);
+        chatService.setChatIsDelete(chatId,user.getUserId(),1);
         return ResponseEntity.ok(new StringResponse("删除成功"));
     }
 }

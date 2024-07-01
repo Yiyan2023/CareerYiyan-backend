@@ -65,7 +65,7 @@ public class ChatService {
         return chatMapper.addChat(chat);
     }
 
-    public int setChatIsDelete(String chatId,int isDelete) {
-        return chatMapper.setChatIsDelete(chatId, isDelete);
+    public int setChatIsDelete(String chatId, String userId, int isDelete) {
+        return chatMapper.setChatIsDelete(chatId, userId, isDelete);
     }
 }
