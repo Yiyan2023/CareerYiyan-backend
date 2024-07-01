@@ -77,6 +77,7 @@ public class UserController {
         Map<String, Object> map = user.toDict();
         String token = JwtUtil.generateToken(user.getUserId());
         map.put("token", token);
+        map.put("id", user.getUserId());
         return ResponseEntity.ok(map);
     }
 
@@ -118,8 +119,8 @@ public class UserController {
     }
 
     @PostMapping("/getInfo")
-    public ResponseEntity<Map<String, Object>> showInfo(HttpServletRequest httpServletRequest){
-        User user = (User) httpServletRequest.getAttribute("user");
+    public ResponseEntity<Map<String, Object>> showInfo(@RequestBody UserIdRequest userIdRequest){
+        User user = userService.getUserInfo(userIdRequest.getUserId());
         if(user == null)
             throw new BaseException("用户不存在");
         Map<String, Object> res = new HashMap<>();
