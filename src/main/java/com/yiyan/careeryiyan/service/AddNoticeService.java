@@ -28,13 +28,13 @@ public class AddNoticeService {
 
     private void insertNotice(Notice notice) {
         noticeMapper.insertNotice(notice);
-        myWebSocket.sendNotice(notice);
+        myWebSocket.sendNotice(notice.getUserId());
     }
 
     private void insertNotice(List<Notice> noticeList) {
         for (Notice notice : noticeList) {
             noticeMapper.insertNotice(notice);
-            myWebSocket.sendNotice(notice);
+            myWebSocket.sendNotice(notice.getUserId());
         }
     }
 
