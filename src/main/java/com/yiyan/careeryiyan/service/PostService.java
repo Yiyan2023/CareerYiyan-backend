@@ -99,7 +99,7 @@ public class  PostService {
         return true;
     }
 
-    public boolean likeComment(String id, User user,boolean status) {
+    public boolean likeComment(String id, User user,boolean iWillLike) {
         Comment comment=postMapper.getCommentById(id);
         if(comment==null){
             System.out.println(id);
@@ -108,12 +108,12 @@ public class  PostService {
 
         LikeComment like=postMapper.getLikeComment(user.getUserId(),id);
         //点赞
-        if(status && like==null){
+        if(iWillLike && like==null){
             like=new LikeComment(user.getUserId(),id);
             postMapper.insertLikeComment(like);
             System.out.println("点赞");
         }
-        else if(!status&&like!=null){
+        else if(!iWillLike&&like!=null){
             System.out.println("取消点赞");
             postMapper.deleteLikeComment(like.getLikeCommentId());
         }
