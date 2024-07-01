@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.NullSerializer;
 import lombok.Data;
 
 import java.text.SimpleDateFormat;
@@ -16,7 +18,8 @@ public class Post {
     private String postContent;
     private Date postCreateAt;
     private String userId;
-    private  String postPhotoUrls;
+    private String postPhotoUrls;
+    @JsonSerialize(nullsUsing = NullSerializer.class)
     private String postParentId;
     private boolean isDelete=false;
 

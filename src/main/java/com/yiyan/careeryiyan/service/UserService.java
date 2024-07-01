@@ -1,6 +1,7 @@
 package com.yiyan.careeryiyan.service;
 
 import com.yiyan.careeryiyan.exception.BaseException;
+import com.yiyan.careeryiyan.mapper.EnterpriseUserMapper;
 import com.yiyan.careeryiyan.mapper.UserOnlineMapper;
 import com.yiyan.careeryiyan.mapper.UserRecruitmentPreferencesMapper;
 import com.yiyan.careeryiyan.mapper.UserMapper;
@@ -26,6 +27,8 @@ public class UserService {
     UserRecruitmentPreferencesMapper userRecruitmentPreferencesMapper;
     @Autowired
     private UserOnlineMapper userOnlineMapper;
+    @Resource
+    private EnterpriseUserMapper enterpriseUserMapper;
 
     public static String saltEncryption(String password, String salt) {
         password = password + salt;
@@ -131,6 +134,17 @@ public class UserService {
     public List<String> getUserRcTags(String userId) {
         return userMapper.getUserRcTags(userId);
 
+    }
+
+
+    public int isInfluence(String epId, String userId){
+        int total = enterpriseUserMapper.totalEmployee(epId);
+        int limit = total / 2;
+        return enterpriseUserMapper.isUserInTopInfluential(epId, userId, limit);
+    }
+
+    public void updateInfluence(int influence,String userId){
+        userMapper.updateInfluence(influence, userId);
     }
 
 }

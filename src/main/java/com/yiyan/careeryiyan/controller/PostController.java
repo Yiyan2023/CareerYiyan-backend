@@ -40,18 +40,35 @@ public class PostController {
     public ResponseEntity<Map<String, Object>> addPost(@RequestBody AddPostRequest req,
                                                        HttpServletRequest httpServletRequest) throws IOException {
         User user = (User) httpServletRequest.getAttribute("user");
+        String userId = user.getUserId();
         if (user == null)
             throw new BaseException("用户不存在");
+
         Post post = postService.addPost(req.getPostContent(), req.getPostPhotoUrls(), user);
         Map<String, Object> res = post.toDict();
         res.put("author", user.toDict());
+
+        // 判断influence，看是否加入企业动态
+        EnterpriseUser enterpriseUser = enterpriseService.getEnterpriseUserByUserId(userId);
+        if(enterpriseUser != null){
+            String epId = enterpriseUser.getEpId();
+            int star = userService.isInfluence(epId, userId);
+            if(1 == star){
+                EnterprisePost enterprisePost = new EnterprisePost();
+                enterprisePost.setEpId(epId);
+                enterprisePost.setPostId(post.getPostId());
+                enterprisePost.setIsDelete(0);
+                postService.insertEnterprisePost(enterprisePost);
+            }
+        }
+
         return ResponseEntity.ok(res);
     }
 
     @PostMapping("/delete")
     public ResponseEntity<StringResponse> delPost(@RequestBody Map<String,String> map, HttpServletRequest httpServletRequest) {
 //        String id=rb.getParameter("id");
-        String id=map.get("id");
+        String id=map.get("postId");
         User user = (User) httpServletRequest.getAttribute("user");
         if (user == null)
 
@@ -62,12 +79,22 @@ public class PostController {
     }
     @PostMapping("/like")
     public ResponseEntity<StringResponse> likePost(@RequestBody Map<String,String> map, HttpServletRequest httpServletRequest) {
-        String id=map.get("id");
+        String id=map.get("postId");
         boolean status= Boolean.parseBoolean(map.get("status"));
         User user = (User) httpServletRequest.getAttribute("user");
         if (user == null)
             throw new BaseException("用户不存在");
         boolean res = postService.likePost(String.valueOf(id),user,status);
+        if(res){
+            Map<String, Object> post = postService.getPostInfoMapById(id);
+            String userId = String.valueOf(post.get("userId"));
+            if(status){
+                userService.updateInfluence(2, userId);
+            } else {
+                userService.updateInfluence(-2, userId);
+            }
+        }
+
         String response = res ? "点赞成功" : "点赞失败";
         if (res && status){
             //点赞成功
@@ -83,15 +110,20 @@ public class PostController {
     @PostMapping("repost")
     public ResponseEntity<Map<String, Object>> repost(@RequestBody Map<String,String> map,
                                                       HttpServletRequest httpServletRequest) {
-        String id=map.get("id");
+        String id=map.get("postId");
         String title = map.get("title");
         User user = (User) httpServletRequest.getAttribute("user");
         if (user == null)
             throw new BaseException("用户不存在");
-        Map<String, Object> res=postService.repost(String.valueOf(id),user,title);
+        Map<String, Object> res=postService.repost(id,user,title);
         if(res==null){
             res=new HashMap<>();
             res.put("res","父帖已删除");
+        } else {
+            Map<String, Object> authorMap = (Map<String, Object>) res.get("origin");
+
+            String userId = String.valueOf(authorMap.get("userId"));
+            userService.updateInfluence(2, userId);
         }
 
         return ResponseEntity.ok(res);
@@ -315,7 +347,7 @@ public class PostController {
     }
     @PostMapping("/comments/delete")
     public ResponseEntity<StringResponse> delComment(@RequestBody Map<String,String> map, HttpServletRequest httpServletRequest) {
-        String id=map.get("id");
+        String id=map.get("commentId");
         User user = (User) httpServletRequest.getAttribute("user");
         if (user == null)
             throw new BaseException("用户不存在");
