@@ -1,14 +1,11 @@
 package com.yiyan.careeryiyan.controller;
 
 import com.yiyan.careeryiyan.exception.BaseException;
-import com.yiyan.careeryiyan.mapper.EnterpriseUserMapper;
 import com.yiyan.careeryiyan.mapper.PostMapper;
 import com.yiyan.careeryiyan.model.domain.*;
 import com.yiyan.careeryiyan.model.request.*;
 import com.yiyan.careeryiyan.model.response.StringResponse;
-import com.yiyan.careeryiyan.service.EnterpriseService;
-import com.yiyan.careeryiyan.service.PostService;
-import com.yiyan.careeryiyan.service.UserService;
+import com.yiyan.careeryiyan.service.*;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
@@ -36,6 +33,8 @@ public class PostController {
     PostMapper postMapper;
     @Resource
     EnterpriseService enterpriseService;
+    @Resource
+    AddNoticeService addNoticeService;
 
     @PostMapping("/add")
     public ResponseEntity<Map<String, Object>> addPost(@RequestBody AddPostRequest req,
@@ -70,6 +69,10 @@ public class PostController {
             throw new BaseException("用户不存在");
         boolean res = postService.likePost(String.valueOf(id),user,status);
         String response = res ? "点赞成功" : "点赞失败";
+        if (res && status){
+            //点赞成功
+            addNoticeService.addLikePostNotice(id);
+        }
         return ResponseEntity.ok(new StringResponse(response));
     }
 
@@ -301,6 +304,9 @@ public class PostController {
             throw new BaseException("新建失败");
         }
 
+        //通知被评论用户
+        addNoticeService.addCommentedNotice(comment.getCommentId());
+
         Map<String, Object> responseData = new HashMap<>();
         responseData.putAll(comment.toDict());
         responseData.put("author", user.toDict());
@@ -330,6 +336,10 @@ public class PostController {
             throw new BaseException("用户不存在");
         boolean res = postService.likeComment(String.valueOf(id),user,status);
         String response = res ? "评论点赞成功" : "评论点赞失败";
+        if (res && status){
+            //点赞成功
+            addNoticeService.addLikeCommentNotice(id);
+        }
         return ResponseEntity.ok(new StringResponse(response));
     }
 

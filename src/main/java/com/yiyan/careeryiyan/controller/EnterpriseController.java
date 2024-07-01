@@ -5,9 +5,7 @@ import com.yiyan.careeryiyan.exception.BaseException;
 import com.yiyan.careeryiyan.model.domain.*;
 import com.yiyan.careeryiyan.model.request.*;
 import com.yiyan.careeryiyan.model.response.*;
-import com.yiyan.careeryiyan.service.EnterpriseService;
-import com.yiyan.careeryiyan.service.RecruitmentService;
-import com.yiyan.careeryiyan.service.UserService;
+import com.yiyan.careeryiyan.service.*;
 import com.yiyan.careeryiyan.utils.MapUtil;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
@@ -29,6 +27,8 @@ public class EnterpriseController {
     private RecruitmentService recruitmentService;
     @Resource
     private UserService userService;
+    @Resource
+    AddNoticeService addNoticeService;
     @Resource
     OSSConfig ossConfig;
 
@@ -113,6 +113,8 @@ public class EnterpriseController {
         addRecruitmentRequest.setRcCreateAt(LocalDateTime.now());
         String rcId = recruitmentService.addRecruitment(addRecruitmentRequest);
         if (Integer.parseInt(rcId) > 0) {
+            //推送岗位给用户
+            addNoticeService.addNewRecruitmentNotice(rcId);
             return ResponseEntity.ok(Map.of("rcId", rcId));
         }
         throw new BaseException("发布失败");
@@ -330,6 +332,8 @@ public class EnterpriseController {
         }
 
         if(recruitmentService.changeState(applyId,status)>0){
+            //通知用户招聘状态
+            addNoticeService.addApplyStatusNotice(apply);
             return ResponseEntity.ok(new StringResponse("修改成功"));
         }
         throw new BaseException("修改失败");

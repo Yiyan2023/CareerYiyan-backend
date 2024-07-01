@@ -1,5 +1,6 @@
 package com.yiyan.careeryiyan.mapper;
 
+import com.yiyan.careeryiyan.model.domain.User;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -133,4 +134,9 @@ public interface RecommandMapper {
             ")\n" +
             "LIMIT 20;")
     List<Map<String, Object>> getRecommendEnterprises(List<String> userRcTags);
+
+    @Select("select user_id\n" +
+            "from user_recruitment_preferences\n" +
+            "where rc_tag=#{rcTag};")
+    List<User> getRelatedUserIdsByRcTag(String rcTag);
 }

@@ -120,5 +120,6 @@ public interface PostMapper {
             "ORDER BY p.post_id DESC")
     List<Map<String, Object>> getFollowEnterprisePost(@Param("userId") String userId);
 
-
+    @Select("SELECT * FROM like_post WHERE like_post_id = #{likePostId}")
+    LikePost getLikePostByLikePostId(String likePostId);
 }
