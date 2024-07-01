@@ -56,4 +56,16 @@ public class ChatService {
     public int addMessageFile(MessageFile massageFile) {
         return messageFileMapper.addMessageFile(massageFile);
     }
+
+    public Chat getChatByUserIds(String userId1, String userId2) {
+        return chatMapper.getChatByUserIds(userId1, userId2);
+    }
+
+    public int addChat(Chat chat) {
+        return chatMapper.addChat(chat);
+    }
+
+    public int setChatIsDelete(String chatId,int isDelete) {
+        return chatMapper.setChatIsDelete(chatId, isDelete);
+    }
 }

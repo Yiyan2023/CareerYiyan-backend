@@ -1,5 +1,6 @@
 package com.yiyan.careeryiyan.controller;
 
+import com.yiyan.careeryiyan.model.request.CreateChatRequest;
 import com.yiyan.careeryiyan.model.request.SendRequest;
 import com.yiyan.careeryiyan.exception.BaseException;
 import com.yiyan.careeryiyan.model.domain.*;
@@ -109,5 +110,35 @@ public class ChatController {
             chatService.addMessageFile(massageFile);
         }
         return ResponseEntity.ok(new StringResponse(message.getMsgId()));
+    }
+    @PostMapping("/create")
+    public ResponseEntity createChat(@RequestBody CreateChatRequest createChatRequest, HttpServletRequest request){
+        User user = (User) request.getAttribute("user");
+        if(!Objects.equals(createChatRequest.getChatUserId1(), user.getUserId())){
+            throw new BaseException("无权创建聊天");
+        }
+        String anotherUserId = createChatRequest.getChatUserId2();
+        Chat chat = chatService.getChatByUserIds(user.getUserId(), anotherUserId);
+        if(chat!=null){
+            chatService.setChatIsDelete(chat.getChatId(),0);
+        }
+        else{
+            chat = new Chat();
+            chat.setChatUserId1(user.getUserId());
+            chat.setChatUserId2(anotherUserId);
+            chatService.addChat(chat);
+        }
+        return ResponseEntity.ok(new StringResponse(chat.getChatId()));
+    }
+    @PostMapping("deleteChat")
+    public ResponseEntity deleteChat(@RequestBody Map<String, String> map, HttpServletRequest request){
+        User user = (User) request.getAttribute("user");
+        String chatId = map.get("chatId");
+        Chat chat = chatService.getChatByChatId(chatId);
+        if(chat==null||!chat.checkUserInChat(user.getUserId())){
+            throw new BaseException("聊天不存在或你不在此聊天中");
+        }
+        chatService.setChatIsDelete(chatId,1);
+        return ResponseEntity.ok(new StringResponse("删除成功"));
     }
 }
