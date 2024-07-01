@@ -134,6 +134,9 @@ public class PostController {
             //author
             String userId = String.valueOf(post.get("userId"));
             Map<String, Object> userInfoMap = userService.getUserInfoById(userId);
+            Enterprise enterprise = enterpriseService.getEnterpriseByEpId(epId);
+            userInfoMap.put("epId", epId);
+            userInfoMap.put("epName", enterprise.getEpName());
             post.put("author",userInfoMap);
 
             // isParent  &&  parent
@@ -141,7 +144,6 @@ public class PostController {
 
             // isLike
             postLike(post, userId);
-
 
             mapList.add(post);
         }
@@ -206,6 +208,13 @@ public class PostController {
                 parentMap.put("parentUserAvatarUrl", user1.getUserAvatarUrl());
                 parentMap.put("parentUserEmail", user1.getUserEmail());
                 parentMap.put("parentPostCreatedAt", postMap.get("postCreateAt"));
+
+                Map<String, Object> tmp = new HashMap<>();
+                postEnterprise(tmp, user1.getUserId());
+//                System.out.println(tmp);
+                Enterprise enterprise = (Enterprise) tmp.get("enterprise");
+                parentMap.put("parentUserEpId", enterprise.getEpId());
+                parentMap.put("parentUserEpName", enterprise.getEpName());
                 post.put("parent", parentMap);
             }
         }
