@@ -30,7 +30,8 @@ public class WebConfig implements WebMvcConfigurer {
                         "/enterprise/**",
                         "/file/**",
                         "/chat/**",
-                        "/recommend/**"
+                        "/recommend/**",
+                        "/notices/**"
                         )
                 .excludePathPatterns(
                         "/user/register",
