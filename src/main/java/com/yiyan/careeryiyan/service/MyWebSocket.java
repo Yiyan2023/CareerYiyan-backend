@@ -1,5 +1,6 @@
 package com.yiyan.careeryiyan.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yiyan.careeryiyan.exception.BaseException;
 import com.yiyan.careeryiyan.model.MessageToFrontend;
@@ -83,20 +84,23 @@ public class MyWebSocket {
     public void onOpen(Session session, @PathParam("nickname") String userId) {
         this.session = session;
         if (userId.startsWith("chat")) {
-            System.out.println(userId + "试图建立聊天连接");
             userId = userId.substring(4);
+            System.out.println("userId = "+userId + "试图建立聊天连接");
+
 
             if (getUser2sessionId().containsKey(userId)) {
                 for (MyWebSocket myWebSocket : webSocketSet) {
                     if (Objects.equals(myWebSocket.session.getId(), getUser2sessionId().get(userId))) {
                         try {
                             if (myWebSocket.session.isOpen()) {
-                                System.out.println("聊天连接已存在，禁止再次连接！");
+                                System.out.println("userId:"+ userId+"再次连接, 关闭先前连接！！");
+                                myWebSocket.session.close();
+                                webSocketSet.remove(myWebSocket);
                                 session.close();
-                                return;
+                            }else{
+                                //聊天连接存在但已关闭，删除
+                                webSocketSet.remove(myWebSocket);
                             }
-                            //聊天连接存在但已关闭，删除
-                            webSocketSet.remove(myWebSocket);
                         } catch (Exception e) {
                             System.out.println(e.getMessage());
                         }
@@ -107,15 +111,15 @@ public class MyWebSocket {
             getMap().put(session.getId(), session);
             webSocketSet.add(this);     //加入set中
             //删除原来的连接,建立新连接
-            System.out.println("聊天连接建立成功");
+            System.out.println("userId:"+userId+"聊天连接建立成功");
 
             getUser2sessionId().remove(userId);
             getUser2sessionId().put(userId, session.getId());
 
-            System.out.print("有新连接加入:" + userId + ",当前在线人数为" + webSocketSet.size());
+            System.out.print("有新连接加入 userId:" + userId + ",当前在线人数为" + webSocketSet.size());
             for (String key : getUser2sessionId().keySet()) {
                 //System.out.println("nickname:"+key+"的频道:"+ getUser2sessionId().get(key));
-                System.out.print("\n--nickname:" + key + "的频道:");
+                System.out.print("\n--userId:" + key + "的频道:");
                 if (getUser2sessionId().get(key) != null) System.out.print(" " + getUser2sessionId().get(key));
                 UserOnline userOnline = userService.getUserOnlineByUserId(userId);
                 if(userOnline == null){
@@ -325,5 +329,29 @@ public class MyWebSocket {
     @Autowired
     public void setNoticeService(NoticeService noticeService) {
         this.noticeService = noticeService;
+    }
+
+    public void tellYouIReadYourMessage(String chatId, String youId) {
+        ObjectMapper objectMapper= new ObjectMapper();
+        UserOnline youOnline = userService.getUserOnlineByUserId(youId);
+        if(youOnline == null || youOnline.getUserOnlineStatus() == "offline"){
+            return;
+        }
+        String channel = getUser2sessionId().get(youId);
+        Session toSession = getMap().get(channel);
+        if (toSession != null && toSession.isOpen()) {
+            Map<String,String> chatIdMap = new HashMap<>();
+            chatIdMap.put("chatId", chatId);
+            MessageToFrontend msg = new MessageToFrontend<>(chatIdMap, 3);
+            String json = null;
+            try {
+                json = objectMapper.writeValueAsString(msg);
+                toSession.getAsyncRemote().sendText(json);
+            } catch (JsonProcessingException e) {
+                throw new BaseException("告知对方已读失败");
+            }
+
+
+        }
     }
 }

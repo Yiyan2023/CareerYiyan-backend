@@ -1,10 +1,7 @@
 package com.yiyan.careeryiyan.mapper;
 
 import com.yiyan.careeryiyan.model.domain.Message;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Options;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 
 import java.util.List;
 
@@ -40,4 +37,7 @@ public interface MessageMapper {
             "where m.msg_chat_id= c.chat_id and (c.chat_user_id_1 = #{userId} or c.chat_user_id_2 = #{userId}) " +
             "and m.msg_is_read=0 and m.msg_send_user_id!=#{userId} ")
     int getTotalUnreadCount(String userId);
+
+    @Update("UPDATE message set msg_is_read=1 where msg_chat_id=#{chatId} and msg_send_user_id!=#{userId}")
+    void setChatUserSendMessageRead(String chatId, String userId);
 }

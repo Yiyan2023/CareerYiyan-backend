@@ -80,4 +80,9 @@ public class ChatService {
     public int getTotalUnreadCount(String userId) {
         return messageMapper.getTotalUnreadCount(userId);
     }
+
+    //将userId在chatId里发送的所有消息设为已读
+    public void setChatUserSendMessageRead(String chatId, String userId) {
+        messageMapper.setChatUserSendMessageRead(chatId, userId);
+    }
 }

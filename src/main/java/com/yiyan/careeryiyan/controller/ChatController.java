@@ -62,6 +62,7 @@ public class ChatController {
             userOnline.setUserOnlineChatId(chatId);
             userService.updateUserOnline(userOnline);
         }
+        chatService.setChatUserSendMessageRead(chatId, user.getUserId());
         List<Map> messages = new ArrayList<>();
         for(Message message:messageListByChatId){
 
@@ -74,8 +75,10 @@ public class ChatController {
 
             messages.add(map);
         }
+
         int totalMsgNum = chatService.getMessageListByChatId(chatId,1, Integer.MAX_VALUE).size();
         boolean noMoreMsg = totalMsgNum <= msgPage * numMsgInPage;
+        myWebSocket.tellYouIReadYourMessage(chatId,chat.getAnotherUserId(user.getUserId()));
         Map<String, Object> rsp = new HashMap<>();
         rsp.put("noMoreMsg",noMoreMsg);
         rsp.put("messages",messages);
