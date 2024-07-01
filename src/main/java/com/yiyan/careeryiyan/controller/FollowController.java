@@ -103,4 +103,16 @@ public class FollowController {
         }
         return ResponseEntity.ok(result);
     }
+
+    //检查是否关注用户
+    @PostMapping("/check")
+    public ResponseEntity<Map<String, Object>> checkFollow(@RequestBody Map<String, String> map, HttpServletRequest httpServletRequest) {
+        User user = (User) httpServletRequest.getAttribute("user");
+        if (user == null){
+            throw new BaseException("用户不存在");
+        }
+        String targetUserId = map.get("userId");
+
+        return ResponseEntity.ok(Map.of("isFollow",followService.checkFollow(user.getUserId(), targetUserId)));
+    }
 }
