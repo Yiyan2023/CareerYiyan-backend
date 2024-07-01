@@ -1,6 +1,10 @@
 package com.yiyan.careeryiyan.service;
 
-import com.yiyan.careeryiyan.model.domain.Chat;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.yiyan.careeryiyan.exception.BaseException;
+import com.yiyan.careeryiyan.model.MessageToFrontend;
+import com.yiyan.careeryiyan.model.domain.*;
 import jakarta.websocket.*;
 import jakarta.websocket.server.PathParam;
 import jakarta.websocket.server.ServerEndpoint;
@@ -13,8 +17,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
 /**
  * 使用springboot的唯一区别是要@Component声明下，而使用独立容器是由容器自己管理websocket的，
  * 但在springboot中连容器都是spring管理的。
- 虽然@Component默认是单例模式的，但springboot还是会为每个websocket连接初始化一个bean，
- 所以可以用一个静态set保存起来。
+ * 虽然@Component默认是单例模式的，但springboot还是会为每个websocket连接初始化一个bean，
+ * 所以可以用一个静态set保存起来。
  */
 @ServerEndpoint(value = "/websocket/{nickname}")
 @Component
@@ -22,10 +26,13 @@ public class MyWebSocket {
 
     private static WebSocketDbAccessor dbAccessor;
     private static ChatService chatService;
+    private static UserService userService;
+
     @Autowired
-    public void setDbAccessor(WebSocketDbAccessor dbAccessor,ChatService chatService) {
+    public void setDbAccessor(WebSocketDbAccessor dbAccessor, ChatService chatService, UserService userService) {
         MyWebSocket.dbAccessor = dbAccessor;
         MyWebSocket.chatService = chatService;
+        MyWebSocket.userService = userService;
     }
 
     public static Map<String, Session> getMap() {
@@ -181,51 +188,95 @@ public class MyWebSocket {
      * 群发自定义消息
      */
 
-    public void sendMsgToChat(String chatId,String content){
+    public void sendMsgToChat(String chatId, String content) {
         Chat chat = chatService.getChatByChatId(chatId);
-        if(chat==null)return;
+        if (chat == null) return;
         String channel = getUser2sessionId().get(String.valueOf(chat.getChatUserId1()));
         Session toSession = getMap().get(channel);
-        if(toSession!=null&&toSession.isOpen()){
+        if (toSession != null && toSession.isOpen()) {
             toSession.getAsyncRemote().sendText(content);
         }
         channel = getUser2sessionId().get(String.valueOf(chat.getChatUserId2()));
         toSession = getMap().get(channel);
-        if(toSession!=null&&toSession.isOpen()){
+        if (toSession != null && toSession.isOpen()) {
             toSession.getAsyncRemote().sendText(content);
         }
 
     }
 
-//    public boolean broadcast(SocketMsg socketMsg, MessageDetail messageDetail) {
-//
-//        boolean isRead = false;
-//        String roomId = socketMsg.getRoomId();
-//        UserOnline sender = dbAccessor.getUserOnlineById(socketMsg.getSenderId());
-//        System.out.println("roomId:" + roomId);
-//        List<RoomUser> roomMembers = dbAccessor.getRoomMembersById(Integer.parseInt(roomId));
-//        if (roomMembers == null) {
-//            System.out.println("你不能在空群聊中发送信息！");
-//            return false;
-//        }
-//        System.out.println("id为" + roomId + "的聊天室有" + roomMembers.size() + "个成员");
-//        Room room = dbAccessor.getRoomByRoomId(Integer.parseInt(roomId));
+    /**
+     * 群发自定义消息
+     */
+
+    public void send2Chat(Message message, List<MessageFile> files) {
+
+        ObjectMapper objectMapper= new ObjectMapper();
+        Map<String, Object> rspMap = new HashMap<>();
+        boolean isRead = false;
+        String chatId = message.getMsgChatId();
+        User sender = userService.getUserInfo(message.getMsgSendUserId());
+        UserOnline senderOnline  = userService.getUserOnlineByUserId(sender.getUserId());
+        System.out.println("chatId:" + chatId);
+        Chat chat = chatService.getChatByChatId(chatId);
+        if (chat == null) {
+            System.out.println("你不能在空群聊中发送信息！");
+            throw new BaseException("你不能在空群聊中发送信息");
+            //return false;
+        }
+        User receiver = userService.getUserInfo(chat.getAnotherUserId(sender.getUserId()));
+        UserOnline receiverOnline = userService.getUserOnlineByUserId(receiver.getUserId());
+        message.setMsgIsRead(0);
+        if (receiverOnline == null || Objects.equals(receiverOnline.getUserOnlineStatus(), "offline")) {
+            message.setMsgIsRead(0);
+        } else {
+
+            if (receiverOnline.getUserOnlineChatId() != null && receiverOnline.getUserOnlineChatId().equals(chatId)) {
+                message.setMsgIsRead(1);
+            } else {
+                message.setMsgIsRead(0);
+            }
+            String channel = getUser2sessionId().get(receiver.getUserId());
+            Session toSession = getMap().get(channel);
+            if (toSession != null && toSession.isOpen()) {
+                int unreadCount  = chatService.getUnreadCount(chatId,receiver.getUserId());
+                rspMap.put("chat",chat);
+                rspMap.put("user", sender);
+                rspMap.put("message",message);
+                rspMap.put("userStatus",senderOnline);
+                rspMap.put("unReadCount",unreadCount);
+                rspMap.put("files", files);
+                rspMap.put("curUserChatId", receiverOnline.getUserOnlineChatId());
+
+                try {
+                    MessageToFrontend msg = new MessageToFrontend<>(rspMap, 1);
+                    String json = objectMapper.writeValueAsString(msg);
+                    toSession.getAsyncRemote().sendText(json);
+                }
+                catch (Exception e){
+                    throw new BaseException("发送失败");
+                }
+            } else {
+                message.setMsgIsRead(0);
+            }
+        }
+
+//        Room room = dbAccessor.getRoomByRoomId(Integer.parseInt(chatId));
 //        if (room.getType() != 1) isRead = true;
-//
-//        RoomDetail roomDetail = new RoomDetail(room);
+
+        //RoomDetail roomDetail = new RoomDetail(room);
 //        if(room.getType()==1) {
 //            roomDetail.setRoomName(sender.getName());
 //            roomDetail.setAvatar(sender.getProfilePhotoUrl());
 //            System.out.println(sender.getId());
 //            System.out.println("私聊，roomName:"+roomDetail.getRoomName()+" avatar:"+roomDetail.getAvatar());
 //        }
-//        roomDetail.setLastMessage(messageDetail);
+//        roomDetail.setLastMessage(message);
 //        for (RoomUser userSummary : roomMembers) {
 //            User user = dbAccessor.getUserById(userSummary.getUserId());
 //            UserInRoom userInRoom = new UserInRoom(user, dbAccessor.getIdentityInRoom(room.getId(), user.getId()));
 //            roomDetail.getUsers().add(userInRoom);
 //        }
-//
+
 //        for (RoomUser userSummary : roomMembers) {
 //            //不给自己发
 //
@@ -249,7 +300,7 @@ public class MyWebSocket {
 //                        UserOnline receiver = dbAccessor.getUserOnlineById(receiverId);
 //
 //                        System.out.print("receiverId:" + receiverId + " currentTeam:" + receiver.getCurrentTeamId());
-//                        System.out.println(" senderId:" + socketMsg.getSenderId() + " currentRoom:" + roomId);
+//                        System.out.println(" senderId:" + socketMsg.getSenderId() + " currentRoom:" + chatId);
 //                        //接收者不与发送者选择同一团队，即使在线也不给他发
 //                        if (receiver.getCurrentTeamId() != room.getTeamId()) {
 //                            System.out.println("----此接收者在线但不在同一团队，不给他发");
@@ -261,8 +312,8 @@ public class MyWebSocket {
 //
 //                        if (Objects.equals(receiver.getCurrentRoomId(), socketMsg.getRoomId())) {
 //                            //在当前聊天室中
-//                            messageDetail.addSender(sender);
-//                            MessageToFrontend<MessageDetail> messageToFrontend = new MessageToFrontend<>(messageDetail, 1);
+//                            message.addSender(sender);
+//                            MessageToFrontend<MessageDetail> messageToFrontend = new MessageToFrontend<>(message, 1);
 //                            json = objectMapper.writeValueAsString(messageToFrontend);
 //                            System.out.println("发出去的json：" + json);
 //                            webSocket.session.getAsyncRemote().sendText(json);
@@ -296,8 +347,7 @@ public class MyWebSocket {
 //            }
 //        }
 //        return isRead;
-//    }
-
+    }
 //    public void sendChatNoticeToUser(SocketMsgChat socketMsgChat) {
 //        int senderId = socketMsgChat.getSenderId();
 //        int receiverId = socketMsgChat.getReceiverId();

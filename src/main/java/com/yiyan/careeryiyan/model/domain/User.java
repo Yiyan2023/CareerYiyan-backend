@@ -1,5 +1,6 @@
 package com.yiyan.careeryiyan.model.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import java.text.SimpleDateFormat;
@@ -11,9 +12,11 @@ import java.util.Map;
 public class User {
     private String userId;
     private String userName;
+    @JsonIgnore
     private String userPwd;
     private String userEmail;
     private String userGender;
+    @JsonIgnore
     private String userSalt;
     private Date userRegAt;
     private String userAvatarUrl;

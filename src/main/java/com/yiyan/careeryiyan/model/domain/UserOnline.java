@@ -8,4 +8,5 @@ public class UserOnline {
     private String userOnlineUserId;
     private String userOnlineStatus;
     private String userOnlineLastChangeAt;
+    private String userOnlineChatId;
 }
