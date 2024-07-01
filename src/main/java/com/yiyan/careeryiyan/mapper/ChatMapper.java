@@ -15,7 +15,7 @@ public interface ChatMapper {
 
     @Select("SELECT  * from chat c " +
             "where c.chat_user_id_1 = #{userId} and c.chat_user_1_is_delete = 0 " +
-            " or c.chat_user_id_1= #{userId} and c.chat_user_2_is_delete = 0")
+            " or c.chat_user_id_2= #{userId} and c.chat_user_2_is_delete = 0")
     List<Chat> getChatListByUserId(String userId);
 
     @Select("SELECT * from chat " +

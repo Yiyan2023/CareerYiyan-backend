@@ -80,12 +80,9 @@ public class ChatController {
     public ResponseEntity getAllChat(HttpServletRequest request){
         User user = (User)request.getAttribute("user");
         List<Chat> chatList = chatService.getChatListByUserId(user.getUserId());
+        System.out.println(chatList);
         List<Map> chats = new ArrayList<>();
         for(Chat chat:chatList){
-            if((Objects.equals(user.getUserId(), chat.getChatUserId1()) && chat.getChatUser1IsDelete()==1)
-                    || (Objects.equals(user.getUserId(), chat.getChatUserId2()) && chat.getChatUser2IsDelete()==1)){
-                continue;
-            }
             Map<String,Object> map = new HashMap<>();
             User anotherUser = userService.getUserInfo(chat.getAnotherUserId(user.getUserId()));
             map.put("user",anotherUser);
