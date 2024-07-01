@@ -33,6 +33,8 @@ public class UserService {
     }
 
 
+
+
     public void register(String userName, String userPwd, String userEmail, String userSalt) {
 
         boolean isEmailValid = userEmail.matches("^\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*$");
@@ -125,4 +127,10 @@ public class UserService {
     public UserOnline getUserOnline(String userId) {
         return userOnlineMapper.getUserOnlineByUserId(userId);
     }
+
+    public List<String> getUserRcTags(String userId) {
+        return userMapper.getUserRcTags(userId);
+
+    }
+
 }

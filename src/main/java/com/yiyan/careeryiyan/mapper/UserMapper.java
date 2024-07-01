@@ -11,6 +11,8 @@ import java.util.Map;
 
 @Mapper
 public interface UserMapper {
+
+
     @Insert("INSERT INTO user (" +
             "user_name, user_pwd, user_email, user_gender, user_salt, user_reg_at, user_avatar_url, " +
             "user_nickname, user_edu, user_interest, user_cv_url, user_addr, user_github_url, user_blog_url" +
@@ -62,6 +64,9 @@ public interface UserMapper {
             "FROM user u " +
             "WHERE user_id = #{userId}")
     Map<String, Object> getUserInfoById(String userId);
+
+    @Select("select rc_tag from user_recruitment_preferences where user_id=#{userId}")
+    List<String> getUserRcTags(String userId);
 
 
 }
