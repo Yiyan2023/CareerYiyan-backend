@@ -124,7 +124,7 @@ public class UserService {
         return userMapper.getUserInfoById(userId);
     }
 
-    public UserOnline getUserOnline(String userId) {
+    public UserOnline getUserOnlineByUserId(String userId) {
         return userOnlineMapper.getUserOnlineByUserId(userId);
     }
 
