@@ -40,4 +40,8 @@ public interface MessageMapper {
 
     @Update("UPDATE message set msg_is_read=1 where msg_chat_id=#{chatId} and msg_send_user_id!=#{userId}")
     void setChatUserSendMessageRead(String chatId, String userId);
+
+    @Update("UPDATE  message set msg_is_read=#{msgIsRead} " +
+            "where message.msg_id = #{msgId}")
+    void setMessageIsRead(Message message);
 }

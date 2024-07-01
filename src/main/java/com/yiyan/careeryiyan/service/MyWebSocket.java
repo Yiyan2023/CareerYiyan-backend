@@ -119,7 +119,7 @@ public class MyWebSocket {
             System.out.print("有新连接加入 userId:" + userId + ",当前在线人数为" + webSocketSet.size());
             for (String key : getUser2sessionId().keySet()) {
                 //System.out.println("nickname:"+key+"的频道:"+ getUser2sessionId().get(key));
-                System.out.print("\n--userId:" + key + "的频道:");
+                System.out.println("\n--userId:" + key + "的频道:");
                 if (getUser2sessionId().get(key) != null) System.out.print(" " + getUser2sessionId().get(key));
                 UserOnline userOnline = userService.getUserOnlineByUserId(userId);
                 if(userOnline == null){
@@ -175,6 +175,7 @@ public class MyWebSocket {
                 if(userOnline != null) {
                     userOnline.setUserOnlineLastChangeAt(LocalDateTime.now());
                     userOnline.setUserOnlineStatus("offline");
+                    userOnline.setUserOnlineChatId(null);
                     userService.updateUserOnline(userOnline);
                 }
                 if (getUser2sessionIds().get(key) != null)
@@ -231,7 +232,7 @@ public class MyWebSocket {
      */
 
     public void send2Chat(Message message, List<MessageFile> files) {
-
+        System.out.println("send2Chat");
         ObjectMapper objectMapper= new ObjectMapper();
         Map<String, Object> rspMap = new HashMap<>();
         boolean isRead = false;
@@ -250,16 +251,23 @@ public class MyWebSocket {
         message.setMsgIsRead(0);
         if (receiverOnline == null || Objects.equals(receiverOnline.getUserOnlineStatus(), "offline")) {
             message.setMsgIsRead(0);
-        } else {
+            System.out.println("对方不在线");
+        }
+        else {
             if (receiverOnline.getUserOnlineChatId() != null && receiverOnline.getUserOnlineChatId().equals(chatId)) {
                 message.setMsgIsRead(1);
+                System.out.println("1");
             } else {
                 message.setMsgIsRead(0);
+                System.out.println("2");
             }
+            chatService.setMessageIsRead(message);
             String channel = getUser2sessionId().get(receiver.getUserId());
             Session toSession = getMap().get(channel);
             if (toSession != null && toSession.isOpen()) {
+                System.out.println("3");
                 int unreadCount  = chatService.getUnreadCount(chatId,receiver.getUserId());
+                System.out.println("send2Chat: "+unreadCount);
                 rspMap.put("chat",chat);
                 rspMap.put("user", sender);
                 rspMap.put("message",message);
@@ -271,6 +279,7 @@ public class MyWebSocket {
                 try {
                     MessageToFrontend msg = new MessageToFrontend<>(rspMap, 1);
                     String json = objectMapper.writeValueAsString(msg);
+
                     toSession.getAsyncRemote().sendText(json);
 
                     sendNotice(receiver.getUserId());
@@ -278,7 +287,9 @@ public class MyWebSocket {
                 catch (Exception e){
                     throw new BaseException("发送失败");
                 }
-            } else {
+            }
+            else {
+                System.out.println("4");
                 message.setMsgIsRead(0);
             }
         }
@@ -334,7 +345,7 @@ public class MyWebSocket {
     public void tellYouIReadYourMessage(String chatId, String youId) {
         ObjectMapper objectMapper= new ObjectMapper();
         UserOnline youOnline = userService.getUserOnlineByUserId(youId);
-        if(youOnline == null || youOnline.getUserOnlineStatus() == "offline"){
+        if(youOnline == null || Objects.equals(youOnline.getUserOnlineStatus(), "offline")){
             return;
         }
         String channel = getUser2sessionId().get(youId);

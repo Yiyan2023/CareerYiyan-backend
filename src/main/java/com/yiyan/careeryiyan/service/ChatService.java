@@ -6,12 +6,10 @@ import com.yiyan.careeryiyan.model.domain.Chat;
 import com.yiyan.careeryiyan.model.domain.Message;
 import com.yiyan.careeryiyan.model.domain.MessageFile;
 import jakarta.annotation.Resource;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import  com.yiyan.careeryiyan.mapper.ChatMapper;
 
 import java.util.List;
-import java.util.Map;
 
 @Service
 public class ChatService {
@@ -84,5 +82,9 @@ public class ChatService {
     //将userId在chatId里发送的所有消息设为已读
     public void setChatUserSendMessageRead(String chatId, String userId) {
         messageMapper.setChatUserSendMessageRead(chatId, userId);
+    }
+
+    public void setMessageIsRead(Message message) {
+        messageMapper.setMessageIsRead(message);
     }
 }
